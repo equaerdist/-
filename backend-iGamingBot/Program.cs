@@ -23,6 +23,12 @@ if (app.Environment.IsDevelopment())
 //await app.TestOnYoutubeStreaming();
 //await app.CreateFakeStreamers();
 await app.CheckMigrationsAsync();
+app.UseCors(opt => opt
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .WithOrigins("http://localhost:5173")
+    .AllowCredentials());
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

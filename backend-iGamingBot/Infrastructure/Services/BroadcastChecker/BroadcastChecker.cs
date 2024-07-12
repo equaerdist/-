@@ -75,6 +75,17 @@ namespace backend_iGamingBot.Infrastructure.Services
                 await unitOfWork.SaveChangesAsync();
             }
         }
+        private  string NormalizeUrl(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentException("URL cannot be null or empty", nameof(url));
+
+            Uri uri = new UriBuilder(url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : "http://" + url).Uri;
+            string host = uri.Host.StartsWith("www.") ? uri.Host.Substring(4) : uri.Host;
+            string path = uri.AbsolutePath.TrimEnd('/');
+
+            return $"{host}{path}{uri.Query}";
+        }
         private async Task CheckTwitchStreamersOnBroadcast(Streamer[] fulled,
             Streamer[] onlyWithNeedSocials)
         {
@@ -115,10 +126,12 @@ namespace backend_iGamingBot.Infrastructure.Services
                                 Name = AppDictionary.Twitch,
                                 Parameter = t
                             });
-                            var twitchResultIds = twitchResult.Select(s => s.Link);
+                            var twitchResultIds = twitchResult.Select(s => NormalizeUrl(s.Link));
+                            if(twitchResult.Any(s => s.Parameter.IsLive))
+                                Console.WriteLine();
                             var notOnline = fulledStreamer.Socials
                                 .Where(s => s.Name == AppDictionary.Twitch)
-                                .Where(s => !twitchResultIds.Contains(s.Link))
+                                .Where(s => !twitchResultIds.Contains(NormalizeUrl(s.Link)))
                                 .Select(s => new Social()
                                 {
                                     Link = s.Link,

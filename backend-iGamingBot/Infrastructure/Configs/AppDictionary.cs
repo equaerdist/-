@@ -20,6 +20,9 @@ namespace backend_iGamingBot.Infrastructure
             ("Reddit", @"(http(s)?:\/\/)?(www\.)?reddit\.com\/user\/[a-zA-Z0-9_-]+"),
             ("Pinterest", @"(http(s)?:\/\/)?(www\.)?pinterest\.com\/[a-zA-Z0-9_/]+")
         };
+
+        public static string Denied => "Авторищация не пройдена";
+
         private static string GetSocialNameConstant(string social)
         {
             return AppDictionary.ResolvedSocialNames
