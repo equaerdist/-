@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using TwitchLib.Api;
 
 namespace backend_iGamingBot.Infrastructure.Services
@@ -41,6 +42,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             await _cfgSrc.SetupConfigAsync(cfg);
             await _uof.SaveChangesAsync();
         }
+        private Task ClientSetuped {  get; set; }
         public Twitch(HttpClient client, 
             AppConfig cfg, 
             TwitchAPI twitch,
@@ -52,6 +54,19 @@ namespace backend_iGamingBot.Infrastructure.Services
             _twitch = twitch;
             _uof = uof;
             _cfgSrc = cfgSrc;
+            ClientSetuped = SetupClient();
+        }
+        private async Task SetupClient()
+        {
+            var cfg = await _cfgSrc.GetConfigByNameAsync(TwitchCfgKey);
+            if (cfg == null)
+                await RenewCredentails();
+            cfg = await _cfgSrc.GetConfigByNameAsync(TwitchCfgKey);
+            if (cfg == null)
+                throw new InvalidProgramException();
+            _twitch.Settings.ClientId = _cfg.TwitchClientId;
+            _twitch.Settings.AccessToken = JsonSerializer.Deserialize<AccessTokenResponse>(cfg.Payload?.ToString() ??
+                throw new InvalidProgramException())?.AccessToken;
         }
         public string ConstructTwitchUrl(string username)
         {

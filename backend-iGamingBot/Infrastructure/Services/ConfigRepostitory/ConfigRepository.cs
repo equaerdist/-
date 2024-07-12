@@ -2,7 +2,7 @@
 using backend_iGamingBot.Infrastructure.Configs;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend_iGamingBot.Infrastructure.Services.ConfigRepostitory
+namespace backend_iGamingBot.Infrastructure.Services
 {
     public class ConfigRepository : IConfigRepository
     {

@@ -1,10 +1,14 @@
-﻿namespace backend_iGamingBot.Infrastructure
+﻿using backend_iGamingBot.Infrastructure.Configs;
+using Microsoft.EntityFrameworkCore;
+
+namespace backend_iGamingBot.Infrastructure
 {
     public static class DefaultServices
     {
-        public static IServiceCollection AddInftrastructureServices(this IServiceCollection services)
+        public static IServiceCollection AddInftrastructureServices(this IServiceCollection services, AppConfig cfg)
         {
             services.AddHttpClient();
+            services.AddDbContext<AppCtx>(opt => opt.UseNpgsql(cfg.SqlKey));
             return services;
         }
     }
