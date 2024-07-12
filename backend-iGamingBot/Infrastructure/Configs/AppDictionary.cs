@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-
+﻿
 namespace backend_iGamingBot.Infrastructure
 {
     public class AppDictionary
@@ -21,6 +20,14 @@ namespace backend_iGamingBot.Infrastructure
             ("Reddit", @"(http(s)?:\/\/)?(www\.)?reddit\.com\/user\/[a-zA-Z0-9_-]+"),
             ("Pinterest", @"(http(s)?:\/\/)?(www\.)?pinterest\.com\/[a-zA-Z0-9_/]+")
         };
+        private static string GetSocialNameConstant(string social)
+        {
+            return AppDictionary.ResolvedSocialNames
+                       .Where(s => s.name.Equals(social, StringComparison.OrdinalIgnoreCase))
+                       .First().name;
+        }
+        public static string Youtube = GetSocialNameConstant(nameof(Youtube));
+        public static string Twitch = GetSocialNameConstant(nameof(Twitch));
 
     }
 }

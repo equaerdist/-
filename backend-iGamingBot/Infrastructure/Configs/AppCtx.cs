@@ -8,6 +8,7 @@ namespace backend_iGamingBot.Infrastructure.Configs
     {
         public DbSet<Config> Configs { get; set; } = null!;
         public DbSet<Streamer> Streamers { get; set; } = null!;
+        public AppCtx(DbContextOptions<AppCtx> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Config>()

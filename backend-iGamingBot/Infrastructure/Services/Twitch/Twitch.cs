@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using TwitchLib.Api;
+using TwitchLib.Api.Interfaces;
 
 namespace backend_iGamingBot.Infrastructure.Services
 {
@@ -14,7 +14,7 @@ namespace backend_iGamingBot.Infrastructure.Services
     {
         private readonly HttpClient _client;
         private readonly AppConfig _cfg;
-        private readonly TwitchAPI _twitch;
+        private readonly ITwitchAPI _twitch;
         private readonly IUnitOfWork _uof;
         private readonly IConfigRepository _cfgSrc;
         private static string TwitchCfgKey = "Twitch";
@@ -42,10 +42,9 @@ namespace backend_iGamingBot.Infrastructure.Services
             await _cfgSrc.SetupConfigAsync(cfg);
             await _uof.SaveChangesAsync();
         }
-        private Task ClientSetuped {  get; set; }
         public Twitch(HttpClient client, 
             AppConfig cfg, 
-            TwitchAPI twitch,
+            ITwitchAPI twitch,
             IConfigRepository cfgSrc,
             IUnitOfWork uof) 
         {
@@ -54,16 +53,17 @@ namespace backend_iGamingBot.Infrastructure.Services
             _twitch = twitch;
             _uof = uof;
             _cfgSrc = cfgSrc;
-            ClientSetuped = SetupClient();
         }
         private async Task SetupClient()
         {
             var cfg = await _cfgSrc.GetConfigByNameAsync(TwitchCfgKey);
-            if (cfg == null)
+            if (cfg == null || cfg.ExpirationTime <= DateTime.UtcNow)
+            {
                 await RenewCredentails();
-            cfg = await _cfgSrc.GetConfigByNameAsync(TwitchCfgKey);
-            if (cfg == null)
-                throw new InvalidProgramException();
+                cfg = await _cfgSrc.GetConfigByNameAsync(TwitchCfgKey);
+                if (cfg == null)
+                    throw new InvalidProgramException();
+            }
             _twitch.Settings.ClientId = _cfg.TwitchClientId;
             _twitch.Settings.AccessToken = JsonSerializer.Deserialize<AccessTokenResponse>(cfg.Payload?.ToString() ??
                 throw new InvalidProgramException())?.AccessToken;
@@ -96,6 +96,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         public async Task<UsersOnlineCheckResponse> CheckUsersInOnline(List<Streamer> streamerBatch)
         {
+            await SetupClient();
             var groupedSocials = streamerBatch
                 .ToDictionary(s => s.Id, s => s.Socials);
             if (groupedSocials.Sum(s => s.Value.Count()) > 100)

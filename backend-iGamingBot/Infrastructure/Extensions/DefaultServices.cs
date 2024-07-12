@@ -9,6 +9,7 @@ namespace backend_iGamingBot.Infrastructure
         {
             services.AddHttpClient();
             services.AddDbContext<AppCtx>(opt => opt.UseNpgsql(cfg.SqlKey));
+            services.AddSingleton(cfg);
             return services;
         }
     }

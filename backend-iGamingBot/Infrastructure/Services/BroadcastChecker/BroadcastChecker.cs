@@ -1,4 +1,7 @@
-﻿namespace backend_iGamingBot.Infrastructure.Services
+﻿using backend_iGamingBot.Models.Essentials;
+using System.Linq;
+
+namespace backend_iGamingBot.Infrastructure.Services
 {
     public static class ExtensionsForBroadcastChecker
     {
@@ -18,8 +21,7 @@
         private static TimeSpan CheckingDelayForTwitch => TimeSpan.FromSeconds(2);
         private static TimeSpan CheckingDelay => TimeSpan.FromMinutes(1);
         private IServiceProvider _servSrc;
-        private static string Youtube = GetSocialNameConstant(nameof(Youtube));
-        private static string Twitch = GetSocialNameConstant(nameof(Twitch));
+      
         private ILogger logger = null!;
         private IUnitOfWork unitOfWork = null!;
         private IStreamerRepository streamersSrc = null!;
@@ -29,12 +31,7 @@
         { 
             _servSrc = servSrc;
         }
-        private static string GetSocialNameConstant(string social)
-        {
-            return AppDictionary.ResolvedSocialNames
-                       .Where(s => s.name.Equals(social, StringComparison.OrdinalIgnoreCase))
-                       .First().name;
-        }
+       
         private async Task CheckYoutubeStreamersOnBroadcast(Streamer[] fulled, 
             Streamer[] onlyWithNeedSocials)
         {
@@ -52,7 +49,7 @@
                         ILiveParameter streamInfo = await youtube.UserIsStreaming(ytbPrm.Identifier);
                         social.Parameter.Link = streamInfo.Link;
                         social.Parameter.IsLive = streamInfo.IsLive;
-                        await Task.Delay((int)CheckingDelayForYoutube.TotalSeconds);
+                        await Task.Delay((int)CheckingDelayForYoutube.TotalSeconds * 1000);
                     }
                     catch (Exception ex)
                     {
@@ -62,7 +59,7 @@
                     }
                 }
                 var streamerFromDb = fulled.First(s => s.Id == streamer.Id);
-                var result = streamerFromDb.Socials.Where(s => s.Name != Youtube).ToList();
+                var result = streamerFromDb.Socials.Where(s => s.Name != AppDictionary.Youtube).ToList();
                 result.AddRange(streamer.Socials);
                 streamerFromDb.Socials = result;
                 await unitOfWork.SaveChangesAsync();
@@ -79,46 +76,60 @@
                 var maxTwitchChannelsCount = 100;
                 for (int i = cursor; i < onlyWithNeedSocials.Length; i++)
                 {
+                    Streamer streamer = onlyWithNeedSocials[i];
+                    if (streamer.Socials.Count + firstBatchSize < maxTwitchChannelsCount)
                     {
-                        Streamer streamer = onlyWithNeedSocials[i];
-                        if (streamer.Socials.Count + firstBatchSize < maxTwitchChannelsCount)
-                        {
-                            streamersBatch.Add(streamer);
-                            firstBatchSize++;
-                        }
-                        else
-                        {
-                            firstBatchSize = 0;
-                            break;
-                        }
+                        streamersBatch.Add(streamer);
+                        firstBatchSize++;
                     }
-                    try
+                    else
                     {
-                        logger.LogDebug($"Начинаю отправку батчей для твитча на проверку броадкаста...");
-                        var result = await twitch.CheckUsersInOnline(streamersBatch);
-                        foreach (var streamer in fulled)
+                        firstBatchSize = 0;
+                        break;
+                    }
+                }
+
+                try
+                {
+                    logger.LogDebug($"Начинаю отправку батчей для твитча на проверку броадкаста...");
+                    var result = await twitch.CheckUsersInOnline(streamersBatch);
+                    foreach (var fulledStreamer in fulled)
+                    {
+                        if (result.BroadcastInformation.Keys.Contains(fulledStreamer.Id))
                         {
-                            if (result.BroadcastInformation.Keys.Contains(streamer.Id))
+
+                            var twitchResult = result.BroadcastInformation[fulledStreamer.Id]
+                            .Select(t => new Social()
                             {
-                                var finalSocials = streamer.Socials.Where(s => s.Name != Twitch).ToList();
-                                finalSocials.AddRange(result.BroadcastInformation[streamer.Id]
-                                    .Select(t => new Social()
-                                    {
-                                        Link = twitch.ConstructTwitchUrl(t.ChannelName),
-                                        Name = Twitch,
-                                        Parameter = t
-                                    }));
-                                streamer.Socials = finalSocials;
-                                await unitOfWork.SaveChangesAsync();
-                            }
+                                Link = twitch.ConstructTwitchUrl(t.ChannelName),
+                                Name = AppDictionary.Twitch,
+                                Parameter = t
+                            });
+                            var twitchResultIds = twitchResult.Select(s => s.Link);
+                            var notOnline = fulledStreamer.Socials
+                                .Where(s => s.Name == AppDictionary.Twitch)
+                                .Where(s => !twitchResultIds.Contains(s.Link))
+                                .Select(s => new Social()
+                                {
+                                    Link = s.Link,
+                                    Name = AppDictionary.Twitch,
+                                    Parameter = new DefaultLiveParameter() { IsLive = false }
+                                });
+                            var finalSocials = fulledStreamer.Socials
+                                .Where(s => s.Name != AppDictionary.Twitch)
+                                .ToList();
+                            finalSocials.AddRange(twitchResult);
+                            finalSocials.AddRange(notOnline);
+                            fulledStreamer.Socials = finalSocials;
+                            await unitOfWork.SaveChangesAsync();
                         }
-                        await Task.Delay((int)CheckingDelayForTwitch.TotalSeconds);
                     }
-                    catch (Exception ex)
-                    {
-                        logger.LogError($"Возникла ошибка при проверке броадкаста для батча твитча {cursor}\n" +
-                            $"{ex.Message}");
-                    }
+                    await Task.Delay((int)CheckingDelayForTwitch.TotalSeconds * 1000);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Возникла ошибка при проверке броадкаста для батча твитча {cursor}\n" +
+                        $"{ex.Message}");
                 }
             }
         }
@@ -138,22 +149,21 @@
                 while (true)
                 {
                     var batch = await streamersSrc.GetStreamerBatchAsync(page, pageSize);
-                    var streamersWithYoutube = batch.GetStreamersWithSocial(Youtube);
-                    var streamersWithTwitch = batch.GetStreamersWithSocial(Twitch);
-                    streamersWithTwitch = streamersWithTwitch.FilterSocialsWithName(Twitch);
-                    streamersWithYoutube = streamersWithYoutube.FilterSocialsWithName(Youtube);
-                    var currentTasks = new Task[2];
-                    if (streamersWithTwitch != null)
-                        currentTasks[0] = CheckTwitchStreamersOnBroadcast(batch, streamersWithTwitch.ToArray());
-                    if (streamersWithYoutube != null)
-                        currentTasks[1] = CheckYoutubeStreamersOnBroadcast(batch, streamersWithYoutube.ToArray());
-                    await Task.WhenAll(currentTasks);
-                    page++;
+                    if (batch.Length != 0)
+                    {
+                        var streamersWithYoutube = batch.GetStreamersWithSocial(AppDictionary.Youtube);
+                        var streamersWithTwitch = batch.GetStreamersWithSocial(AppDictionary.Twitch);
+                        streamersWithTwitch = streamersWithTwitch.FilterSocialsWithName(AppDictionary.Twitch);
+                        streamersWithYoutube = streamersWithYoutube.FilterSocialsWithName(AppDictionary.Youtube);
+                        await CheckTwitchStreamersOnBroadcast(batch, streamersWithTwitch.ToArray());
+                        await CheckYoutubeStreamersOnBroadcast(batch, streamersWithYoutube.ToArray());
+                        page++;
+                    }
                     if (batch.Length < pageSize)
                         break;
                 }
                 page = 1;
-                await Task.Delay((int)CheckingDelay.TotalSeconds);
+                await Task.Delay((int)CheckingDelay.TotalSeconds * 1000);
             }
         });
     }

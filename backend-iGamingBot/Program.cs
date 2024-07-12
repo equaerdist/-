@@ -18,6 +18,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 //await app.TestOnYoutubeStreaming();
+await app.CheckMigrationsAsync();
 app.UseAuthorization();
 app.MapControllers();
 

@@ -9,6 +9,6 @@ namespace backend_iGamingBot
         }
         public long Id { get; set; }
         public string Name { get; set; } = null!;
-        public ICollection<Social> Socials { get; set; }
+        public List<Social> Socials { get; set; }
     }
 }
