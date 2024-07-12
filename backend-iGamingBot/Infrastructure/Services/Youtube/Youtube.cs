@@ -99,10 +99,10 @@ namespace backend_iGamingBot.Infrastructure.Services
                 if (ytPlayerInitalData is null)
                 {
                     _logger.LogError("Не удалось найти объект инициалзиации");
-                    return new() { IsStreaming = false, StreamUrl = null };
+                    return new() { IsLive = false, Link = null };
                 }
                 var videoId = GetPropertyValue(_streamCondition, ytPlayerInitalData)?.Replace("\"", "");
-                return new() { IsStreaming = videoId != null, StreamUrl = $"https://www.youtube.com/watch?v={videoId}" };
+                return new() { IsLive = videoId != null, Link = $"https://www.youtube.com/watch?v={videoId}" };
             }
             catch (HttpRequestException e)
             {

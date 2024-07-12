@@ -1,13 +1,11 @@
-﻿
-using System.Linq;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using TwitchLib.Api;
 
-namespace backend_iGamingBot.Infrastructure.Services.Twitch
+namespace backend_iGamingBot.Infrastructure.Services
 {
     public record AccessTokenResponse(
      [property: JsonPropertyName("access_token")] string AccessToken,
-     [property: JsonPropertyName("expires_in")] string ExpiresIn,
+     [property: JsonPropertyName("expires_in")] int ExpiresIn,
      [property: JsonPropertyName("token_type")] string TokenType
     );
 
@@ -16,6 +14,8 @@ namespace backend_iGamingBot.Infrastructure.Services.Twitch
         private readonly HttpClient _client;
         private readonly AppConfig _cfg;
         private readonly TwitchAPI _twitch;
+        private readonly IUnitOfWork _uof;
+        private readonly IConfigRepository _cfgSrc;
         private static string TwitchCfgKey = "Twitch";
 
         private async Task<AccessTokenResponse> GetAccessToken()
@@ -28,11 +28,30 @@ namespace backend_iGamingBot.Infrastructure.Services.Twitch
             res.EnsureSuccessStatusCode();
             return await res.Content.ReadFromJsonAsync<AccessTokenResponse>() ?? throw new ArgumentNullException();
         }
-        public Twitch(HttpClient client, AppConfig cfg, TwitchAPI twitch) 
+        private async Task RenewCredentails()
+        {
+            await _cfgSrc.RemoveConfigByNameAsync(TwitchCfgKey);
+            var tokenRes = await GetAccessToken();
+            var cfg = new Config()
+            {
+                Name = TwitchCfgKey,
+                Payload = tokenRes,
+                ExpirationTime = DateTime.UtcNow + TimeSpan.FromSeconds(tokenRes.ExpiresIn)
+            };
+            await _cfgSrc.SetupConfigAsync(cfg);
+            await _uof.SaveChangesAsync();
+        }
+        public Twitch(HttpClient client, 
+            AppConfig cfg, 
+            TwitchAPI twitch,
+            IConfigRepository cfgSrc,
+            IUnitOfWork uof) 
         {
             _client = client;
             _cfg = cfg;
-            _twitch = twitch; ;
+            _twitch = twitch;
+            _uof = uof;
+            _cfgSrc = cfgSrc;
         }
         static string ExtractUsernameFromUrl(string url)
         {

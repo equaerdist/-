@@ -7,7 +7,7 @@ namespace backend_iGamingBot.Infrastructure.Configs
     public class AppCtx : DbContext
     {
         public DbSet<Config> Configs { get; set; } = null!;
-        public DbSet<Streamer> Streamers { get; set; } = null!:
+        public DbSet<Streamer> Streamers { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Config>()
@@ -23,7 +23,7 @@ namespace backend_iGamingBot.Infrastructure.Configs
                  v => JsonSerializer.Deserialize<List<Social>>(v, new JsonSerializerOptions())!,
                  new ValueComparer<List<Social>>(
                      (c1, c2) => c1!.SequenceEqual(c2!),
-                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.Parameter.IsLive.GetHashCode() + v.Parameter.Link == null ? 3 : 2)),
                      c => c.ToList()));
         }
     }

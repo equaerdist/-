@@ -14,7 +14,9 @@ namespace backend_iGamingBot.Infrastructure.Services.ConfigRepostitory
         }
         public async Task<Config?> GetConfigByNameAsync(string name)
         => await _ctx.Configs.FirstOrDefaultAsync(c => c.Name.Equals(name));
-        
+
+        public async Task RemoveConfigByNameAsync(string name) 
+            => await _ctx.Configs.Where(c => c.Name == name).ExecuteDeleteAsync();
 
         public async Task SetupConfigAsync(Config config)
         => await _ctx.Configs.AddAsync(config);

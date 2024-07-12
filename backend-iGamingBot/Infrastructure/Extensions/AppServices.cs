@@ -8,8 +8,8 @@ namespace backend_iGamingBot.Infrastructure
     {
         public static IServiceCollection AddAppServices(this IServiceCollection services, AppConfig cfg)
         {
-           
-            //services.AddSingleton<ITwitchAPI, TwitchAPI>(opt => API);
+
+            services.AddSingleton<ITwitchAPI, TwitchAPI>(opt => new());
             services.AddScoped<IYoutube, Youtube>();
             return services;
         }

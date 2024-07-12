@@ -1,4 +1,4 @@
-﻿namespace backend_iGamingBot.Infrastructure.Services.UnitOfWork
+﻿namespace backend_iGamingBot.Infrastructure.Services
 {
     public interface IUnitOfWork
     {
