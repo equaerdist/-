@@ -1,5 +1,6 @@
 using backend_iGamingBot.Infrastructure;
 using backend_iGamingBot.Infrastructure.Extensions;
+using Npgsql;
 using TwitchLib.Api;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInftrastructureServices(cfg);
 builder.Services.AddAppServices(cfg);
 var app = builder.Build();
+NpgsqlConnection.GlobalTypeMapper.EnableDynamicJson();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

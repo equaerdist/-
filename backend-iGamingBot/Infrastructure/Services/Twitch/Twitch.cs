@@ -42,6 +42,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             await _cfgSrc.SetupConfigAsync(cfg);
             await _uof.SaveChangesAsync();
         }
+
         public Twitch(HttpClient client, 
             AppConfig cfg, 
             ITwitchAPI twitch,
@@ -65,7 +66,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                     throw new InvalidProgramException();
             }
             _twitch.Settings.ClientId = _cfg.TwitchClientId;
-            _twitch.Settings.AccessToken = JsonSerializer.Deserialize<AccessTokenResponse>(cfg.Payload?.ToString() ??
+            var token = cfg.Payload?.ToString();
+            _twitch.Settings.AccessToken = JsonSerializer.Deserialize<AccessTokenResponse>(token ??
                 throw new InvalidProgramException())?.AccessToken;
         }
         public string ConstructTwitchUrl(string username)

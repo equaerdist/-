@@ -167,8 +167,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                         var streamersWithTwitch = batch.GetStreamersWithSocial(AppDictionary.Twitch);
                         streamersWithTwitch = streamersWithTwitch.FilterSocialsWithName(AppDictionary.Twitch);
                         streamersWithYoutube = streamersWithYoutube.FilterSocialsWithName(AppDictionary.Youtube);
-                        //await CheckTwitchStreamersOnBroadcast(batch, streamersWithTwitch.ToArray());
-                        await CheckYoutubeStreamersOnBroadcast(batch, streamersWithYoutube.ToArray());
+                        await CheckTwitchStreamersOnBroadcast(batch, streamersWithTwitch.ToArray());
+                        //await CheckYoutubeStreamersOnBroadcast(batch, streamersWithYoutube.ToArray());
                         page++;
                     }
                     if (batch.Length < pageSize)
