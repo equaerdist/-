@@ -1,5 +1,6 @@
 ﻿using backend_iGamingBot.Models.Essentials;
 using System.Linq;
+using System.Text.Json;
 
 namespace backend_iGamingBot.Infrastructure.Services
 {
@@ -39,16 +40,20 @@ namespace backend_iGamingBot.Infrastructure.Services
             {
                 foreach(var social in streamer.Socials)
                 {
-                    var ytbPrm = social.Parameter as YoutubeLiveParameters;
+                    var ytbPrm = social.Parameter;
                     if (ytbPrm is null)
                         throw new InvalidProgramException();
                     try
                     {
                         logger.LogDebug($"Делаю запрос на платформу ютуб проверки стрима для {streamer.Name}\n" +
                             $"Channel - [{social.Link}].");
-                        ILiveParameter streamInfo = await youtube.UserIsStreaming(ytbPrm.Identifier);
-                        social.Parameter.Link = streamInfo.Link;
-                        social.Parameter.IsLive = streamInfo.IsLive;
+                        DefaultLiveParameter streamInfo = await youtube.UserIsStreaming(ytbPrm.Identifier!);
+                        social.Parameter = new ()
+                        {
+                            IsLive = streamInfo.IsLive,
+                            Link = streamInfo.Link,
+                            Identifier = ytbPrm.Identifier
+                        };
                         await Task.Delay((int)CheckingDelayForYoutube.TotalSeconds * 1000);
                     }
                     catch (Exception ex)
@@ -61,7 +66,12 @@ namespace backend_iGamingBot.Infrastructure.Services
                 var streamerFromDb = fulled.First(s => s.Id == streamer.Id);
                 var result = streamerFromDb.Socials.Where(s => s.Name != AppDictionary.Youtube).ToList();
                 result.AddRange(streamer.Socials);
-                streamerFromDb.Socials = result;
+                streamerFromDb.Socials.Clear();
+               
+                await unitOfWork.SaveChangesAsync();
+                streamerFromDb.Socials.AddRange(result);
+                if (streamerFromDb.Name == "LofiGirl")
+                    Console.WriteLine();
                 await unitOfWork.SaveChangesAsync();
             }
         }
@@ -124,6 +134,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                             await unitOfWork.SaveChangesAsync();
                         }
                     }
+                    if (streamersBatch.SelectMany(s => s.Socials).Count() < maxTwitchChannelsCount)
+                        break;
                     await Task.Delay((int)CheckingDelayForTwitch.TotalSeconds * 1000);
                 }
                 catch (Exception ex)
@@ -155,7 +167,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                         var streamersWithTwitch = batch.GetStreamersWithSocial(AppDictionary.Twitch);
                         streamersWithTwitch = streamersWithTwitch.FilterSocialsWithName(AppDictionary.Twitch);
                         streamersWithYoutube = streamersWithYoutube.FilterSocialsWithName(AppDictionary.Youtube);
-                        await CheckTwitchStreamersOnBroadcast(batch, streamersWithTwitch.ToArray());
+                        //await CheckTwitchStreamersOnBroadcast(batch, streamersWithTwitch.ToArray());
                         await CheckYoutubeStreamersOnBroadcast(batch, streamersWithYoutube.ToArray());
                         page++;
                     }

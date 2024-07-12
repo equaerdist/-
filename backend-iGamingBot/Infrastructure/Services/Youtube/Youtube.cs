@@ -46,8 +46,21 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         private string? GetYtInitialData(string html) => GetScriptContentWith(html, _metaObject);
         private string? GetPlayerInitialData(string html) => GetScriptContentWith(html, _playerMetaObject);
+        private static string EnsureUrlHasProtocol(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentException("URL cannot be null or empty", nameof(url));
+
+            if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+            {
+                url = "https://" + url;
+            }
+
+            return url;
+        }
         public async Task<string> GetUserIdentifierByLinkAsync(string link)
         {
+            link = EnsureUrlHasProtocol(link);
             try
             {
                 _logger.LogDebug($"$Начинаю парсинг externalId для {link}");
@@ -121,7 +134,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 var ytPlayerInitalData = GetPlayerInitialData(htmlContent);
                 if (ytPlayerInitalData is null)
                 {
-                    _logger.LogError("Не удалось найти объект инициалзиации");
+                    _logger.LogError("Не удалось найти объект инициалзиации\n Будем считать, что стрима нет");
                     return new() { IsLive = false, Link = null };
                 }
                 var videoId = GetPropertyValue(_streamCondition, ytPlayerInitalData)?.Replace("\"", "");

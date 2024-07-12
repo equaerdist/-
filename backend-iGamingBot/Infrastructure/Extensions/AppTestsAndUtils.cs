@@ -35,6 +35,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
         {
             using var scope = app.Services.CreateScope();
             var yt = scope.ServiceProvider.GetRequiredService<IYoutube>();
+            var ctx = scope.ServiceProvider.GetRequiredService<AppCtx>();
             List<Streamer> streamers = new()
             {
                 new()
@@ -52,7 +53,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                         {
                             Name = AppDictionary.Youtube,
                             Link = "www.youtube.com/@recrent",
-                            Parameter = new YoutubeLiveParameters()
+                            Parameter = new ()
                             {
                                 Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@recrent")
                             }
@@ -107,7 +108,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                         {
                             Name = AppDictionary.Youtube,
                             Link = "www.youtube.com/@VIRTUALNEWYORK",
-                            Parameter = new YoutubeLiveParameters()
+                            Parameter = new()
                             {
                                 Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@VIRTUALNEWYORK")
                             }
@@ -123,7 +124,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                         {
                             Name = AppDictionary.Youtube,
                             Link = "www.youtube.com/@Kolezev",
-                            Parameter = new YoutubeLiveParameters()
+                            Parameter = new ()
                             {
                                 Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@Kolezev")
                             }
@@ -139,7 +140,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                         {
                             Name = AppDictionary.Youtube,
                             Link = "www.youtube.com/@LofiGirl",
-                            Parameter = new YoutubeLiveParameters()
+                            Parameter = new()
                             {
                                 Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@LofiGirl")
                             }
@@ -147,6 +148,8 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                     }
                 }
             };
+            await ctx.Streamers.AddRangeAsync(streamers);
+            await ctx.SaveChangesAsync();
             return app;
         }
     }

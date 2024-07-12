@@ -1,8 +1,8 @@
-﻿namespace backend_iGamingBot.Infrastructure.Services
+﻿using backend_iGamingBot.Models.Essentials;
+
+namespace backend_iGamingBot.Infrastructure.Services
 {
-    public class StreamInformation : ILiveParameter
+    public class StreamInformation : DefaultLiveParameter
     {
-        public bool IsLive { get; set; }
-        public string? Link { get; set; }
     }
 }

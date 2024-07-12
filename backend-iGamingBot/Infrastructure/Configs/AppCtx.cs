@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using backend_iGamingBot.Models.Essentials;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Text.Json;
 
@@ -24,7 +25,7 @@ namespace backend_iGamingBot.Infrastructure.Configs
                  v => JsonSerializer.Deserialize<List<Social>>(v, new JsonSerializerOptions())!,
                  new ValueComparer<List<Social>>(
                      (c1, c2) => c1!.SequenceEqual(c2!),
-                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.Parameter.IsLive.GetHashCode() + v.Parameter.Link == null ? 3 : 2)),
+                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.Parameter.GetHashCode())),
                      c => c.ToList()));
         }
     }
