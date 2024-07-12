@@ -16,6 +16,7 @@
     {
         private static TimeSpan CheckingDelayForYoutube => TimeSpan.FromSeconds(1);
         private static TimeSpan CheckingDelayForTwitch => TimeSpan.FromSeconds(2);
+        private static TimeSpan CheckingDelay => TimeSpan.FromMinutes(1);
         private IServiceProvider _servSrc;
         private static string Youtube = GetSocialNameConstant(nameof(Youtube));
         private static string Twitch = GetSocialNameConstant(nameof(Twitch));
@@ -132,13 +133,27 @@
             unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             int page = 1;
             int pageSize = 100;
-            while(true)
+            while (true)
             {
-                var batch = await streamersSrc.GetStreamerBatchAsync(page, pageSize);
-                var streamersWithYoutube = batch.GetStreamersWithSocial(Youtube);
-                var streamersWithTwitch = batch.GetStreamersWithSocial(Twitch);
-                streamersWithTwitch = streamersWithTwitch.FilterSocialsWithName(Twitch);
-                streamersWithYoutube = streamersWithYoutube.FilterSocialsWithName(Youtube);
+                while (true)
+                {
+                    var batch = await streamersSrc.GetStreamerBatchAsync(page, pageSize);
+                    var streamersWithYoutube = batch.GetStreamersWithSocial(Youtube);
+                    var streamersWithTwitch = batch.GetStreamersWithSocial(Twitch);
+                    streamersWithTwitch = streamersWithTwitch.FilterSocialsWithName(Twitch);
+                    streamersWithYoutube = streamersWithYoutube.FilterSocialsWithName(Youtube);
+                    var currentTasks = new Task[2];
+                    if (streamersWithTwitch != null)
+                        currentTasks[0] = CheckTwitchStreamersOnBroadcast(batch, streamersWithTwitch.ToArray());
+                    if (streamersWithYoutube != null)
+                        currentTasks[1] = CheckYoutubeStreamersOnBroadcast(batch, streamersWithYoutube.ToArray());
+                    await Task.WhenAll(currentTasks);
+                    page++;
+                    if (batch.Length < pageSize)
+                        break;
+                }
+                page = 1;
+                await Task.Delay((int)CheckingDelay.TotalSeconds);
             }
         });
     }
