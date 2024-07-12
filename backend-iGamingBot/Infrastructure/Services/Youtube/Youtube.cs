@@ -86,6 +86,29 @@ namespace backend_iGamingBot.Infrastructure.Services
             var externalId = externalContent.Substring(start, length).Replace(@"\x22", "");
             return externalId;
         }
+        public string ConstructYouTubeUrl(string username)
+        {
+            if (string.IsNullOrEmpty(username))
+                throw new ArgumentException("Username cannot be null or empty", nameof(username));
+            return $"https://www.youtube.com/@{username}";
+        }
+
+        public  string ExtractYouTubeUsernameFromUrl(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentException("URL cannot be null or empty", nameof(url));
+
+            Uri uri = new Uri(url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : "http://" + url);
+            if (uri.Host != "www.youtube.com" && uri.Host != "youtube.com")
+                throw new ArgumentException("URL is not a valid YouTube URL", nameof(url));
+
+            string path = uri.AbsolutePath;
+            if (string.IsNullOrEmpty(path) || !path.StartsWith("/@"))
+                throw new ArgumentException("URL does not contain a valid YouTube username", nameof(url));
+
+            return path.Substring(2).Trim('/');
+        }
+
         public async Task<StreamInformation> UserIsStreaming(string channelId)
         {
             _logger.LogDebug($"Начинаю проверку на стриминг для {channelId}");

@@ -53,12 +53,19 @@ namespace backend_iGamingBot.Infrastructure.Services
             _uof = uof;
             _cfgSrc = cfgSrc;
         }
-        static string ExtractUsernameFromUrl(string url)
+        public string ConstructTwitchUrl(string username)
+        {
+            if (string.IsNullOrEmpty(username))
+                throw new ArgumentException("Username cannot be null or empty", nameof(username));
+
+            return $"https://www.twitch.tv/{username}";
+        }
+        public  string ExtractUsernameFromUrl(string url)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentException("URL cannot be null or empty", nameof(url));
 
-            Uri uri = new Uri(url);
+            Uri uri = new Uri(url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? url : "http://" + url);
             if (uri.Host != "www.twitch.tv" && uri.Host != "twitch.tv")
                 throw new ArgumentException("URL is not a valid Twitch URL", nameof(url));
 
