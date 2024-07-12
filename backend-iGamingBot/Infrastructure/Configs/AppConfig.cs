@@ -5,5 +5,6 @@
         public string SqlKey { get; init; } = null!;
         public string TwitchClientId { get; init; } = null!;
         public string TwitchSecretToken { get; init; } = null!;
+        public string Host { get; init; } = null!;
     }
 }
