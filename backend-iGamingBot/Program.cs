@@ -1,7 +1,6 @@
 using backend_iGamingBot.Infrastructure;
 using backend_iGamingBot.Infrastructure.Extensions;
 using Npgsql;
-using TwitchLib.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 

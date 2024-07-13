@@ -1,4 +1,4 @@
-﻿namespace backend_iGamingBot.Models.Essentials
+﻿namespace backend_iGamingBot
 {
     public class DefaultLiveParameter 
     {

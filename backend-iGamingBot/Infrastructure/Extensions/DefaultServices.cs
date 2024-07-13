@@ -1,4 +1,5 @@
-﻿using backend_iGamingBot.Infrastructure.Configs;
+﻿using backend_iGamingBot.Automapper;
+using backend_iGamingBot.Infrastructure.Configs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,7 @@ namespace backend_iGamingBot.Infrastructure
         {
             services.AddHttpClient();
             services.AddAuthorization();
+            services.AddAutoMapper(typeof(AppProfile));
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -33,7 +35,8 @@ namespace backend_iGamingBot.Infrastructure
                     }
                 };
             });
-            services.AddDbContext<AppCtx>(opt => opt.UseNpgsql(cfg.SqlKey));
+            services.AddDbContext<AppCtx>(opt => opt.UseNpgsql(cfg.SqlKey), optionsLifetime:ServiceLifetime.Transient);
+            services.AddDbContextFactory<AppCtx>();
             services.AddSingleton(cfg);
             return services;
         }

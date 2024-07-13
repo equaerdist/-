@@ -18,13 +18,13 @@ namespace backend_iGamingBot.Controllers
             _cfg = cfg;
         }
         [HttpPost]
-        public IActionResult Enter([FromBody] TelegramAuthDateDto dto)
+        public async Task<IActionResult> Enter([FromBody] TelegramAuthDateDto dto)
         {
-            var token = _auth.GetToken(dto);
+            var token = await _auth.GetTokenAsync(dto);
             Response.Cookies.Append("auth", token, new()
             {
                 Expires = DateTime.UtcNow + _cfg.Expires,
-                HttpOnly = true
+                HttpOnly = false
             });
             return Ok();
         }

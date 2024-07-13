@@ -1,5 +1,4 @@
-﻿using backend_iGamingBot.Models.Essentials;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Text.Json;
 
@@ -9,6 +8,9 @@ namespace backend_iGamingBot.Infrastructure.Configs
     {
         public DbSet<Config> Configs { get; set; } = null!;
         public DbSet<Streamer> Streamers { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Raffle> Raffles { get; set; } = null!;
+        public DbSet<Subscriber> Subscribers { get; set; }
         public AppCtx(DbContextOptions<AppCtx> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +29,54 @@ namespace backend_iGamingBot.Infrastructure.Configs
                      (c1, c2) => c1!.SequenceEqual(c2!),
                      c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.Parameter.GetHashCode())),
                      c => c.ToList()));
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.TgId)
+                .IsUnique();
+            modelBuilder.Entity<Streamer>()
+                .HasIndex(u =>u.TgId)
+                .IsUnique();
+            modelBuilder.Entity<Streamer>()
+                .HasIndex(s => s.Name)
+                .IsUnique();
+            modelBuilder.Entity<Streamer>()
+                .HasMany(s => s.Subscribers)
+                .WithMany(U => U.Streamers)
+                .UsingEntity<Subscriber>(j =>
+                {
+                    j.HasOne(s => s.Streamer)
+                    .WithMany(s => s.SubscribersRelation)
+                    .HasForeignKey(s => s.StreamerId);
+
+                    j.HasOne(s => s.User)
+                    .WithMany(u => u.StreamersRelation)
+                    .HasForeignKey(s => s.UserId);
+                   
+                    j.HasKey(r => new { r.UserId, r.StreamerId });
+                });
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.ParticipantRaffles)
+                .WithMany(r => r.Participants);
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.WinnerRaffles)
+                .WithMany(r => r.Winners);
+            modelBuilder.Entity<Raffle>()
+               .Property(e => e.RaffleConditions)
+               .HasConversion(
+                   v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
+                   v => JsonSerializer.Deserialize<List<RaffleCondition>>(v, new JsonSerializerOptions())!,
+                   new ValueComparer<List<RaffleCondition>>(
+                       (c1, c2) => c1!.SequenceEqual(c2!),
+                       c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.Description.GetHashCode())),
+                       c => c.ToList()));
+            modelBuilder.Entity<User>()
+              .Property(e => e.PayMethods)
+              .HasConversion(
+                  v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
+                  v => JsonSerializer.Deserialize<List<UserPayMethod>>(v, new JsonSerializerOptions())!,
+                  new ValueComparer<List<UserPayMethod>>(
+                      (c1, c2) => c1!.SequenceEqual(c2!),
+                      c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.Data == null ? 1 : v.Data.GetHashCode())),
+                      c => c.ToList()));
         }
     }
 }

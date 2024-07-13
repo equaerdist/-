@@ -2,6 +2,6 @@
 {
     public interface IAuth
     {
-        public string GetToken(TelegramAuthDateDto dto);
+        public Task<string> GetTokenAsync(TelegramAuthDateDto dto);
     }
 }

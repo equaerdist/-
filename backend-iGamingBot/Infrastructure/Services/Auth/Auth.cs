@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using backend_iGamingBot.Infrastructure.Services.UserRepository;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -10,10 +11,12 @@ namespace backend_iGamingBot.Infrastructure.Services
     public class Auth : IAuth
     {
         private readonly AppConfig _cfg;
+        private readonly IUserRepository _userSrc;
 
-        public Auth(AppConfig cfg) 
+        public Auth(AppConfig cfg, IUserRepository userSrc) 
         {
             _cfg = cfg;
+            _userSrc = userSrc;
         }
         private static byte[] HMAC_SHA256(byte[] data, byte[] key)
         {
@@ -26,7 +29,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             return $"auth_date={data.AuthDate}\nquery_id={data.QueryId}\nuser={data.User}";
         }
-        public string GetToken(TelegramAuthDateDto dto)
+        public async Task<string> GetTokenAsync(TelegramAuthDateDto dto)
         {
             var tgAuthDateObj = dto;
             string data = CombineData(tgAuthDateObj);
@@ -41,7 +44,8 @@ namespace backend_iGamingBot.Infrastructure.Services
             var claims = new List<Claim>()
             {
                 new(type: ClaimTypes.NameIdentifier, value: tgUser.Id.ToString()),
-                new(type:ClaimTypes.Name, value: tgUser.FirstName)
+                new(type:ClaimTypes.Name, value: tgUser.FirstName),
+                new(type:"Role", value: await _userSrc.DefineRoleByTgIdAsync(tgUser.Id.ToString()))
             };
             var jwt = new JwtSecurityToken(
             claims: claims,

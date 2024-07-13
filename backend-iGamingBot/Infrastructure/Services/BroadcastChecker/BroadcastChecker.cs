@@ -1,8 +1,4 @@
-﻿using backend_iGamingBot.Models.Essentials;
-using System.Linq;
-using System.Text.Json;
-
-namespace backend_iGamingBot.Infrastructure.Services
+﻿namespace backend_iGamingBot.Infrastructure.Services
 {
     public static class ExtensionsForBroadcastChecker
     {

@@ -22,6 +22,7 @@ namespace backend_iGamingBot.Infrastructure
         };
 
         public static string Denied => "Авторищация не пройдена";
+        public static string UserNotExists => "Такого пользователя не существует";
 
         private static string GetSocialNameConstant(string social)
         {
@@ -31,6 +32,8 @@ namespace backend_iGamingBot.Infrastructure
         }
         public static string Youtube = GetSocialNameConstant(nameof(Youtube));
         public static string Twitch = GetSocialNameConstant(nameof(Twitch));
+        public static string StreamerRole => "Streamer";
+        public static string UserRole => "User";
 
     }
 }

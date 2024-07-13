@@ -1,8 +1,6 @@
 ﻿using backend_iGamingBot.Infrastructure.Configs;
 using backend_iGamingBot.Infrastructure.Services;
-using backend_iGamingBot.Models.Essentials;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.CompilerServices;
 
 namespace backend_iGamingBot.Infrastructure.Extensions
 {
