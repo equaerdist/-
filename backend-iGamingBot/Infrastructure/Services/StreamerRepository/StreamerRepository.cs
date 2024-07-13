@@ -21,11 +21,11 @@ namespace backend_iGamingBot.Infrastructure.Services
             _factory = factory;
         }
 
-        public async Task<GetRaffleDto[]> GetRafflesAsync(int page, int pageSize, string type, long streamerId)
+        public async Task<GetRaffleDto[]> GetRafflesAsync(int page, int pageSize, string type, string tgId)
         {
             using var ctx = await _factory.CreateDbContextAsync();
             var result = await ctx.Raffles
-                .Where(r => r.CreatorId.Equals(streamerId))
+                .Where(r => r.Creator!.TgId.Equals(tgId))
                 .OrderBy(r => r.EndTime)
                 .Skip((page- 1) * pageSize)
                 .Take(pageSize)
@@ -54,11 +54,11 @@ namespace backend_iGamingBot.Infrastructure.Services
             return streamer;
         }
 
-        public async Task<GetSubscriberDto[]> GetSubscribersAsync(int page, int pageSize, long id)
+        public async Task<GetSubscriberDto[]> GetSubscribersAsync(int page, int pageSize, string tgId)
         {
             using var ctx = await _factory.CreateDbContextAsync();
             var result = await ctx.Subscribers
-                .Where(s =>  s.StreamerId.Equals(id))
+                .Where(s =>  s.User!.TgId.Equals(tgId))
                 .OrderByDescending(s => s.SubscribeTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

@@ -43,8 +43,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                 throw new InvalidOperationException();
             var claims = new List<Claim>()
             {
-                new(type: ClaimTypes.NameIdentifier, value: tgUser.Id.ToString()),
-                new(type:ClaimTypes.Name, value: tgUser.FirstName),
+                new(type: "NameId", value: tgUser.Id.ToString()),
+                new(type:"Name", value: tgUser.FirstName),
                 new(type:"Role", value: await _userSrc.DefineRoleByTgIdAsync(tgUser.Id.ToString()))
             };
             var jwt = new JwtSecurityToken(

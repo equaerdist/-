@@ -19,16 +19,16 @@ namespace backend_iGamingBot.Controllers
             var streamer = await _streamerSrc.GetStreamerByTgIdAsync(tgId);
             return Ok(streamer);
         }
-        [HttpGet("{id:long}/raffles")]
+        [HttpGet("{id:string}/raffles")]
         public async Task<IActionResult> GetRafflesAsync([FromQuery]int page, [FromQuery]int pageSize, 
-            [FromQuery]string type, [FromRoute] long id)
+            [FromQuery]string type, [FromRoute] string id)
         {
             var result = await _streamerSrc.GetRafflesAsync(page, pageSize, type, id);
             return Ok(result);
         }
-        [HttpGet("{id:long}/subscribers")]
+        [HttpGet("{id:string}/subscribers")]
         public async Task<IActionResult> GetSubscribersAsync([FromQuery] int page, 
-            [FromQuery] int pageSize, [FromRoute] long id)
+            [FromQuery] int pageSize, [FromRoute] string id)
         {
             var result = await _streamerSrc.GetSubscribersAsync(page, pageSize, id);
             return Ok(result);

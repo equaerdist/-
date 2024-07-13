@@ -20,7 +20,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 //await app.TestOnYoutubeStreaming();
-//await app.CreateFakeStreamers();
+//await app.CreateFakeStreamersWithSubscribers();
 await app.CheckMigrationsAsync();
 app.UseCors(opt => opt
     .AllowAnyHeader()

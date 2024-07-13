@@ -23,6 +23,15 @@ namespace backend_iGamingBot.Infrastructure
 
         public static string Denied => "Авторищация не пройдена";
         public static string UserNotExists => "Такого пользователя не существует";
+        public static string TetherTRC20 => "Tether TRC20";
+        public static string TetherERC20 => "Tether ERC20";
+        public static string Piastrix => "Piastrix";
+        public static UserPayMethod[] DefaultPayMethods =>
+            [
+                new() { Platfrom = TetherTRC20},
+                new() { Platfrom = TetherERC20},
+                new() { Platfrom = Piastrix}
+            ];
 
         private static string GetSocialNameConstant(string social)
         {

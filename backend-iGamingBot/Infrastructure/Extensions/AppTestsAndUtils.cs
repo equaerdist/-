@@ -4,6 +4,162 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend_iGamingBot.Infrastructure.Extensions
 {
+    public static class FakeRafflesFactory
+    {
+        public static int MaxValue => 1000;
+        public static Raffle[] GetRaffles() =>
+        Enumerable.Range(1, 500).Select(t => new Raffle()
+        {
+            AmountOfWinners = Random.Shared.Next(1, 5),
+            RaffleConditions = [],
+            Description = $"Smth description_ \n{Guid.NewGuid()}\n{Guid.NewGuid()}",
+            EndTime = DateTime.UtcNow + TimeSpan.FromDays(MaxValue),
+            ShowWinners = Random.Shared.Next(0, 2) == 1 ,
+            ShouldNotifyUsers = Random.Shared.Next(0,2) == 1 ,
+        }).ToArray();
+
+    }
+    public static class FakeSubscribersFactory
+    {
+        private static int MaxValue => 1000;
+        public static Subscriber[] GetSubscribers() =>
+        Enumerable.Range(1, 2000).Select(t => new Subscriber()
+        {
+            SubscribeTime = DateTime.UtcNow - TimeSpan.FromDays(Random.Shared.Next(MaxValue)),
+            User = new()
+            {
+                FirstName = $"Peter Parker_{Random.Shared.Next(MaxValue)}_{Guid.NewGuid().ToString()}",
+                PayMethods = AppDictionary.DefaultPayMethods.ToList(),
+                TgId = Random.Shared.Next(MaxValue).ToString() + Guid.NewGuid().ToString(),
+            }
+        }).ToArray();
+    }
+    public static class FakeStreamersFactory
+    {
+        private static int MaxValue { get; } = 1000;
+        public async static Task<Streamer[]> GetStreamers(IYoutube yt) =>
+            [
+                new()
+                {
+                    TgId = Random.Shared.Next(MaxValue).ToString(),
+                    Name = "recrent",
+                    SubscribersRelation = FakeSubscribersFactory.GetSubscribers(),
+                    Socials = new()
+                    {
+                        new()
+                        {
+                            Name = AppDictionary.Twitch,
+                            Link = "www.twitch.tv/recrent",
+                            Parameter = new DefaultLiveParameter() { }
+                        },
+                        new()
+                        {
+                            Name = AppDictionary.Youtube,
+                            Link = "www.youtube.com/@recrent",
+                            Parameter = new ()
+                            {
+                                Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@recrent")
+                            }
+                        }
+                    }
+                },
+                new()
+                {
+                    TgId = Random.Shared.Next(MaxValue).ToString(),
+                    Name = "nix",
+                    Socials = new()
+                    {
+                        new()
+                        {
+                            Name = AppDictionary.Twitch,
+                            Link = "www.twitch.tv/nix",
+                            Parameter = new DefaultLiveParameter() { }
+                        }
+                    }
+                },
+                new()
+                {
+                     TgId = Random.Shared.Next(MaxValue).ToString(),
+                    Name = "ct0m",
+                    Socials = new()
+                    {
+                        new()
+                        {
+                            Name = AppDictionary.Twitch,
+                            Link = "www.twitch.tv/ct0m",
+                            Parameter = new DefaultLiveParameter() { }
+                        }
+                    }
+                },
+                new()
+                {
+                     TgId = Random.Shared.Next(MaxValue).ToString(),
+                    Name = "kasanofff",
+                    Socials = new()
+                    {
+                        new()
+                        {
+                            Name = AppDictionary.Twitch,
+                            Link = "www.twitch.tv/kasanofff",
+                            Parameter = new DefaultLiveParameter() { }
+                        }
+                    }
+                },
+                new()
+                {
+                    TgId = Random.Shared.Next(MaxValue).ToString(),
+                    Name = "VIRTUALNEWYORK",
+                    Socials = new()
+                    {
+                        new()
+                        {
+                            Name = AppDictionary.Youtube,
+                            Link = "www.youtube.com/@VIRTUALNEWYORK",
+                            Parameter = new()
+                            {
+                                Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@VIRTUALNEWYORK")
+                            }
+                        }
+                    }
+                },
+                new()
+                {
+                    TgId = Random.Shared.Next(MaxValue).ToString(),
+                    Name = "Kolezev",
+                    Socials = new()
+                    {
+                        new()
+                        {
+                            Name = AppDictionary.Youtube,
+                            Link = "www.youtube.com/@Kolezev",
+                            Parameter = new ()
+                            {
+                                Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@Kolezev")
+                            }
+                        }
+                    }
+                },
+                new()
+                {
+                    TgId = Random.Shared.Next(MaxValue).ToString(),
+                    SubscribersRelation = FakeSubscribersFactory.GetSubscribers(),
+                    CreatedRaffles = FakeRafflesFactory.GetRaffles(),
+                    Name = "LofiGirl",
+                    Socials = new()
+                    {
+                        new()
+                        {
+                            Name = AppDictionary.Youtube,
+                            Link = "www.youtube.com/@LofiGirl",
+                            Parameter = new()
+                            {
+                                Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@LofiGirl")
+                            }
+                        }
+                    }
+                }
+            ];
+    }
     public static class AppTestsAndUtils
     {
         public static async Task<WebApplication> TestOnYoutubeStreaming(this WebApplication app)
@@ -29,123 +185,12 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                 await ctx.Database.MigrateAsync();
             return app;
         }
-        public static async Task<WebApplication> CreateFakeStreamers(this WebApplication app)
+        public static async Task<WebApplication> CreateFakeStreamersWithSubscribers(this WebApplication app)
         {
             using var scope = app.Services.CreateScope();
             var yt = scope.ServiceProvider.GetRequiredService<IYoutube>();
             var ctx = scope.ServiceProvider.GetRequiredService<AppCtx>();
-            List<Streamer> streamers = new()
-            {
-                new()
-                {
-                    Name = "recrent",
-                    Socials = new()
-                    {
-                        new()
-                        {
-                            Name = AppDictionary.Twitch,
-                            Link = "www.twitch.tv/recrent",
-                            Parameter = new DefaultLiveParameter() { }
-                        },
-                        new()
-                        {
-                            Name = AppDictionary.Youtube,
-                            Link = "www.youtube.com/@recrent",
-                            Parameter = new ()
-                            {
-                                Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@recrent")
-                            }
-                        }
-                    }
-                },
-                new()
-                {
-                    Name = "nix",
-                    Socials = new()
-                    {
-                        new()
-                        {
-                            Name = AppDictionary.Twitch,
-                            Link = "www.twitch.tv/nix",
-                            Parameter = new DefaultLiveParameter() { }
-                        }
-                    }
-                },
-                new()
-                {
-                    Name = "ct0m",
-                    Socials = new()
-                    {
-                        new()
-                        {
-                            Name = AppDictionary.Twitch,
-                            Link = "www.twitch.tv/ct0m",
-                            Parameter = new DefaultLiveParameter() { }
-                        }
-                    }
-                },
-                new()
-                {
-                    Name = "kasanofff",
-                    Socials = new()
-                    {
-                        new()
-                        {
-                            Name = AppDictionary.Twitch,
-                            Link = "www.twitch.tv/kasanofff",
-                            Parameter = new DefaultLiveParameter() { }
-                        }
-                    }
-                },
-                new()
-                {
-                    Name = "VIRTUALNEWYORK",
-                    Socials = new()
-                    {
-                        new()
-                        {
-                            Name = AppDictionary.Youtube,
-                            Link = "www.youtube.com/@VIRTUALNEWYORK",
-                            Parameter = new()
-                            {
-                                Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@VIRTUALNEWYORK")
-                            }
-                        }
-                    }
-                },
-                new()
-                {
-                    Name = "Kolezev",
-                    Socials = new()
-                    {
-                        new()
-                        {
-                            Name = AppDictionary.Youtube,
-                            Link = "www.youtube.com/@Kolezev",
-                            Parameter = new ()
-                            {
-                                Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@Kolezev")
-                            }
-                        }
-                    }
-                },
-                new()
-                {
-                    Name = "LofiGirl",
-                    Socials = new()
-                    {
-                        new()
-                        {
-                            Name = AppDictionary.Youtube,
-                            Link = "www.youtube.com/@LofiGirl",
-                            Parameter = new()
-                            {
-                                Identifier = await yt.GetUserIdentifierByLinkAsync("www.youtube.com/@LofiGirl")
-                            }
-                        }
-                    }
-                }
-            };
+            var streamers = await FakeStreamersFactory.GetStreamers(yt);
             await ctx.Streamers.AddRangeAsync(streamers);
             await ctx.SaveChangesAsync();
             return app;
