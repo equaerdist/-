@@ -26,7 +26,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
         Enumerable.Range(1, 2000).Select(t => new Subscriber()
         {
             SubscribeTime = DateTime.UtcNow - TimeSpan.FromDays(Random.Shared.Next(MaxValue)),
-            User = new()
+            User = new User()
             {
                 FirstName = $"Peter Parker_{Random.Shared.Next(MaxValue)}_{Guid.NewGuid().ToString()}",
                 PayMethods = AppDictionary.DefaultPayMethods.ToList(),
@@ -43,6 +43,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                 {
                     TgId = Random.Shared.Next(MaxValue).ToString(),
                     Name = "recrent",
+                    FirstName = "recr",
                     SubscribersRelation = FakeSubscribersFactory.GetSubscribers(),
                     Socials = new()
                     {
@@ -67,6 +68,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                 {
                     TgId = Random.Shared.Next(MaxValue).ToString(),
                     Name = "nix",
+                    FirstName = "nix",
                     Socials = new()
                     {
                         new()
@@ -79,6 +81,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                 },
                 new()
                 {
+                    FirstName = "ct0m",
                      TgId = Random.Shared.Next(MaxValue).ToString(),
                     Name = "ct0m",
                     Socials = new()
@@ -95,6 +98,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                 {
                      TgId = Random.Shared.Next(MaxValue).ToString(),
                     Name = "kasanofff",
+                    FirstName = "kagh",
                     Socials = new()
                     {
                         new()
@@ -109,6 +113,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                 {
                     TgId = Random.Shared.Next(MaxValue).ToString(),
                     Name = "VIRTUALNEWYORK",
+                    FirstName = "232323",
                     Socials = new()
                     {
                         new()
@@ -126,6 +131,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                 {
                     TgId = Random.Shared.Next(MaxValue).ToString(),
                     Name = "Kolezev",
+                    FirstName = "4543533",
                     Socials = new()
                     {
                         new()
@@ -145,6 +151,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                     SubscribersRelation = FakeSubscribersFactory.GetSubscribers(),
                     CreatedRaffles = FakeRafflesFactory.GetRaffles(),
                     Name = "LofiGirl",
+                    FirstName = "gfgd",
                     Socials = new()
                     {
                         new()
@@ -159,6 +166,20 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                     }
                 }
             ];
+    }
+    public static class FakeUserFactory
+    {
+        private static string TestTgId = "5";
+        public static User GetUser()
+        {
+            return new User()
+            {
+                FirstName = "Peter",
+                PayMethods = [],
+                TgId = TestTgId,
+
+            };
+        }
     }
     public static class AppTestsAndUtils
     {
@@ -194,6 +215,31 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             await ctx.Streamers.AddRangeAsync(streamers);
             await ctx.SaveChangesAsync();
             return app;
+        }
+        public static async Task<WebApplication> CreateInfoForStreamersPage(this WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var ctx = scope.ServiceProvider.GetRequiredService<AppCtx>();
+            var testUser = FakeUserFactory.GetUser();
+            var yt = scope.ServiceProvider.GetRequiredService<IYoutube>();
+            var streamers = await FakeStreamersFactory.GetStreamers(yt);
+            var randomStreamer = streamers.First();
+            var finalSubscribers = randomStreamer.SubscribersRelation.ToList();
+            finalSubscribers.Add(new() { SubscribeTime = DateTime.UtcNow, User = testUser });
+            randomStreamer.SubscribersRelation = finalSubscribers;
+            await ctx.Streamers.AddRangeAsync(streamers);
+            await ctx.SaveChangesAsync();
+            return app;
+        }
+        public static async  Task<WebApplication> TestFunction(this WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var userSrc = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+            var streamer = await userSrc.GetUserByIdAsync("272");
+            var user = await userSrc.GetUserByIdAsync("5");
+            var isStreamer = streamer is Streamer;
+            var isUser = user is User;
+            throw new InvalidCastException("Тестовая функция");
         }
     }
 }

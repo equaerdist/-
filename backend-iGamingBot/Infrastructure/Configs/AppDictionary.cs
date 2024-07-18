@@ -43,6 +43,7 @@ namespace backend_iGamingBot.Infrastructure
         public static string Twitch = GetSocialNameConstant(nameof(Twitch));
         public static string StreamerRole => "Streamer";
         public static string UserRole => "User";
+        public static string EmailRaffleCondition => "Email";
 
     }
 }

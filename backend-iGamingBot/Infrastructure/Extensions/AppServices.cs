@@ -16,6 +16,9 @@ namespace backend_iGamingBot.Infrastructure
             services.AddScoped<IStreamerRepository, StreamerRepository>();
             services.AddHostedService<BroadcastChecker>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IStreamerService, StreamerService>();
+            services.AddScoped<IUserService, UserService>();
             return services;
         }
     }

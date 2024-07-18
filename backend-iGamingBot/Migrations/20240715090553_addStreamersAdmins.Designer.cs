@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backend_iGamingBot.Infrastructure.Configs;
@@ -11,9 +12,11 @@ using backend_iGamingBot.Infrastructure.Configs;
 namespace backend_iGamingBot.Migrations
 {
     [DbContext(typeof(AppCtx))]
-    partial class AppCtxModelSnapshot : ModelSnapshot
+    [Migration("20240715090553_addStreamersAdmins")]
+    partial class addStreamersAdmins
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,9 +110,6 @@ namespace backend_iGamingBot.Migrations
                         .HasMaxLength(13)
                         .HasColumnType("character varying(13)");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -123,7 +123,7 @@ namespace backend_iGamingBot.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AllUsers");
+                    b.ToTable("DefaultUser");
 
                     b.HasDiscriminator().HasValue("DefaultUser");
 

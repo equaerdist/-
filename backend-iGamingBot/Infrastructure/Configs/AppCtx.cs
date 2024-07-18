@@ -10,6 +10,7 @@ namespace backend_iGamingBot.Infrastructure.Configs
         public DbSet<Streamer> Streamers { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Raffle> Raffles { get; set; } = null!;
+        public DbSet<DefaultUser> AllUsers { get; set; } = null!;
         public DbSet<Subscriber> Subscribers { get; set; }
         public AppCtx(DbContextOptions<AppCtx> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,12 +54,19 @@ namespace backend_iGamingBot.Infrastructure.Configs
                    
                     j.HasKey(r => new { r.UserId, r.StreamerId });
                 });
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<DefaultUser>()
                 .HasMany(u => u.ParticipantRaffles)
                 .WithMany(r => r.Participants);
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<DefaultUser>()
                 .HasMany(u => u.WinnerRaffles)
                 .WithMany(r => r.Winners);
+            modelBuilder.Entity<Streamer>()
+                .HasMany(s => s.CreatedRaffles)
+                .WithOne(r => r.Creator)
+                .HasForeignKey(s => s.CreatorId);
+            modelBuilder.Entity<Streamer>()
+                .HasMany(s => s.Admins)
+                .WithMany(u => u.Negotiable);
             modelBuilder.Entity<Raffle>()
                .Property(e => e.RaffleConditions)
                .HasConversion(

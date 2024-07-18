@@ -11,6 +11,7 @@
         public string Name { get; set; } = null!;
         public string TgId { get; set; } = null!;
         public bool IsLive { get; set; }
+        public bool IsSubscribed { get; set; }
         public List<Social> Socials { get; set; }
     }
 }

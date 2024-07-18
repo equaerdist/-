@@ -21,7 +21,10 @@ if (app.Environment.IsDevelopment())
 }
 //await app.TestOnYoutubeStreaming();
 //await app.CreateFakeStreamersWithSubscribers();
+//await app.CreateInfoForStreamersPage();
+//await app.TestFunction();
 await app.CheckMigrationsAsync();
+
 app.UseCors(opt => opt
     .AllowAnyHeader()
     .AllowAnyMethod()

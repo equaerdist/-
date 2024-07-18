@@ -1,15 +1,17 @@
 ﻿using backend_iGamingBot.Infrastructure.Configs;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend_iGamingBot.Infrastructure.Services.UserRepository
+namespace backend_iGamingBot.Infrastructure.Services
 {
     public class UserRepository : IUserRepository
     {
         private readonly IDbContextFactory<AppCtx> _factory;
+        private readonly AppCtx _ctx;
 
-        public UserRepository(IDbContextFactory<AppCtx> factory) 
+        public UserRepository(IDbContextFactory<AppCtx> factory, AppCtx ctx) 
         {
             _factory = factory;
+            _ctx = ctx;
         }
         public async Task<string> DefineRoleByTgIdAsync(string tgId)
         {
@@ -23,6 +25,11 @@ namespace backend_iGamingBot.Infrastructure.Services.UserRepository
             if(userTask.Result != null)
                 return AppDictionary.UserRole;
             throw new AppException(AppDictionary.UserNotExists);
+        }
+
+        public async Task<DefaultUser> GetUserByIdAsync(string tgId)
+        {
+            return await _ctx.AllUsers.FirstAsync(s => s.TgId == tgId);
         }
     }
 }

@@ -5,8 +5,10 @@ namespace backend_iGamingBot.Infrastructure.Services
     public interface IStreamerRepository
     {
         public Task<Streamer[]> GetStreamerBatchAsync(int page, int pageSize);
-        public Task<GetStreamerDto> GetStreamerByTgIdAsync(string tgId);
-        public Task<GetRaffleDto[]> GetRafflesAsync(int page, int pageSize, string type, string tgId);
+        public Task<GetStreamerDto> GetStreamerByTgIdAsync(string tgId, string userId);
+        public Task<GetStreamerDto[]> GetStreamersPageAsync(int page, int pageSize, string userId);
+        public Task<GetRaffleDto[]> GetRafflesAsync(int page, int pageSize, string type, string tgId, string userId);
         public Task<GetSubscriberDto[]> GetSubscribersAsync(int page, int pageSize, string tgId);
+        public Task<GetAdminDto[]> GetAdminsAsync(string tgId);
     }
 }

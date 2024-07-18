@@ -8,8 +8,8 @@ namespace backend_iGamingBot
         public Raffle() 
         {
             RaffleConditions = new();
-            Participants = new List<User>();
-            Winners = new List<User>();
+            Participants = new List<DefaultUser>();
+            Winners = new List<DefaultUser>();
         }
         public int AmountOfWinners { get; set; }
         public bool ShowWinners { get; set; }
@@ -19,7 +19,7 @@ namespace backend_iGamingBot
         public bool ShouldNotifyUsers { get; set; }
         public long CreatorId { get;set; }
         public Streamer? Creator { get; set; }
-        public ICollection<User> Participants { get; set; } = null!;
-        public ICollection<User> Winners { get; set; } = null!;
+        public ICollection<DefaultUser> Participants { get; set; } = null!;
+        public ICollection<DefaultUser> Winners { get; set; } = null!;
     }
 }

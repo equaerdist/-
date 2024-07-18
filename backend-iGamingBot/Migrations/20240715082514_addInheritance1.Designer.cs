@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backend_iGamingBot.Infrastructure.Configs;
@@ -11,9 +12,11 @@ using backend_iGamingBot.Infrastructure.Configs;
 namespace backend_iGamingBot.Migrations
 {
     [DbContext(typeof(AppCtx))]
-    partial class AppCtxModelSnapshot : ModelSnapshot
+    [Migration("20240715082514_addInheritance1")]
+    partial class addInheritance1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,21 +53,6 @@ namespace backend_iGamingBot.Migrations
                     b.HasIndex("WinnersId");
 
                     b.ToTable("DefaultUserRaffle1");
-                });
-
-            modelBuilder.Entity("DefaultUserStreamer", b =>
-                {
-                    b.Property<long>("AdminsId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("NegotiableId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("AdminsId", "NegotiableId");
-
-                    b.HasIndex("NegotiableId");
-
-                    b.ToTable("DefaultUserStreamer");
                 });
 
             modelBuilder.Entity("backend_iGamingBot.Config", b =>
@@ -107,9 +95,6 @@ namespace backend_iGamingBot.Migrations
                         .HasMaxLength(13)
                         .HasColumnType("character varying(13)");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -123,7 +108,7 @@ namespace backend_iGamingBot.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AllUsers");
+                    b.ToTable("DefaultUser");
 
                     b.HasDiscriminator().HasValue("DefaultUser");
 
@@ -247,21 +232,6 @@ namespace backend_iGamingBot.Migrations
                     b.HasOne("backend_iGamingBot.DefaultUser", null)
                         .WithMany()
                         .HasForeignKey("WinnersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DefaultUserStreamer", b =>
-                {
-                    b.HasOne("backend_iGamingBot.DefaultUser", null)
-                        .WithMany()
-                        .HasForeignKey("AdminsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend_iGamingBot.Streamer", null)
-                        .WithMany()
-                        .HasForeignKey("NegotiableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
