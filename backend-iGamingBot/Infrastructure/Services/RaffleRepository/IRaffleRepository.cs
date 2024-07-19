@@ -7,5 +7,6 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task CreateRaffleAsync(Raffle raffle);
         public Task<GetRaffleDto> GetRaffleByIdAsync(long id);
         public Task<Raffle> GetTrackingRaffleByIdAsync(long id);
+        public Task<GetSubscriberDto[]> GetRaffleWinners(long raffleId);
     }
 }

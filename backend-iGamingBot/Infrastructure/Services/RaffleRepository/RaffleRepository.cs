@@ -1,4 +1,6 @@
-﻿using backend_iGamingBot.Dto;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using backend_iGamingBot.Dto;
 using backend_iGamingBot.Infrastructure.Configs;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,11 +9,13 @@ namespace backend_iGamingBot.Infrastructure.Services.RaffleRepository
     public class RaffleRepository : IRaffleRepository
     {
         private readonly AppCtx _ctx;
+        private readonly IMapper _mapper;
         private readonly IDbContextFactory<AppCtx> _factory;
 
-        public RaffleRepository(AppCtx ctx, IDbContextFactory<AppCtx> factory) 
+        public RaffleRepository(AppCtx ctx, IDbContextFactory<AppCtx> factory, IMapper mapper) 
         {
             _ctx = ctx;
+            _mapper = mapper;
             _factory = factory;
         }
         public async Task CreateRaffleAsync(Raffle raffle) => await _ctx.Raffles.AddAsync(raffle);
@@ -28,6 +32,16 @@ namespace backend_iGamingBot.Infrastructure.Services.RaffleRepository
                 EndTime = r.EndTime,
                 Id = r.Id,
             }).FirstAsync();
+        }
+
+        public async Task<GetSubscriberDto[]> GetRaffleWinners(long raffleId)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            var result = await ctx.AllUsers
+                .Where(u => u.WinnerRaffles.Select(r => r.Id).Contains(raffleId))
+                .ProjectTo<GetSubscriberDto>(_mapper.ConfigurationProvider)
+                .ToArrayAsync();
+            return result;
         }
 
         public async Task<Raffle> GetTrackingRaffleByIdAsync(long id)
