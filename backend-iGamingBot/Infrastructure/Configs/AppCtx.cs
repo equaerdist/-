@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using backend_iGamingBot.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Text.Json;
 
@@ -11,7 +12,8 @@ namespace backend_iGamingBot.Infrastructure.Configs
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Raffle> Raffles { get; set; } = null!;
         public DbSet<DefaultUser> AllUsers { get; set; } = null!;
-        public DbSet<Subscriber> Subscribers { get; set; }
+        public DbSet<Subscriber> Subscribers { get; set; } = null!;
+        public DbSet<WinnerNote> WinnerNotes { get; set; } = null!;
         public AppCtx(DbContextOptions<AppCtx> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,10 +58,36 @@ namespace backend_iGamingBot.Infrastructure.Configs
                 });
             modelBuilder.Entity<DefaultUser>()
                 .HasMany(u => u.ParticipantRaffles)
-                .WithMany(r => r.Participants);
+                .WithMany(r => r.Participants)
+                .UsingEntity<ParticipantNote>(j =>
+                {
+                    j.HasOne(s => s.Participant)
+                    .WithMany(u => u.ParticipantNotes)
+                    .HasForeignKey(s => s.ParticipantId);
+
+                    j.HasOne(s => s.Raffle)
+                    .WithMany(r => r.ParticipantsNote)
+                    .HasForeignKey(n => n.RaffleId);
+
+                    j.HasKey(s => s.Id);
+                    j.Property(s => s.HaveAbused).HasDefaultValue(false);
+                });
             modelBuilder.Entity<DefaultUser>()
                 .HasMany(u => u.WinnerRaffles)
-                .WithMany(r => r.Winners);
+                .WithMany(r => r.Winners)
+                .UsingEntity<WinnerNote>(j =>
+                {
+                    j.HasOne(n => n.Winner)
+                    .WithMany(u => u.WinnerNotes)
+                    .HasForeignKey(n => n.WinnerId);
+
+                    j.HasOne(n => n.Raffle)
+                    .WithMany (r => r.WinnersNote)
+                    .HasForeignKey(n => n.RaffleId);
+
+                    j.HasKey(j => new { j.WinnerId, j.RaffleId });
+                    j.Property(j => j.AmountOfWins).HasDefaultValue(1);
+                });
             modelBuilder.Entity<Streamer>()
                 .HasMany(s => s.CreatedRaffles)
                 .WithOne(r => r.Creator)
@@ -76,15 +104,10 @@ namespace backend_iGamingBot.Infrastructure.Configs
                        (c1, c2) => c1!.SequenceEqual(c2!),
                        c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
                        c => c.ToList()));
-            modelBuilder.Entity<User>()
-              .Property(e => e.PayMethods)
-              .HasConversion(
-                  v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
-                  v => JsonSerializer.Deserialize<List<UserPayMethod>>(v, new JsonSerializerOptions())!,
-                  new ValueComparer<List<UserPayMethod>>(
-                      (c1, c2) => c1!.SequenceEqual(c2!),
-                      c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.Data == null ? 1 : v.Data.GetHashCode())),
-                      c => c.ToList()));
+            modelBuilder.Entity<DefaultUser>()
+                .HasMany(u => u.UserPayMethods)
+                .WithOne(p => p.User)
+                .HasForeignKey(p => new { p.UserId, p.Platform });
         }
     }
 }

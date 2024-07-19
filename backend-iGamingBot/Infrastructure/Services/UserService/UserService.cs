@@ -34,6 +34,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 LastName = req.LastName,
                 Name = req.Name,
                 TgId = req.TgId,
+                UserPayMethods = AppDictionary.DefaultPayMethods,
             };
             await _userSrc.AddUserAsync(streamer);
             try
@@ -57,6 +58,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 FirstName = req.FirstName,
                 LastName = req.LastName,
                 TgId = req.TgId,
+                UserPayMethods= AppDictionary.DefaultPayMethods,
             };
             await _userSrc.AddUserAsync(user);
             await _uof.SaveChangesAsync();

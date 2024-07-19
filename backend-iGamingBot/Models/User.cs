@@ -7,6 +7,5 @@ namespace backend_iGamingBot
         {
             PayMethods = new();
         }
-        public List<UserPayMethod> PayMethods { get; set; }
     }
 }

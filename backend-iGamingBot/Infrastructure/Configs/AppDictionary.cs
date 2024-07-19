@@ -23,9 +23,9 @@ namespace backend_iGamingBot.Infrastructure
         public static string Piastrix => "Piastrix";
         public static UserPayMethod[] DefaultPayMethods =>
             [
-                new() { Platfrom = TetherTRC20},
-                new() { Platfrom = TetherERC20},
-                new() { Platfrom = Piastrix}
+                new() { Platform = TetherTRC20},
+                new() { Platform = TetherERC20},
+                new() { Platform = Piastrix}
             ];
 
         private static string GetSocialNameConstant(string social)

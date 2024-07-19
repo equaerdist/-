@@ -1,5 +1,7 @@
 ﻿
 
+using backend_iGamingBot.Models;
+
 namespace backend_iGamingBot
 {
     public class Raffle
@@ -10,6 +12,8 @@ namespace backend_iGamingBot
             RaffleConditions = new();
             Participants = new List<DefaultUser>();
             Winners = new List<DefaultUser>();
+            ParticipantsNote = new List<ParticipantNote>();
+            WinnersNote =new List<WinnerNote>();
         }
         public int AmountOfWinners { get; set; }
         public bool ShowWinners { get; set; }
@@ -20,6 +24,8 @@ namespace backend_iGamingBot
         public long CreatorId { get;set; }
         public Streamer? Creator { get; set; }
         public ICollection<DefaultUser> Participants { get; set; } = null!;
+        public ICollection<ParticipantNote> ParticipantsNote { get; set; } = null!;
         public ICollection<DefaultUser> Winners { get; set; } = null!;
+        public ICollection<WinnerNote> WinnersNote { get; set; } = null!;
     }
 }
