@@ -124,5 +124,14 @@ namespace backend_iGamingBot.Infrastructure.Services.RaffleRepository
 
         public async Task AddWinnerNote(WinnerNote winnerNote)
         => await _ctx.WinnerNotes.AddAsync(winnerNote);
+
+        public async Task<long[]> GetRafflesAlreadyEnded()
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            return await ctx.Raffles
+                .Where(r => r.EndTime < DateTime.UtcNow)
+                .Select(r => r.Id)
+                .ToArrayAsync();
+        }
     }
 }

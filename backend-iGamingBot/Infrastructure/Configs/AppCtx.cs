@@ -106,8 +106,9 @@ namespace backend_iGamingBot.Infrastructure.Configs
                        c => c.ToList()));
             modelBuilder.Entity<DefaultUser>()
                 .HasMany(u => u.UserPayMethods)
-                .WithOne(p => p.User)
-                .HasForeignKey(p => new { p.UserId, p.Platform });
+                .WithOne(p => p.User);
+            modelBuilder.Entity<UserPayMethod>()
+                .HasKey(m => new { m.UserId, m.Platform });
         }
     }
 }

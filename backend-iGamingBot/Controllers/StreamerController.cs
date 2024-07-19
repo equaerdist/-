@@ -84,9 +84,9 @@ namespace backend_iGamingBot.Controllers
             return Ok(AppDictionary.ResolvedConditions.Select(t => t.title).ToArray());
         }
         [HttpPost("{id}/posts")]
-        public IActionResult CreatePost([FromRoute] string id, [FromForm] CreatePostRequest req)
+        public async Task<IActionResult> CreatePost([FromRoute] string id, [FromForm] CreatePostRequest req)
         {
-            _streamerSrv.CreatePostAsync(req, id);
+            await _streamerSrv.CreatePostAsync(req, id);
             return Ok();
         }
     }

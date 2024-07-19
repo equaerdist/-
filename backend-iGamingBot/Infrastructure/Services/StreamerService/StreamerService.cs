@@ -48,6 +48,20 @@ namespace backend_iGamingBot.Infrastructure.Services
             var raffle = _mapper.Map<Raffle>(request);
             raffle.CreatorId = userId;
             await _raffleSrc.CreateRaffleAsync(raffle);
+            if(request.ShouldNotifyUsers)
+            {
+                var batchNum = 1;
+                var streamer = await _streamerSrc.GetStreamerByTgIdAsync(tgId, "1");
+                while (true)
+                {
+                    var batch = await _streamerSrc.GetBatchOfStreamerSubscribersAsync(tgId, 
+                        AppConfig.USER_BATCH_SIZE, batchNum);
+                    var post = new CreatePostRequest() { Message = $"У стримера {streamer.Name} начался розыгрыш!" };
+                    _postsCreator.AddPostToLine((post, tgId, batch));
+                    if (batch.Length < AppConfig.USER_BATCH_SIZE)
+                        break;
+                }
+            }
             await _uof.SaveChangesAsync();
             return raffle;
         }
@@ -84,9 +98,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             var userEntry = await _userSrc.GetUserByIdAsync(userId);
             if (!(streamerEntry is Streamer streamer))
                 throw new InvalidOperationException();
-            if(!(userEntry is User user))
-                throw new InvalidOperationException();
-            streamer.SubscribersRelation.Add(new() { User = user, SubscribeTime = DateTime.UtcNow });
+            streamer.SubscribersRelation.Add(new() { User = userEntry, SubscribeTime = DateTime.UtcNow });
             await _uof.SaveChangesAsync();
         }
 
@@ -99,16 +111,25 @@ namespace backend_iGamingBot.Infrastructure.Services
             if (string.IsNullOrEmpty(req.Message) || req.Message.Length < AppConfig.MinimalLengthForText)
                 throw new AppException(AppDictionary.PostBodyNotEmpty);
         }
-        public Task CreatePostAsync(CreatePostRequest request, string tgId)
+        public async Task CreatePostAsync(CreatePostRequest request, string tgId)
         {
             ValidatePostRequest(request);
-            _postsCreator.AddPostToLine((request, tgId));
-            return Task.CompletedTask;
+            var batchNum = 1;
+            while(true)
+            {
+                var batch = await _streamerSrc.GetBatchOfStreamerSubscribersAsync(tgId, AppConfig.USER_BATCH_SIZE, batchNum);
+                batchNum++;
+                _postsCreator.AddPostToLine((request, tgId, batch));
+                if (batch.Length < AppConfig.USER_BATCH_SIZE)
+                    break;
+            }
         }
 
         public async Task DoParticipantInRaffleAsync(long raffleId, string userId)
         {
             var raffle = await _raffleSrc.GetTrackingRaffleByIdAsync(raffleId);
+            if (raffle.EndTime < DateTime.UtcNow)
+                throw new AppException(AppDictionary.RaffleTimeExceeded);
             var user = await _userSrc.GetUserByIdAsync(userId);
             raffle.Participants.Add(user);
             await _uof.SaveChangesAsync();

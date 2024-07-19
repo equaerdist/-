@@ -9,56 +9,63 @@ namespace backend_iGamingBot.Infrastructure.Services
     public class TelegramPostCreator : BackgroundService
     {
         private ITelegramBotClient _botClient = null!;
-        private IStreamerRepository _streamerSrc = null!;
         private ILogger<TelegramPostCreator> _logger = null!;
         private readonly IServiceProvider _services;
 
-        public async Task SendFileAsync(long chatId, IFormFile file, string? caption = null)
+        public async Task SendFileAsync(long chatId, IFormFile? file, string? caption = null)
         {
-            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-
-            using var stream = file.OpenReadStream();
-
-            switch (extension)
+            if (file != null)
             {
-                case ".jpg":
-                case ".jpeg":
-                case ".png":
-                case ".gif":
-                    await _botClient.SendPhotoAsync(
-                        chatId: chatId,
-                        photo: InputFile.FromStream(stream),
-                        caption: caption,
-                        parseMode: ParseMode.Markdown
-                    );
-                    break;
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-                case ".mp4":
-                    await _botClient.SendVideoAsync(
-                        chatId: chatId,
-                        video: InputFile.FromStream(stream),
-                        caption: caption,
-                        parseMode: ParseMode.Markdown
-                    );
-                    break;
+                using var stream = file.OpenReadStream();
 
-                default:
-                    await _botClient.SendDocumentAsync(
-                        chatId: chatId,
-                        document: InputFile.FromStream(stream),
-                        caption: caption,
-                        parseMode: ParseMode.Markdown
-                    );
-                    break;
+                switch (extension)
+                {
+                    case ".jpg":
+                    case ".jpeg":
+                    case ".png":
+                    case ".gif":
+                        await _botClient.SendPhotoAsync(
+                            chatId: chatId,
+                            photo: InputFile.FromStream(stream),
+                            caption: caption,
+                            parseMode: ParseMode.Markdown
+                        );
+                        break;
+
+                    case ".mp4":
+                        await _botClient.SendVideoAsync(
+                            chatId: chatId,
+                            video: InputFile.FromStream(stream),
+                            caption: caption,
+                            parseMode: ParseMode.Markdown
+                        );
+                        break;
+
+                    default:
+                        await _botClient.SendDocumentAsync(
+                            chatId: chatId,
+                            document: InputFile.FromStream(stream),
+                            caption: caption,
+                            parseMode: ParseMode.Markdown
+                        );
+                        break;
+                }
+            }
+            else
+            {
+                if(caption != null)
+                    await _botClient.SendTextMessageAsync(chatId:chatId, text: caption);
             }
         }
-        private static ConcurrentQueue<(CreatePostRequest body, string streamerId)> activeRequests =
+        private static ConcurrentQueue<(CreatePostRequest body, string streamerId, long[] viewers)> activeRequests =
             new ();
         public TelegramPostCreator(IServiceProvider services) 
         {
             _services = services;
         }
-        public void AddPostToLine((CreatePostRequest body, string streamerId) req)
+        public void AddPostToLine((CreatePostRequest body, string streamerId, long[] viewers) req)
         {
             activeRequests.Append(req);
         }
@@ -67,7 +74,6 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             var scope = _services.CreateScope();
             _botClient =  scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
-            _streamerSrc = scope.ServiceProvider.GetRequiredService<IStreamerRepository>();
             _logger = scope.ServiceProvider.GetRequiredService<ILogger<TelegramPostCreator>>();
             while(true)
             {
@@ -77,13 +83,10 @@ namespace backend_iGamingBot.Infrastructure.Services
                         continue;
                     if (!activeRequests.TryDequeue(out var request))
                         continue;
-                    int batchNum = 1;
+                    
                     while (true)
                     {
-                        var batch = await _streamerSrc.GetBatchOfStreamerSubscribersAsync(request.streamerId,
-                            AppConfig.USER_BATCH_SIZE,
-                            batchNum);
-                        foreach (var subscriber in batch)
+                        foreach (var subscriber in request.viewers)
                         {
                             try
                             {
@@ -96,16 +99,13 @@ namespace backend_iGamingBot.Infrastructure.Services
                                     $"{ex.Message}");
                                 continue;
                             }
-                            batchNum++;
                             await Task.Delay(AppConfig.DELAY_PER_REQUEST);
                         }
-                        if (batch.Length < AppConfig.USER_BATCH_SIZE)
-                            break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Произошла ошибка в расыльшике постов, начинаем заново\n{ex.Message}");
+                    _logger.LogError($"Произошла ошибка в расыльщике постов, начинаем заново\n{ex.Message}");
                     continue;
                 }
             }

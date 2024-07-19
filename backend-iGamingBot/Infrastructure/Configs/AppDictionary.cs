@@ -59,5 +59,7 @@ namespace backend_iGamingBot.Infrastructure
         public static string UserAlreadyExists => "Стример или пользователь уже существуют";
 
         public static string PostBodyNotEmpty => "Текст в посте не должен быть пустым";
+
+        public static string RaffleTimeExceeded => "Розыгрыш уже прошел";
     }
 }

@@ -1,4 +1,5 @@
-﻿using backend_iGamingBot.Infrastructure.Services;
+﻿using backend_iGamingBot.Dto;
+using backend_iGamingBot.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend_iGamingBot.Controllers
@@ -9,11 +10,15 @@ namespace backend_iGamingBot.Controllers
     {
         private readonly IRaffleRepository _raffleSrc;
         private readonly IStreamerService _streamerSrv;
+        private readonly IRaffleService _raffleSrv;
 
-        public RaffleController(IRaffleRepository raffleSrc, IStreamerService streamerSrv) 
+        public RaffleController(IRaffleRepository raffleSrc, 
+            IStreamerService streamerSrv,
+            IRaffleService raffleSrv) 
         {
             _raffleSrc = raffleSrc;
             _streamerSrv = streamerSrv;
+            _raffleSrv = raffleSrv;
         }
         [HttpGet("{raffleId:long}")]
         public async Task<IActionResult> GetRaffleByIdAsync([FromRoute] long raffleId)
@@ -32,6 +37,12 @@ namespace backend_iGamingBot.Controllers
         {
             var result = await _raffleSrc.GetRaffleWinners(id);
             return Ok(result);
+        }
+        [HttpPost("{id:long}/winners")]
+        public async Task<IActionResult> GenerateWinners([FromRoute] long id, GenerateWinnersRequest req)
+        {
+            await _raffleSrv.GenerateWinnersForRaffle(id, req.ExceptRepeats, req.AmountOfWinners);
+            return Ok();
         }
     }
 }

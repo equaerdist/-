@@ -29,7 +29,6 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             User = new User()
             {
                 FirstName = $"Peter Parker_{Random.Shared.Next(MaxValue)}_{Guid.NewGuid().ToString()}",
-                PayMethods = AppDictionary.DefaultPayMethods.ToList(),
                 TgId = Random.Shared.Next(MaxValue).ToString() + Guid.NewGuid().ToString(),
             }
         }).ToArray();
@@ -175,7 +174,6 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             return new User()
             {
                 FirstName = "Peter",
-                PayMethods = [],
                 TgId = TestTgId,
 
             };

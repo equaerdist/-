@@ -2,7 +2,7 @@
 {
     public class CreatePostRequest
     {
-        public IFormFile Media { get; set; } = null!;
-        public string Message { get; set; } = null!;
+        public IFormFile? Media { get; set; } = null!;
+        public string? Message { get; set; } = null!;
     }
 }

@@ -33,6 +33,7 @@ namespace backend_iGamingBot.Infrastructure
             services.AddScoped<IStreamerService, StreamerService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRaffleRepository, RaffleRepository>();
+            services.AddScoped<IRaffleService, RaffleService>();
             services.AddTransient<ExceptionHandler>();
             services.AddSingleton<TelegramPostCreator>();
             services.AddSingleton<IHostedService, TelegramPostCreator>(
