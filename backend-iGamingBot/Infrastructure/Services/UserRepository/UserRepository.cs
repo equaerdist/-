@@ -13,6 +13,9 @@ namespace backend_iGamingBot.Infrastructure.Services
             _factory = factory;
             _ctx = ctx;
         }
+
+        public async Task AddUserAsync(DefaultUser user) => await _ctx.AllUsers.AddAsync(user);
+
         public async Task<string> DefineRoleByTgIdAsync(string tgId)
         {
             using var streamerCtx = await _factory.CreateDbContextAsync();

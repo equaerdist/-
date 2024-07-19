@@ -51,7 +51,7 @@ namespace backend_iGamingBot.Controllers
             return Ok(result);
         }
         [HttpPost("{id}/raffles")]
-        public async Task<IActionResult> CreateRaffleAsync(CreateRaffleRequest req, [FromRoute] string id)
+        public async Task<IActionResult> CreateRaffleAsync([FromBody]CreateRaffleRequest req, [FromRoute] string id)
         {
             var raffle = await _streamerSrv.CreateRaffleAsync(req, id);
             return Ok(raffle);
@@ -78,6 +78,12 @@ namespace backend_iGamingBot.Controllers
         public IActionResult GetAvailableConditions()
         {
             return Ok(AppDictionary.ResolvedConditions.Select(t => t.title).ToArray());
+        }
+        [HttpPost("{id}/posts")]
+        public IActionResult CreatePost([FromRoute] string id, [FromForm] CreatePostRequest req)
+        {
+            _streamerSrv.CreatePostAsync(req, id);
+            return Ok();
         }
     }
 }

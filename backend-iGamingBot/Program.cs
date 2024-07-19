@@ -1,5 +1,6 @@
 using backend_iGamingBot.Infrastructure;
 using backend_iGamingBot.Infrastructure.Extensions;
+using backend_iGamingBot.Infrastructure.Services;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +25,7 @@ if (app.Environment.IsDevelopment())
 //await app.CreateInfoForStreamersPage();
 //await app.TestFunction();
 await app.CheckMigrationsAsync();
-
+app.UseMiddleware<ExceptionHandler>();
 app.UseCors(opt => opt
     .AllowAnyHeader()
     .AllowAnyMethod()

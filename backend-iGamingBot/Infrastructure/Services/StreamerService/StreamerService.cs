@@ -11,13 +11,15 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly IUserService _userSrv;
         private readonly IMapper _mapper;
         private readonly IRaffleRepository _raffleSrc;
+        private readonly TelegramPostCreator _postsCreator;
 
         public StreamerService(IUnitOfWork uof, 
             IUserRepository userSrc, 
             IStreamerRepository streamerSrc,
             IUserService userSrv,
             IMapper mapper,
-            IRaffleRepository raffleSrc) 
+            IRaffleRepository raffleSrc,
+            TelegramPostCreator postsCreator) 
         {
             _uof = uof;
             _userSrc = userSrc;
@@ -25,10 +27,22 @@ namespace backend_iGamingBot.Infrastructure.Services
             _userSrv = userSrv;
             _mapper = mapper;
             _raffleSrc = raffleSrc;
+            _postsCreator = postsCreator;
+        }
+        private bool ValidateNewRaffle(CreateRaffleRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Description) || request.Description.Length < 10)
+                throw new AppException(AppDictionary.RaffleDescriptionNotEmpty);
+            if (request.EndTime <= DateTime.UtcNow + AppDictionary.MinimalReserveForRaffleEnd)
+                throw new AppException(AppDictionary.RaffleEndTimeTooSoon);
+            if (request.AmountOfWinners < 1)
+                throw new AppException(AppDictionary.RaffleAmountWinnersTooSmall);
+            return true;
         }
 
         public async Task<Raffle> CreateRaffleAsync(CreateRaffleRequest request, string tgId)
         {
+            _ = ValidateNewRaffle(request);
             var userId = await _userSrc.GetUserIdByTgIdAsync(tgId);
             var raffle = _mapper.Map<Raffle>(request);
             raffle.CreatorId = userId;
@@ -78,6 +92,12 @@ namespace backend_iGamingBot.Infrastructure.Services
         public async Task UnscribeFromStreamerAsync(string streamerId, string userId)
         {
             await _streamerSrc.RemoveSubscribeRelationAsync(streamerId, userId);
+        }
+
+        public Task CreatePostAsync(CreatePostRequest request, string tgId)
+        {
+            _postsCreator.AddPostToLine((request, tgId));
+            return Task.CompletedTask;
         }
     }
 }

@@ -32,7 +32,19 @@ namespace backend_iGamingBot.Infrastructure.Services
             return result;
         }
 
-       
+        public async Task<long[]> GetBatchOfStreamerSubscribersAsync(string streamerTgId, int batchSize, int num)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            var batch = await ctx.Streamers
+                .Where(s => s.TgId == streamerTgId)
+                .SelectMany(s => s.Subscribers)
+                .Select(u => u.TgId)
+                .OrderBy(u => u)
+                .Skip((num - 1) * batchSize)
+                .Take(batchSize)
+                .ToArrayAsync();
+            return batch.Select(s => long.Parse(s)).ToArray();
+        }
 
         public async Task<GetRaffleDto[]> GetRafflesAsync(int page, int pageSize, string type, string tgId, string userId)
         {

@@ -11,9 +11,12 @@ namespace backend_iGamingBot.Infrastructure
         public string TwitchSecretToken { get; init; } = null!;
         public string Host { get; init; } = null!;
         public string TgKey { get; set; } = null!;
+        public static int DELAY_PER_REQUEST = 2000;
+        public static short USER_BATCH_SIZE = 100;
         public string KEY { get; set; } = null!;
         public TimeSpan Expires => TimeSpan.FromDays(1);
         public SymmetricSecurityKey SymmetricSecurityKey =>
         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY));
+        public static string Frontend => "https://localhost:5173";
     }
 }

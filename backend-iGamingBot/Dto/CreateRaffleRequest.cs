@@ -1,4 +1,6 @@
-﻿namespace backend_iGamingBot.Dto
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace backend_iGamingBot.Dto
 {
     public class CreateRaffleRequest
     {

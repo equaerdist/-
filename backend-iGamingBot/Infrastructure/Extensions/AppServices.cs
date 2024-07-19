@@ -1,5 +1,6 @@
 ﻿using backend_iGamingBot.Infrastructure.Services;
 using backend_iGamingBot.Infrastructure.Services.RaffleRepository;
+using Telegram.Bot;
 using TwitchLib.Api;
 using TwitchLib.Api.Interfaces;
 
@@ -9,7 +10,18 @@ namespace backend_iGamingBot.Infrastructure
     {
         public static IServiceCollection AddAppServices(this IServiceCollection services, AppConfig cfg)
         {
+            #region telegram
+            services.AddHttpClient("telegram_bot_client")
+               .AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
+               {
+                   TelegramBotClientOptions options = new(cfg.TgKey);
+                   return new TelegramBotClient(options, httpClient);
+               });
 
+            services.AddScoped<UpdateHandler>();
+            services.AddScoped<ReceiverService>();
+            services.AddHostedService<PollingService>();
+            #endregion
             services.AddSingleton<ITwitchAPI, TwitchAPI>(opt => new());
             services.AddScoped<IYoutube, Youtube>();
             services.AddScoped<ITwitch, Twitch>();
@@ -21,6 +33,10 @@ namespace backend_iGamingBot.Infrastructure
             services.AddScoped<IStreamerService, StreamerService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRaffleRepository, RaffleRepository>();
+            services.AddTransient<ExceptionHandler>();
+            services.AddSingleton<TelegramPostCreator>();
+            services.AddSingleton<IHostedService, TelegramPostCreator>(
+                       serviceProvider => serviceProvider.GetRequiredService<TelegramPostCreator>());
             return services;
         }
     }
