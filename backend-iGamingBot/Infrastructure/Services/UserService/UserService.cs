@@ -13,7 +13,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             return user.Email != null;
         }
-        public async Task<bool> ConditionIsDone(string description, string userId)
+        public async Task<bool> ConditionIsDone(string title, string userId)
         {
             var user = await _userSrc.GetUserByIdAsync(userId);
             var validator = CheckWhenUserHaveEmail;

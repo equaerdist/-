@@ -1,4 +1,5 @@
-﻿using backend_iGamingBot.Dto;
+﻿using AutoMapper;
+using backend_iGamingBot.Dto;
 
 namespace backend_iGamingBot.Infrastructure.Services
 {
@@ -8,15 +9,37 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly IUserRepository _userSrc;
         private readonly IStreamerRepository _streamerSrc;
         private readonly IUserService _userSrv;
+        private readonly IMapper _mapper;
+        private readonly IRaffleRepository _raffleSrc;
 
-        public StreamerService(IUnitOfWork uof, IUserRepository userSrc, 
+        public StreamerService(IUnitOfWork uof, 
+            IUserRepository userSrc, 
             IStreamerRepository streamerSrc,
-            IUserService userSrv) 
+            IUserService userSrv,
+            IMapper mapper,
+            IRaffleRepository raffleSrc) 
         {
             _uof = uof;
             _userSrc = userSrc;
             _streamerSrc = streamerSrc;
             _userSrv = userSrv;
+            _mapper = mapper;
+            _raffleSrc = raffleSrc;
+        }
+
+        public async Task<Raffle> CreateRaffleAsync(CreateRaffleRequest request, string tgId)
+        {
+            var userId = await _userSrc.GetUserIdByTgIdAsync(tgId);
+            var raffle = _mapper.Map<Raffle>(request);
+            raffle.CreatorId = userId;
+            await _raffleSrc.CreateRaffleAsync(raffle);
+            await _uof.SaveChangesAsync();
+            return raffle;
+        }
+
+        public string[] GetAvailableSocials()
+        {
+           return AppDictionary.ResolvedSocialNames.Select(s => s.name).ToArray();
         }
 
         public async Task<GetRaffleDto[]> GetRafflesAsync(int page, int pageSize, string type, string streamerId, string userId)
@@ -24,9 +47,17 @@ namespace backend_iGamingBot.Infrastructure.Services
             var pageResult = await _streamerSrc.GetRafflesAsync(page, pageSize, type, streamerId, userId);
             foreach (var result in pageResult)
             {
+                var resultConditions = new List<object>();
                 foreach(var c in result.RaffleConditions)
                 {
-                    c.IsDone = await _userSrv.ConditionIsDone(c.Description, userId);
+                    var condition = (string)c;
+                    resultConditions.Add(new GetRaffleConditionDto()
+                    {
+                        Title = condition,
+                        Description = AppDictionary.ResolvedConditions
+                        .First(c => c.title.Equals(condition)).description,
+                        IsDone = await _userSrv.ConditionIsDone(condition, userId)
+                    });
                 }
             }
             return pageResult;
@@ -44,9 +75,9 @@ namespace backend_iGamingBot.Infrastructure.Services
             await _uof.SaveChangesAsync();
         }
 
-        public Task UnscribeFromStreamerAsync(string streamerId, string userId)
+        public async Task UnscribeFromStreamerAsync(string streamerId, string userId)
         {
-            throw new NotImplementedException();
+            await _streamerSrc.RemoveSubscribeRelationAsync(streamerId, userId);
         }
     }
 }

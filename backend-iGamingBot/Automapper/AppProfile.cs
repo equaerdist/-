@@ -16,6 +16,7 @@ namespace backend_iGamingBot.Automapper
                 .ForMember(x => x.LastName, cfg => cfg.MapFrom(y => y.User!.LastName))
                 .ForMember(x => x.TgId, cfg => cfg.MapFrom(y => y.User!.TgId));
             CreateMap<DefaultUser, GetAdminDto>();
+            CreateMap<CreateRaffleRequest, Raffle>();
         }
     }
 }

@@ -25,9 +25,8 @@ namespace backend_iGamingBot.Infrastructure.Services
         public async Task<GetAdminDto[]> GetAdminsAsync(string tgId)
         {
            using var ctx = await _factory.CreateDbContextAsync();
-           var result = await ctx.Streamers
-                .Where(s => s.TgId.Equals(tgId))
-                .Select(t => t.Admins)
+           var result = await ctx.AllUsers
+                .Where(u => u.Negotiable.Select(u => u.TgId).Contains(tgId))
                 .ProjectTo<GetAdminDto>(_mapper.ConfigurationProvider)
                 .ToArrayAsync();
             return result;
@@ -52,7 +51,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                 Description = r.Description,
                 EndTime = r.EndTime,
                 Id = r.Id,
-                IsParticipant = r.Participants.Select(u => u.TgId).Contains(userId)
+                IsParticipant = r.Participants.Select(u => u.TgId).Contains(userId),
+                IsCreator = r.Creator!.TgId.Equals(userId)
             }).ToArrayAsync();
         }
 
@@ -117,6 +117,12 @@ namespace backend_iGamingBot.Infrastructure.Services
                 .ProjectTo<GetSubscriberDto>(_mapper.ConfigurationProvider)
                 .ToArrayAsync();
             return result;
+        }
+
+        public async Task RemoveSubscribeRelationAsync(string streamerId, string userId)
+        {
+            await _ctx.Subscribers.Where(c => c.Streamer!.TgId.Equals(streamerId) && c.User!.TgId.Equals(userId))
+                .ExecuteDeleteAsync();
         }
     }
 }

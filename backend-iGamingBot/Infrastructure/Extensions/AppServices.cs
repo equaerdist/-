@@ -1,4 +1,5 @@
 ﻿using backend_iGamingBot.Infrastructure.Services;
+using backend_iGamingBot.Infrastructure.Services.RaffleRepository;
 using TwitchLib.Api;
 using TwitchLib.Api.Interfaces;
 
@@ -19,6 +20,7 @@ namespace backend_iGamingBot.Infrastructure
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IStreamerService, StreamerService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRaffleRepository, RaffleRepository>();
             return services;
         }
     }

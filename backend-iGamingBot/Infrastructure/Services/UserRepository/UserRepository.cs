@@ -31,5 +31,14 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             return await _ctx.AllUsers.FirstAsync(s => s.TgId == tgId);
         }
+
+        public async Task<long> GetUserIdByTgIdAsync(string tgId)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            return await ctx.AllUsers
+                .Where(c => c.TgId == tgId)
+                .Select(s => s.Id)
+                .FirstAsync();
+        }
     }
 }

@@ -71,10 +71,10 @@ namespace backend_iGamingBot.Infrastructure.Configs
                .Property(e => e.RaffleConditions)
                .HasConversion(
                    v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
-                   v => JsonSerializer.Deserialize<List<RaffleCondition>>(v, new JsonSerializerOptions())!,
-                   new ValueComparer<List<RaffleCondition>>(
+                   v => JsonSerializer.Deserialize<List<string>>(v, new JsonSerializerOptions())!,
+                   new ValueComparer<List<string>>(
                        (c1, c2) => c1!.SequenceEqual(c2!),
-                       c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.Description.GetHashCode())),
+                       c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
                        c => c.ToList()));
             modelBuilder.Entity<User>()
               .Property(e => e.PayMethods)

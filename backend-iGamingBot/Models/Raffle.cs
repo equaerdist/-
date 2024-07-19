@@ -13,7 +13,7 @@ namespace backend_iGamingBot
         }
         public int AmountOfWinners { get; set; }
         public bool ShowWinners { get; set; }
-        public List<RaffleCondition> RaffleConditions { get; set; }
+        public List<string> RaffleConditions { get; set; }
         public string Description { get; set; } = null!;
         public DateTime EndTime { get; set; }
         public bool ShouldNotifyUsers { get; set; }
