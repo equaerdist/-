@@ -11,5 +11,6 @@ namespace backend_iGamingBot.Infrastructure.Services
         public string[] GetAvailableSocials();
         public  Task<Raffle> CreateRaffleAsync(CreateRaffleRequest request, string tgId);
         public Task CreatePostAsync(CreatePostRequest request, string tgId);
+        public Task DoParticipantInRaffleAsync(long raffleId, string userId);
     }
 }

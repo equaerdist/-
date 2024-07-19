@@ -11,11 +11,15 @@ namespace backend_iGamingBot.Controllers
     {
         private readonly IStreamerRepository _streamerSrc;
         private readonly IStreamerService _streamerSrv;
+        private readonly IRaffleRepository _raffleSrc;
 
-        public StreamerController(IStreamerRepository streamerSrc, IStreamerService streamerSrv)
+        public StreamerController(IStreamerRepository streamerSrc, 
+            IStreamerService streamerSrv,
+            IRaffleRepository raffleSrc)
         {
             _streamerSrc = streamerSrc;
             _streamerSrv = streamerSrv;
+            _raffleSrc = raffleSrc;
 
         }
         [HttpGet]
@@ -55,6 +59,18 @@ namespace backend_iGamingBot.Controllers
         {
             var raffle = await _streamerSrv.CreateRaffleAsync(req, id);
             return Ok(raffle);
+        }
+        [HttpGet("{id}/raffles/{raffleId:long}")]
+        public async Task<IActionResult> GetRaffleByIdAsync([FromRoute] long raffleId)
+        {
+            var result = await _raffleSrc.GetRaffleByIdAsync(raffleId);
+            return Ok(result);
+        }
+        [HttpPut("{id}/raffles/{raffleId:long}/participants/{userId}")]
+        public async Task<IActionResult> DoParticipantInRaffle([FromRoute] long raffleId, [FromRoute] string userId)
+        {
+            await _streamerSrv.DoParticipantInRaffleAsync(raffleId, userId);
+            return Ok();
         }
         [HttpGet("{id}/subscribers")]
         public async Task<IActionResult> GetSubscribersAsync([FromQuery] int page,

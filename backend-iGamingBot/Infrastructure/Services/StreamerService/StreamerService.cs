@@ -31,7 +31,8 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         private bool ValidateNewRaffle(CreateRaffleRequest request)
         {
-            if (string.IsNullOrEmpty(request.Description) || request.Description.Length < 10)
+            if (string.IsNullOrEmpty(request.Description) 
+                || request.Description.Length < AppConfig.MinimalLengthForText)
                 throw new AppException(AppDictionary.RaffleDescriptionNotEmpty);
             if (request.EndTime <= DateTime.UtcNow + AppDictionary.MinimalReserveForRaffleEnd)
                 throw new AppException(AppDictionary.RaffleEndTimeTooSoon);
@@ -93,11 +94,24 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             await _streamerSrc.RemoveSubscribeRelationAsync(streamerId, userId);
         }
-
+        private void ValidatePostRequest(CreatePostRequest req)
+        {
+            if (string.IsNullOrEmpty(req.Message) || req.Message.Length < AppConfig.MinimalLengthForText)
+                throw new AppException(AppDictionary.PostBodyNotEmpty);
+        }
         public Task CreatePostAsync(CreatePostRequest request, string tgId)
         {
+            ValidatePostRequest(request);
             _postsCreator.AddPostToLine((request, tgId));
             return Task.CompletedTask;
+        }
+
+        public async Task DoParticipantInRaffleAsync(long raffleId, string userId)
+        {
+            var raffle = await _raffleSrc.GetTrackingRaffleByIdAsync(raffleId);
+            var user = await _userSrc.GetUserByIdAsync(userId);
+            raffle.Participants.Add(user);
+            await _uof.SaveChangesAsync();
         }
     }
 }

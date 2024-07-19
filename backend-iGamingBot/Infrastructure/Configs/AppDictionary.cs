@@ -45,7 +45,8 @@ namespace backend_iGamingBot.Infrastructure
         public static TimeSpan MinimalReserveForRaffleEnd => TimeSpan.FromMinutes(5);
         public static string ServerErrorOcurred => "Ошибка на сервере";
 
-        public static string RaffleDescriptionNotEmpty => "Поле с описанием не должно быть пустым или слишком маленьким";
+        public static string RaffleDescriptionNotEmpty => "Поле с описанием " +
+            "не должно быть пустым или слишком маленьким";
         public static string RaffleEndTimeTooSoon => $"Конец розыгрыша не может быть менее чем " +
             $"через {MinimalReserveForRaffleEnd.TotalMinutes} минут после его начала";
         public static string RaffleAmountWinnersTooSmall => "В розыгрыше требуется как минимум 1 победитель";
@@ -56,5 +57,7 @@ namespace backend_iGamingBot.Infrastructure
 
         public static string TelegramUserNotDefined => "Не смогли определить Ваши данные телеграм :(..";
         public static string UserAlreadyExists => "Стример или пользователь уже существуют";
+
+        public static string PostBodyNotEmpty => "Текст в посте не должен быть пустым";
     }
 }

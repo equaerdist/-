@@ -18,5 +18,6 @@ namespace backend_iGamingBot.Infrastructure
         public SymmetricSecurityKey SymmetricSecurityKey =>
         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY));
         public static string Frontend => "https://localhost:5173";
+        public static short MinimalLengthForText => 10;
     }
 }
