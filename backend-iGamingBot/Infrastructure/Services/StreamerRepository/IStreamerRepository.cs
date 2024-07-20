@@ -1,4 +1,5 @@
 ﻿using backend_iGamingBot.Dto;
+using backend_iGamingBot.Models;
 
 namespace backend_iGamingBot.Infrastructure.Services
 {
@@ -14,5 +15,6 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task<long[]> GetBatchOfStreamerSubscribersAsync(string streamerTgId, 
             int batchSize, int num);
         public Task<GetSocialDto[]> GetStreamerSocials(string streamerId);
+        public Task<Access> GetAccessLevel(string targetId, string sourceId);
     }
 }

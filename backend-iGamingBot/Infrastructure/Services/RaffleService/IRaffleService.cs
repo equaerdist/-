@@ -2,6 +2,7 @@
 {
     public interface IRaffleService
     {
-        public Task GenerateWinnersForRaffle(long raffleId, bool exceptRepeat, int? amountOfWinners = null);
+        public Task GenerateWinnersForRaffle(long raffleId, bool exceptRepeat, string? sourceId = null,
+            int? amountOfWinners = null);
     }
 }

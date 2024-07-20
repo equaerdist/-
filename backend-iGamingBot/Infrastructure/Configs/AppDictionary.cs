@@ -14,6 +14,7 @@ namespace backend_iGamingBot.Infrastructure
             ("Instagram", @"(http(s)?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9_.-]+"),
             ("Facebook", @"(http(s)?:\/\/)?(www\.)?facebook\.com\/[a-zA-Z0-9.]+"),
             ("TikTok", @"(http(s)?:\/\/)?(www\.)?tiktok\.com\/@?[a-zA-Z0-9_.-]+"),
+            ("Telegram", @"(http(s)?:\/\/)?(www\.)?t\.me\/[a-zA-Z0-9_]+")
         ];
 
         public static string Denied => "Авторищация не пройдена";
@@ -61,5 +62,12 @@ namespace backend_iGamingBot.Infrastructure
         public static string PostBodyNotEmpty => "Текст в посте не должен быть пустым";
 
         public static string RaffleTimeExceeded => "Розыгрыш уже прошел";
+
+        public static string NotResolvedSocial => "Данная соцсеть не поддерживается";
+
+        public static string NotHaveAccess => "Недостаточно прав доступа";
+        public static string NameId => "NameId";
+        public static string Name => "Name";
+        public static string Role => "Role";
     }
 }

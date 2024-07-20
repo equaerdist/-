@@ -18,6 +18,7 @@ namespace backend_iGamingBot.Automapper
             CreateMap<DefaultUser, GetAdminDto>();
             CreateMap<CreateRaffleRequest, Raffle>();
             CreateMap<Social, GetSocialDto>();
+            CreateMap<GetSocialDto, Social>();
         }
     }
 }

@@ -139,6 +139,8 @@
                                 .ToList();
                             finalSocials.AddRange(twitchResult);
                             finalSocials.AddRange(notOnline);
+                            fulledStreamer.Socials.Clear();
+                            await unitOfWork.SaveChangesAsync();
                             fulledStreamer.Socials = finalSocials;
                             await unitOfWork.SaveChangesAsync();
                         }

@@ -1,6 +1,7 @@
 ﻿using backend_iGamingBot.Dto;
 using backend_iGamingBot.Infrastructure;
 using backend_iGamingBot.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend_iGamingBot.Controllers
@@ -12,7 +13,7 @@ namespace backend_iGamingBot.Controllers
         private readonly IStreamerRepository _streamerSrc;
         private readonly IStreamerService _streamerSrv;
         private readonly IRaffleRepository _raffleSrc;
-
+        public string SourceId => User.Claims.First(c => c.Type == AppDictionary.NameId).Value;
         public StreamerController(IStreamerRepository streamerSrc, 
             IStreamerService streamerSrv,
             IRaffleRepository raffleSrc)
@@ -54,10 +55,11 @@ namespace backend_iGamingBot.Controllers
             var result = await _streamerSrv.GetRafflesAsync(page, pageSize, type, id, userId);
             return Ok(result);
         }
+        [HttpPost]
         [HttpPost("{id}/raffles")]
         public async Task<IActionResult> CreateRaffleAsync([FromBody]CreateRaffleRequest req, [FromRoute] string id)
         {
-            var raffle = await _streamerSrv.CreateRaffleAsync(req, id);
+            var raffle = await _streamerSrv.CreateRaffleAsync(req, id, SourceId);
             return Ok(raffle);
         }
         [HttpGet("{id}/subscribers")]
@@ -83,10 +85,11 @@ namespace backend_iGamingBot.Controllers
         {
             return Ok(AppDictionary.ResolvedConditions.Select(t => t.title).ToArray());
         }
+        [Authorize]
         [HttpPost("{id}/posts")]
         public async Task<IActionResult> CreatePost([FromRoute] string id, [FromForm] CreatePostRequest req)
         {
-            await _streamerSrv.CreatePostAsync(req, id);
+            await _streamerSrv.CreatePostAsync(req, id, SourceId);
             return Ok();
         }
         [HttpGet("{id}/socials")]
@@ -94,6 +97,13 @@ namespace backend_iGamingBot.Controllers
         {
             var result = await _streamerSrc.GetStreamerSocials(id);
             return Ok(result);
+        }
+        [Authorize]
+        [HttpPost("{id}/socials")]
+        public async Task<IActionResult> AddStreamerSocial([FromBody]GetSocialDto req, string id)
+        {
+            await _streamerSrv.AddStreamerSocial(req, id, SourceId);
+            return Ok();
         }
     }
 }

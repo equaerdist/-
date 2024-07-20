@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using backend_iGamingBot.Dto;
+using backend_iGamingBot.Models;
+using System.Text.RegularExpressions;
 
 namespace backend_iGamingBot.Infrastructure.Services
 {
@@ -41,8 +43,11 @@ namespace backend_iGamingBot.Infrastructure.Services
             return true;
         }
 
-        public async Task<Raffle> CreateRaffleAsync(CreateRaffleRequest request, string tgId)
+        public async Task<Raffle> CreateRaffleAsync(CreateRaffleRequest request, string tgId, 
+            string sourceId)
         {
+            if (await _streamerSrc.GetAccessLevel(tgId, sourceId) == Access.None)
+                throw new AppException(AppDictionary.NotHaveAccess);
             _ = ValidateNewRaffle(request);
             var userId = await _userSrc.GetUserIdByTgIdAsync(tgId);
             var raffle = _mapper.Map<Raffle>(request);
@@ -71,7 +76,8 @@ namespace backend_iGamingBot.Infrastructure.Services
            return AppDictionary.ResolvedSocialNames.Select(s => s.name).ToArray();
         }
 
-        public async Task<GetRaffleDto[]> GetRafflesAsync(int page, int pageSize, string type, string streamerId, string userId)
+        public async Task<GetRaffleDto[]> GetRafflesAsync(int page, int pageSize, string type, 
+            string streamerId, string userId)
         {
             var pageResult = await _streamerSrc.GetRafflesAsync(page, pageSize, type, streamerId, userId);
             foreach (var result in pageResult)
@@ -111,8 +117,10 @@ namespace backend_iGamingBot.Infrastructure.Services
             if (string.IsNullOrEmpty(req.Message) || req.Message.Length < AppConfig.MinimalLengthForText)
                 throw new AppException(AppDictionary.PostBodyNotEmpty);
         }
-        public async Task CreatePostAsync(CreatePostRequest request, string tgId)
+        public async Task CreatePostAsync(CreatePostRequest request, string tgId, string sourceId)
         {
+            if (await _streamerSrc.GetAccessLevel(tgId, sourceId) == Access.None)
+                throw new AppException(AppDictionary.Denied);
             ValidatePostRequest(request);
             var batchNum = 1;
             while(true)
@@ -132,6 +140,37 @@ namespace backend_iGamingBot.Infrastructure.Services
                 throw new AppException(AppDictionary.RaffleTimeExceeded);
             var user = await _userSrc.GetUserByIdAsync(userId);
             raffle.Participants.Add(user);
+            await _uof.SaveChangesAsync();
+        }
+
+        public async Task AddStreamerSocial(GetSocialDto request, string streamerId, string sourceId)
+        {
+            if (await _streamerSrc.GetAccessLevel(streamerId, sourceId) == Models.Access.None)
+                throw new AppException(AppDictionary.NotHaveAccess);
+            var isResolved = false;
+            foreach(var resolvedSocial in AppDictionary.ResolvedSocialNames)
+            {
+                isResolved = resolvedSocial.name == request.Name
+                    && Regex.IsMatch(request.Link, resolvedSocial.pattern);
+            }
+            if (!isResolved)
+                throw new AppException(AppDictionary.NotResolvedSocial);
+            var streamer = (await _userSrc.GetUserByIdAsync(streamerId) as Streamer)!;
+            if(streamer.Socials.Any(s => s.Name == request.Name))
+                streamer.Socials.Remove(streamer.Socials.First(c => c.Name == request.Name));
+            var socialToAdd = _mapper.Map<Social>(request);
+            socialToAdd.Parameter = new();
+            streamer.Socials.Add(socialToAdd);
+           await _uof.SaveChangesAsync();
+        }
+
+        public async Task AddStreamerAdmin(string streamerId, string userId, string sourceId)
+        {
+            if(await _streamerSrc.GetAccessLevel(streamerId, sourceId) != Access.Full)
+                throw new AppException(AppDictionary.Denied);
+            var streamer = (await _userSrc.GetUserByIdAsync(streamerId) as Streamer)!;
+            var newAdmin = await _userSrc.GetUserByIdAsync(userId);
+            newAdmin.Negotiable.Add(streamer);
             await _uof.SaveChangesAsync();
         }
     }

@@ -54,9 +54,9 @@ namespace backend_iGamingBot.Infrastructure.Services
             }
             var claims = new List<Claim>()
             {
-                new(type: "NameId", value: nameId),
-                new(type:"Name", value: name),
-                new(type:"Role", value: await _userSrc.DefineRoleByTgIdAsync(nameId))
+                new(type: AppDictionary.NameId, value: nameId),
+                new(type:AppDictionary.Name, value: name),
+                new(type:AppDictionary.Role, value: await _userSrc.DefineRoleByTgIdAsync(nameId))
             };
             var jwt = new JwtSecurityToken(
             claims: claims,

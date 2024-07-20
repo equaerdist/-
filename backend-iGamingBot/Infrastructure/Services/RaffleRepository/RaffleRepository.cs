@@ -85,7 +85,10 @@ namespace backend_iGamingBot.Infrastructure.Services.RaffleRepository
 
         public async Task<Raffle> GetTrackingRaffleByIdAsync(long id)
         {
-            return await _ctx.Raffles.Where(r => r.Id == id).FirstAsync();
+            return await _ctx.Raffles
+                .Where(r => r.Id == id)
+                .Include(r => r.Creator)
+                .FirstAsync();
         }
 
         public async Task<bool> UserAlreadyHaveWinRaffle(long raffleId, long userId)

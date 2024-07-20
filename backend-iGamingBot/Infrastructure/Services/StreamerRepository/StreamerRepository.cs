@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using backend_iGamingBot.Dto;
 using backend_iGamingBot.Infrastructure.Configs;
+using backend_iGamingBot.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -145,6 +146,19 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             await _ctx.Subscribers.Where(c => c.Streamer!.TgId.Equals(streamerId) && c.User!.TgId.Equals(userId))
                 .ExecuteDeleteAsync();
+        }
+
+        public async Task<Access> GetAccessLevel(string targetId, string sourceId)
+        {
+            if (targetId == sourceId)
+                return Access.Full;
+            using var ctx = await _factory.CreateDbContextAsync();
+            if (await ctx.AllUsers
+                .Where(s => s.TgId == sourceId)
+                .SelectMany(u => u.Negotiable)
+                .AnyAsync(s => s.TgId == targetId))
+                return Access.Admin;
+            return Access.None;
         }
     }
 }

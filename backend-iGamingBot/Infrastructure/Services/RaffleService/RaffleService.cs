@@ -5,18 +5,30 @@ namespace backend_iGamingBot.Infrastructure.Services
     {
         private readonly IUnitOfWork _uof;
         private readonly IRaffleRepository _rafleSrc;
+        private readonly IStreamerRepository _streamerSrc;
 
-        public RaffleService(IRaffleRepository raffleSrc, IUnitOfWork uof) 
+        private
+
+        public RaffleService(IRaffleRepository raffleSrc, 
+            IUnitOfWork uof,
+            IStreamerRepository streamerSrc) 
         {
             _uof = uof;
             _rafleSrc = raffleSrc;
+            _streamerSrc = streamerSrc;
         }
-        public async Task GenerateWinnersForRaffle(long raffleId, bool exceptRepeat, 
+        public async Task GenerateWinnersForRaffle(long raffleId, bool exceptRepeat,
+             string? sourceId = null,
             int? amountOfWinners = null)
         {
             var raffleTask =  _rafleSrc.GetTrackingRaffleByIdAsync(raffleId);
             var participantsTask = _rafleSrc.GetParticipantsIdForRaffle(raffleId);
             await Task.WhenAll(raffleTask, participantsTask);
+            if (sourceId != null)
+            {
+                if (await _streamerSrc.GetAccessLevel(raffleTask.Result.Creator!.TgId, sourceId) == Models.Access.None)
+                    throw new AppException(AppDictionary.Denied);
+            }
             var aow = amountOfWinners ?? raffleTask.Result.AmountOfWinners;
             List<long> winners = new List<long>();
             int generatesTime = 0;
