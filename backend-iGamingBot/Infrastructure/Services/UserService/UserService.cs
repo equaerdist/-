@@ -14,9 +14,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly IUserRepository _userSrc;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _uof;
-        private static readonly Regex EmailRegex = new Regex(
-      @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
-      RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex EmailRegex = new(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
 
         public UserService(IUserRepository userSrc, 
             IUnitOfWork uof, IMapper mapper)
@@ -95,7 +93,7 @@ namespace backend_iGamingBot.Infrastructure.Services
 
         private static void ValidateTetherERC20Address(string address)
         {
-            var result = Regex.IsMatch(address, "^0x[a-fA-F0-9]{40}$") && IsValidChecksum(address);
+            var result = Regex.IsMatch(address, "^0x[a-fA-F0-9]{40}$");
             if (!result)
                 throw new AppException(AppDictionary.ERC20NotCorrectAddress);
         }
@@ -107,33 +105,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 throw new AppException(AppDictionary.PstrxNotCorrectAddress);
         }
 
-        private static bool IsValidChecksum(string address)
-        {
-
-            string addressWithoutPrefix = address.Substring(2).ToLower();
-
-           
-            string hash = CalculateKeccak256(addressWithoutPrefix);
-
-            for (int i = 0; i < 40; i++)
-            {
-                int value = Convert.ToInt32(hash[i].ToString(), 16);
-                if ((value > 7 && char.IsLower(addressWithoutPrefix[i])) || (value <= 7 && char.IsUpper(addressWithoutPrefix[i])))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private static string CalculateKeccak256(string input)
-        {
-            using (var shaAlg = Sha3.Sha3256())
-            {
-                var hashBytes = shaAlg.ComputeHash(Encoding.UTF8.GetBytes(input));
-                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-            }
-        }
+     
         private void ValidatePayMethods(GetUserPayMethod[] methods)
         {
             foreach (var method in methods)
@@ -163,8 +135,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                 throw new AppException(AppDictionary.Denied);
             var user = ((await _userSrc.GetUserByIdAsync(dto.TgId)))!;
             ValidatePayMethods(dto.UserPayMethods.ToArray());
-            if(user.Email != null)
-                ValidateEmail(user.Email);
+            if(dto.Email != null)
+                ValidateEmail(dto.Email);
             _mapper.Map(dto, user);
             await _uof.SaveChangesAsync();
         }
