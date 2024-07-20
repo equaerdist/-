@@ -75,6 +75,13 @@ namespace backend_iGamingBot.Controllers
             var result = await _streamerSrc.GetAdminsAsync(id);
             return Ok(result);
         }
+        [HttpPost("{id}/admins/{adminId}")]
+        public async  Task<IActionResult> AddStreamerAdmin([FromRoute]string id, 
+            [FromRoute]string adminId)
+        {
+            await _streamerSrv.AddStreamerAdmin(id, adminId, SourceId);
+            return Ok();
+        }
         [HttpGet("socials")]
         public IActionResult GetAvailableSocials()
         {
@@ -105,5 +112,6 @@ namespace backend_iGamingBot.Controllers
             await _streamerSrv.AddStreamerSocial(req, id, SourceId);
             return Ok();
         }
+
     }
 }
