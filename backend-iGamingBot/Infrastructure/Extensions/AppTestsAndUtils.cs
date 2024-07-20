@@ -259,5 +259,12 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             
             return app;
         }
+        public static async Task<WebApplication> CreateTestUser(this WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var userSrc = scope.ServiceProvider.GetRequiredService<IUserService>();
+            var user = await userSrc.RegisterUser(new() { FirstName = "Peter", TgId = "567765" });
+            return app;
+        }
     }
 }

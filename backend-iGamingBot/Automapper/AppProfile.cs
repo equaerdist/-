@@ -22,7 +22,8 @@ namespace backend_iGamingBot.Automapper
             CreateMap<GetSocialDto, Social>();
             CreateMap<User, GetUserProfile>();
             CreateMap<UserPayMethod, GetUserPayMethod>();
-            CreateMap<GetUserProfile, User>()
+            CreateMap<GetUserPayMethod, UserPayMethod>();
+            CreateMap<GetUserProfile, DefaultUser>()
                 .ForMember(x => x.Id, cfg => cfg.Ignore())
                 .ForMember(x => x.TgId, cfg => cfg.Ignore())
                 .ForMember(x => x.FirstName, cfg => cfg.Ignore())

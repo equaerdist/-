@@ -69,5 +69,11 @@ namespace backend_iGamingBot.Infrastructure
         public static string NameId => "NameId";
         public static string Name => "Name";
         public static string Role => "Role";
+
+        public static string? TRC20NotCorrectAddress => "Некорректный адрес для TRC20";
+        public static string? ERC20NotCorrectAddress => "Некорректный адрес для ERC20";
+        public static string? PstrxNotCorrectAddress => $"Некорректный адрес для {Piastrix}";
+
+        public static string? InvalidEmail => "Неверный email формат";
     }
 }

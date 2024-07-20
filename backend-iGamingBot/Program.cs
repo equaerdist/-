@@ -24,7 +24,8 @@ if (app.Environment.IsDevelopment())
 //await app.CreateFakeStreamersWithSubscribers();
 //await app.CreateInfoForStreamersPage();
 //await app.TestFunction();
-await app.CreateTestRaffleForUser();
+//await app.CreateTestRaffleForUser();
+//await app.CreateTestUser();
 await app.CheckMigrationsAsync();
 app.UseMiddleware<ExceptionHandler>();
 app.UseCors(opt => opt
