@@ -8,5 +8,6 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task<Streamer> RegisterStreamer(CreateStreamerRequest req);
         public Task<User> RegisterUser(CreateUserRequest req);
         public Task CheckUserInformation(CreateUserRequest req);
+        public Task UpdateUserData(GetUserProfile dto, string sourceId);
     }
 }

@@ -1,4 +1,5 @@
-﻿using backend_iGamingBot.Dto;
+﻿using AutoMapper;
+using backend_iGamingBot.Dto;
 using Microsoft.EntityFrameworkCore;
 using System.Data.SqlClient;
 
@@ -7,11 +8,14 @@ namespace backend_iGamingBot.Infrastructure.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userSrc;
+        private readonly IMapper _mapper;
         private readonly IUnitOfWork _uof;
 
-        public UserService(IUserRepository userSrc, IUnitOfWork uof)
+        public UserService(IUserRepository userSrc, 
+            IUnitOfWork uof, IMapper mapper)
         {
             _userSrc = userSrc;
+            _mapper = mapper;
             _uof = uof;
         }
         private bool CheckWhenUserHaveEmail(DefaultUser user)
@@ -74,6 +78,15 @@ namespace backend_iGamingBot.Infrastructure.Services
                 user.LastName = req.LastName;
                 await _uof.SaveChangesAsync();
             }
+        }
+
+        public async Task UpdateUserData(GetUserProfile dto, string sourceId)
+        {
+            if (dto.TgId != sourceId)
+                throw new AppException(AppDictionary.Denied);
+            var user = ((await _userSrc.GetUserByIdAsync(dto.TgId)) as User)!;
+            _mapper.Map(dto, user);
+            await _uof.SaveChangesAsync();
         }
     }
 }

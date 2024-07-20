@@ -101,11 +101,10 @@ namespace backend_iGamingBot.Infrastructure.Services
         public async Task<GetSocialDto[]> GetStreamerSocials(string streamerId)
         {
             using var ctx = await _factory.CreateDbContextAsync();
-            var soicals = await ctx.Streamers
+            var streamer = await ctx.Streamers
                 .Where(s => s.TgId == streamerId)
-                .SelectMany(t => t.Socials)
-                .ToListAsync();
-            return _mapper.Map<GetSocialDto[]>(soicals);
+                .FirstAsync();
+            return _mapper.Map<GetSocialDto[]>(streamer.Socials);
         }
 
         public async Task<GetStreamerDto[]> GetStreamersPageAsync(int page, int pageSize, string userId)

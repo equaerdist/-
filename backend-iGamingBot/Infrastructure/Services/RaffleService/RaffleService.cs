@@ -7,7 +7,6 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly IRaffleRepository _rafleSrc;
         private readonly IStreamerRepository _streamerSrc;
 
-        private
 
         public RaffleService(IRaffleRepository raffleSrc, 
             IUnitOfWork uof,

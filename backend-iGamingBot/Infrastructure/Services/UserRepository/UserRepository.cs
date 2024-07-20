@@ -1,4 +1,7 @@
-﻿using backend_iGamingBot.Infrastructure.Configs;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using backend_iGamingBot.Dto;
+using backend_iGamingBot.Infrastructure.Configs;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend_iGamingBot.Infrastructure.Services
@@ -7,11 +10,15 @@ namespace backend_iGamingBot.Infrastructure.Services
     {
         private readonly IDbContextFactory<AppCtx> _factory;
         private readonly AppCtx _ctx;
+        private readonly IMapper _mapper;
 
-        public UserRepository(IDbContextFactory<AppCtx> factory, AppCtx ctx) 
+        public UserRepository(IDbContextFactory<AppCtx> factory, 
+            AppCtx ctx,
+            IMapper mapper) 
         {
             _factory = factory;
             _ctx = ctx;
+            _mapper = mapper;
         }
 
         public async Task AddUserAsync(DefaultUser user) => await _ctx.AllUsers.AddAsync(user);
@@ -42,6 +49,15 @@ namespace backend_iGamingBot.Infrastructure.Services
                 .Where(c => c.TgId == tgId)
                 .Select(s => s.Id)
                 .FirstAsync();
+        }
+
+        public async Task<GetUserProfile> GetUserProfileByTgIdAsync(string tgId)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            var result = await ctx.Users.Where(t => t.TgId == tgId)
+                .ProjectTo<GetUserProfile>(_mapper.ConfigurationProvider)
+                .FirstAsync();
+            return result;
         }
     }
 }
