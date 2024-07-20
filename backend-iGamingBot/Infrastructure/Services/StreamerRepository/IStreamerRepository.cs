@@ -11,6 +11,8 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task<GetSubscriberDto[]> GetSubscribersAsync(int page, int pageSize, string tgId);
         public Task<GetAdminDto[]> GetAdminsAsync(string tgId);
         public Task RemoveSubscribeRelationAsync(string streamerId, string userId);
-        public Task<long[]> GetBatchOfStreamerSubscribersAsync(string streamerTgId, int batchSize, int num);
+        public Task<long[]> GetBatchOfStreamerSubscribersAsync(string streamerTgId, 
+            int batchSize, int num);
+        public Task<GetSocialDto[]> GetStreamerSocials(string streamerId);
     }
 }

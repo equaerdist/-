@@ -22,6 +22,7 @@ namespace backend_iGamingBot
         public DateTime EndTime { get; set; }
         public bool ShouldNotifyUsers { get; set; }
         public long CreatorId { get;set; }
+        public bool WinnersDefined { get; set; }
         public Streamer? Creator { get; set; }
         public ICollection<DefaultUser> Participants { get; set; } = null!;
         public ICollection<ParticipantNote> ParticipantsNote { get; set; } = null!;

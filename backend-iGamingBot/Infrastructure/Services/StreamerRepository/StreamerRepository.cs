@@ -50,7 +50,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             using var ctx = await _factory.CreateDbContextAsync();
             Expression<Func<Raffle, bool>> filter = type == "active" ?
-                r => r.EndTime > DateTime.UtcNow : r => r.EndTime <= DateTime.UtcNow;
+                r => r.EndTime > DateTime.UtcNow : r => r.EndTime <= DateTime.UtcNow && r.WinnersDefined;
             var raffles = ctx.Raffles.Where(r => r.Creator!.TgId == tgId);
             raffles = raffles.Where(filter)
                 .OrderBy(r => r.EndTime)
@@ -95,6 +95,16 @@ namespace backend_iGamingBot.Infrastructure.Services
                 .FirstAsync();
             streamer.IsLive = streamer.Socials.Any(s => s.Parameter.IsLive);
             return streamer;
+        }
+
+        public async Task<GetSocialDto[]> GetStreamerSocials(string streamerId)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            var soicals = await ctx.Streamers
+                .Where(s => s.TgId == streamerId)
+                .SelectMany(t => t.Socials)
+                .ToListAsync();
+            return _mapper.Map<GetSocialDto[]>(soicals);
         }
 
         public async Task<GetStreamerDto[]> GetStreamersPageAsync(int page, int pageSize, string userId)

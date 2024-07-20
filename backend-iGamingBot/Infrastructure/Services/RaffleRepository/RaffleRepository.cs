@@ -110,7 +110,7 @@ namespace backend_iGamingBot.Infrastructure.Services.RaffleRepository
                 .SelectMany(r => r.Participants)
                 .Where(p => p.UserPayMethods.Select(p => p.Data).Where(a => payMethodsAdresses.Contains(a)).Any())
                 .CountAsync();
-            return amountOfUsersWithSamePayments == 1;
+            return amountOfUsersWithSamePayments == 1 || (amountOfUsersWithSamePayments == 0 && payMethodsAdresses.Count() == 0);
         }
 
         public async Task<WinnerNote[]> GetRaffleWinnerNotes(long raffleId, long[] userIds)
@@ -129,7 +129,7 @@ namespace backend_iGamingBot.Infrastructure.Services.RaffleRepository
         {
             using var ctx = await _factory.CreateDbContextAsync();
             return await ctx.Raffles
-                .Where(r => r.EndTime < DateTime.UtcNow)
+                .Where(r => r.EndTime < DateTime.UtcNow && !r.WinnersDefined)
                 .Select(r => r.Id)
                 .ToArrayAsync();
         }

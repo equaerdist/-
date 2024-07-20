@@ -30,21 +30,33 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         public async Task<string> GetTokenAsync(TelegramAuthDateDto dto)
         {
-            var tgAuthDateObj = dto;
-            string data = CombineData(tgAuthDateObj);
-            byte[] secret_key = HMAC_SHA256(Encoding.UTF8.GetBytes(_cfg.TgKey), Encoding.UTF8.GetBytes("WebAppData"));
+            var nameId = string.Empty;
+            var name = string.Empty;
+            if (AppConfig.Environment != AppConfig.LOCAL)
+            {
+                var tgAuthDateObj = dto;
+                string data = CombineData(tgAuthDateObj);
+                byte[] secret_key = HMAC_SHA256(Encoding.UTF8.GetBytes(_cfg.TgKey), Encoding.UTF8.GetBytes("WebAppData"));
 
-            string calculatedHash = BitConverter.ToString(HMAC_SHA256(Encoding.UTF8.GetBytes(data), secret_key)).Replace("-", "");
-            bool isValid = calculatedHash.Equals(tgAuthDateObj.Hash, StringComparison.OrdinalIgnoreCase);
-            if (!isValid)
-                throw new AppException(AppDictionary.Denied);
-            var tgUser = JsonSerializer.Deserialize<TgUser>(dto.User) ??
-                throw new InvalidOperationException();
+                string calculatedHash = BitConverter.ToString(HMAC_SHA256(Encoding.UTF8.GetBytes(data), secret_key)).Replace("-", "");
+                bool isValid = calculatedHash.Equals(tgAuthDateObj.Hash, StringComparison.OrdinalIgnoreCase);
+                if (!isValid)
+                    throw new AppException(AppDictionary.Denied);
+                var tgUser = JsonSerializer.Deserialize<TgUser>(dto.User) ??
+                    throw new InvalidOperationException();
+                nameId = tgUser.Id.ToString();
+                name = tgUser.FirstName;
+            }
+            else
+            {
+                nameId = "272";
+                name = "Peter";
+            }
             var claims = new List<Claim>()
             {
-                new(type: "NameId", value: tgUser.Id.ToString()),
-                new(type:"Name", value: tgUser.FirstName),
-                new(type:"Role", value: await _userSrc.DefineRoleByTgIdAsync(tgUser.Id.ToString()))
+                new(type: "NameId", value: nameId),
+                new(type:"Name", value: name),
+                new(type:"Role", value: await _userSrc.DefineRoleByTgIdAsync(nameId))
             };
             var jwt = new JwtSecurityToken(
             claims: claims,

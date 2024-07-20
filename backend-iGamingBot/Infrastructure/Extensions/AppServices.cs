@@ -1,5 +1,6 @@
 ﻿using backend_iGamingBot.Infrastructure.Services;
 using backend_iGamingBot.Infrastructure.Services.RaffleRepository;
+using backend_iGamingBot.Infrastructure.Services.RafflesEnder;
 using Telegram.Bot;
 using TwitchLib.Api;
 using TwitchLib.Api.Interfaces;
@@ -36,8 +37,10 @@ namespace backend_iGamingBot.Infrastructure
             services.AddScoped<IRaffleService, RaffleService>();
             services.AddTransient<ExceptionHandler>();
             services.AddSingleton<TelegramPostCreator>();
+            services.AddScoped<IAuth, Auth>();
             services.AddSingleton<IHostedService, TelegramPostCreator>(
                        serviceProvider => serviceProvider.GetRequiredService<TelegramPostCreator>());
+            services.AddHostedService<RafflesEnder>();
             return services;
         }
     }

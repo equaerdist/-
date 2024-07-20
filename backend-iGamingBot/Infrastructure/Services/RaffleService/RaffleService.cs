@@ -14,7 +14,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         public async Task GenerateWinnersForRaffle(long raffleId, bool exceptRepeat, 
             int? amountOfWinners = null)
         {
-            var raffleTask =  _rafleSrc.GetRaffleByIdAsync(raffleId);
+            var raffleTask =  _rafleSrc.GetTrackingRaffleByIdAsync(raffleId);
             var participantsTask = _rafleSrc.GetParticipantsIdForRaffle(raffleId);
             await Task.WhenAll(raffleTask, participantsTask);
             var aow = amountOfWinners ?? raffleTask.Result.AmountOfWinners;
@@ -33,13 +33,17 @@ namespace backend_iGamingBot.Infrastructure.Services
                     noteAboutParticipant.HaveAbused = true;
                     continue;
                 }
-                if (exceptRepeat)
+                if (await _rafleSrc.UserAlreadyHaveWinRaffle(raffleId, winnerId))
                 {
-                    if (await _rafleSrc.UserAlreadyHaveWinRaffle(raffleId, winnerId))
-                        continue;
+                    if (exceptRepeat)
+                    { 
+                        continue; 
+                    }
+                    else
+                    {
+                        multipleWinners.Add(winnerId);
+                    }
                 }
-                else 
-                    multipleWinners.Add(winnerId);
                 winners.Add(winnerId);
                 if (winners.Count == aow || generatesTime > aow * 4)
                     break;
@@ -63,6 +67,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                     WinnerId = singleWinner
                 });
             }
+            raffleTask.Result.WinnersDefined = true;
             await _uof.SaveChangesAsync();
         }
     }

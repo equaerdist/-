@@ -17,6 +17,7 @@ namespace backend_iGamingBot.Automapper
                 .ForMember(x => x.TgId, cfg => cfg.MapFrom(y => y.User!.TgId));
             CreateMap<DefaultUser, GetAdminDto>();
             CreateMap<CreateRaffleRequest, Raffle>();
+            CreateMap<Social, GetSocialDto>();
         }
     }
 }

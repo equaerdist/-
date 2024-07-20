@@ -28,6 +28,17 @@ namespace backend_iGamingBot.Controllers
             });
             return Ok();
         }
+        [HttpPost("local-enter")]
+        public async Task<IActionResult> Enter()
+        {
+            var token = await _auth.GetTokenAsync(null);
+            Response.Cookies.Append("auth", token, new()
+            {
+                Expires = DateTime.UtcNow + _cfg.Expires,
+                HttpOnly = false
+            });
+            return Ok();
+        }
         [Authorize]
         [HttpGet]
         public IActionResult IsAuth() => Ok();

@@ -89,5 +89,11 @@ namespace backend_iGamingBot.Controllers
             await _streamerSrv.CreatePostAsync(req, id);
             return Ok();
         }
+        [HttpGet("{id}/socials")]
+        public async Task<IActionResult> GetStreamerSocials([FromRoute]string id)
+        {
+            var result = await _streamerSrc.GetStreamerSocials(id);
+            return Ok(result);
+        }
     }
 }

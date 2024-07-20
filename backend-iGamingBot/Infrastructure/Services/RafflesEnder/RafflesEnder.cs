@@ -31,7 +31,7 @@ namespace backend_iGamingBot.Infrastructure.Services.RafflesEnder
                 {
                     try
                     {
-                        await raffleSrv.GenerateWinnersForRaffle(raffle, false);
+                        await raffleSrv.GenerateWinnersForRaffle(raffle, true);
                     }
                     catch (Exception ex)
                     {

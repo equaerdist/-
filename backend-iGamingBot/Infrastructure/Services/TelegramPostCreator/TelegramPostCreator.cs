@@ -79,6 +79,8 @@ namespace backend_iGamingBot.Infrastructure.Services
             {
                 try
                 {
+                    if (AppConfig.Environment == AppConfig.LOCAL)
+                        continue;
                     if (activeRequests.Count == 0)
                         continue;
                     if (!activeRequests.TryDequeue(out var request))

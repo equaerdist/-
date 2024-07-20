@@ -239,5 +239,25 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             var isUser = user is User;
             throw new InvalidCastException("Тестовая функция");
         }
+        public static async Task<WebApplication> CreateTestRaffleForUser(this WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var userSrc = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+            var streamer = await userSrc.GetUserByIdAsync("272");
+            var ctx = scope.ServiceProvider.GetRequiredService<AppCtx>();
+            var users = await ctx.AllUsers.Where(t => t.TgId != "272").Take(100).ToListAsync();
+            var raffle = new Raffle()
+            {
+                AmountOfWinners = 5,
+                CreatorId = streamer.Id,
+                Description = "Какой-то розыгрыш",
+                EndTime = DateTime.UtcNow + TimeSpan.FromSeconds(30),
+                Participants = users,
+            };
+            await ctx.Raffles.AddAsync(raffle);
+            await ctx.SaveChangesAsync();
+            
+            return app;
+        }
     }
 }
