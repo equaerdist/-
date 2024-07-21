@@ -49,7 +49,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             }
             else
             {
-                nameId = "567765";
+                nameId = "272";
                 name = "Peter";
             }
             var claims = new List<Claim>()

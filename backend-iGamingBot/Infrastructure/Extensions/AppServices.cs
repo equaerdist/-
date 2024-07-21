@@ -38,6 +38,7 @@ namespace backend_iGamingBot.Infrastructure
             services.AddTransient<ExceptionHandler>();
             services.AddSingleton<TelegramPostCreator>();
             services.AddScoped<ISubscriberRepository, SubscriberRepository>();
+            services.AddScoped<ISubscriberService, SubscriberService>();
             services.AddScoped<IAuth, Auth>();
             services.AddSingleton<IHostedService, TelegramPostCreator>(
                        serviceProvider => serviceProvider.GetRequiredService<TelegramPostCreator>());

@@ -61,7 +61,10 @@ namespace backend_iGamingBot.Infrastructure.Services
                 {
                     var batch = await _streamerSrc.GetBatchOfStreamerSubscribersAsync(tgId, 
                         AppConfig.USER_BATCH_SIZE, batchNum);
-                    var post = new CreatePostRequest() { Message = $"У стримера {streamer.Name} начался розыгрыш!" };
+                    var post = new CreatePostRequest() 
+                    { 
+                        Message = $"У стримера {streamer.Name} начался розыгрыш!" 
+                    };
                     _postsCreator.AddPostToLine((post, tgId, batch));
                     if (batch.Length < AppConfig.USER_BATCH_SIZE)
                         break;
@@ -112,16 +115,12 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             await _streamerSrc.RemoveSubscribeRelationAsync(streamerId, userId);
         }
-        private void ValidatePostRequest(CreatePostRequest req)
-        {
-            if (string.IsNullOrEmpty(req.Message) || req.Message.Length < AppConfig.MinimalLengthForText)
-                throw new AppException(AppDictionary.PostBodyNotEmpty);
-        }
+       
         public async Task CreatePostAsync(CreatePostRequest request, string tgId, string sourceId)
         {
             if (await _streamerSrc.GetAccessLevel(tgId, sourceId) == Access.None)
                 throw new AppException(AppDictionary.Denied);
-            ValidatePostRequest(request);
+            Validators.ValidatePostRequest(request);
             var batchNum = 1;
             while(true)
             {

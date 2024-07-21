@@ -34,7 +34,13 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             if (await _streamerSrc.GetAccessLevel(req.StreamerId, sourceId) != Access.Full)
                 throw new AppException(AppDictionary.NotHaveAccess);
-            var message = new CreatePostRequest() { Message = req.Message };
+            var streamer = await _streamerSrc.GetStreamerByTgIdAsync(req.StreamerId, req.Id);
+            var message = new CreatePostRequest() 
+            { 
+                Message = $"Вам пришло сообщение от стримера {streamer.Name}\n" +
+                $"{req.Message}" 
+            };
+            Validators.ValidatePostRequest(message);
             _postCreator.AddPostToLine((message, req.StreamerId, [long.Parse(req.Id)]));
         }
     }
