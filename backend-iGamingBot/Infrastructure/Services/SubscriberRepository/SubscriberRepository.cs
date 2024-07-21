@@ -10,11 +10,14 @@ namespace backend_iGamingBot.Infrastructure.Services
     {
         private readonly IDbContextFactory<AppCtx> _factory;
         private readonly IMapper _mapper;
+        private readonly AppCtx _ctx;
 
-        public SubscriberRepository(IDbContextFactory<AppCtx> factory, IMapper mapper) 
+        public SubscriberRepository(IDbContextFactory<AppCtx> factory, 
+            IMapper mapper, AppCtx ctx) 
         {
             _factory = factory;
             _mapper = mapper;
+            _ctx = ctx;
         }
         public async Task<GetSubscriberProfile> GetSubProfileByTgId(string id, string streamerId)
         {
@@ -24,6 +27,13 @@ namespace backend_iGamingBot.Infrastructure.Services
                 .ProjectTo<GetSubscriberProfile>(_mapper.ConfigurationProvider)
                 .FirstAsync();
             return result;
+        }
+
+        public async Task<Subscriber> GetSubscriberByTgId(string tgId, string streamerId)
+        {
+            return await _ctx.Subscribers
+                .Where(s => s.Streamer!.TgId == streamerId && s.User!.TgId == tgId)
+                .FirstAsync();
         }
     }
 }
