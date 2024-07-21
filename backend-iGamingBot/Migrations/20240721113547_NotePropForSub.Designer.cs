@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backend_iGamingBot.Infrastructure.Configs;
@@ -11,9 +12,11 @@ using backend_iGamingBot.Infrastructure.Configs;
 namespace backend_iGamingBot.Migrations
 {
     [DbContext(typeof(AppCtx))]
-    partial class AppCtxModelSnapshot : ModelSnapshot
+    [Migration("20240721113547_NotePropForSub")]
+    partial class NotePropForSub
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

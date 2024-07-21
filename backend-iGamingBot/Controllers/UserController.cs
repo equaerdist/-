@@ -30,5 +30,6 @@ namespace backend_iGamingBot.Controllers
             await _userSrv.UpdateUserData(dto, SourceId);
             return Ok();
         }
+        
     }
 }

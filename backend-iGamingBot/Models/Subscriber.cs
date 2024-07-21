@@ -7,5 +7,6 @@
         public long StreamerId { get; set; }
         public Streamer? Streamer { get; set; }
         public DateTime SubscribeTime { get; set; }
+        public string? Note { get; set; }
     }
 }
