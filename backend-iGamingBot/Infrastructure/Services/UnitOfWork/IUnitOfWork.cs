@@ -6,5 +6,6 @@ namespace backend_iGamingBot.Infrastructure.Services
     {
         public Task SaveChangesAsync(CancellationToken cancellationToken = default);
         public IDbTransaction BeginTransaction();
+        public void ClearCache();
     }
 }

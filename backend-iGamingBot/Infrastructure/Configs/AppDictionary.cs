@@ -9,7 +9,7 @@ namespace backend_iGamingBot.Infrastructure
         public static string ExceedLimit => "Можно отправить только не более 100 запросов за 1 раз";
         public static (string name, string pattern)[] ResolvedSocialNames => [
         
-            ("YouTube", @"(http(s)?:\/\/)?(www\.)?youtube\.com\/@[a-zA-Z0-9_-]+"),
+            ("YouTube",  @"^(http(s)?:\/\/)?(www\.)?youtube\.com\/@[\w-]+$"),
             ("Twitch", @"(http(s)?:\/\/)?(www\.)?twitch\.tv\/[a-zA-Z0-9_-]+"),
             ("Instagram", @"(http(s)?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9_.-]+"),
             ("Facebook", @"(http(s)?:\/\/)?(www\.)?facebook\.com\/[a-zA-Z0-9.]+"),

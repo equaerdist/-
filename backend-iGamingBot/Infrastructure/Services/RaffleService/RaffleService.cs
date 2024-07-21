@@ -36,6 +36,8 @@ namespace backend_iGamingBot.Infrastructure.Services
             {
                 generatesTime++;
                 var participants = participantsTask.Result;
+                if(participants.Length == 0)
+                    break;
                 var winnerId = participants[Random.Shared.Next(0, participants.Length)];
                 
                 if(!(await _rafleSrc.UserNotAbuseRaffle(raffleId, winnerId)))

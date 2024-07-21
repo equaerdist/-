@@ -245,14 +245,37 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             var userSrc = scope.ServiceProvider.GetRequiredService<IUserRepository>();
             var streamer = await userSrc.GetUserByIdAsync("272");
             var ctx = scope.ServiceProvider.GetRequiredService<AppCtx>();
-            var users = await ctx.AllUsers.Where(t => t.TgId != "272").Take(100).ToListAsync();
+            var repeatedPayMethods = AppDictionary.DefaultPayMethods;
+            repeatedPayMethods.First(c => c.Platform == AppDictionary.TetherERC20)
+                .Data = "0x742d35cc6634c0532925a3b844bc454e4438f44e";
+            var users = Enumerable.Range(0, 10).Select(i => new DefaultUser()
+            {
+                FirstName = $"Peter {i}",
+                TgId = (i * 21 + 18).ToString(),
+                UserPayMethods = AppDictionary.DefaultPayMethods.ToList(),
+                StreamersRelation = [new() 
+                {
+                    Note = $"Peter {i}",
+                    Streamer = streamer as Streamer, 
+                    SubscribeTime = DateTime.UtcNow
+                }]
+            }).ToList();
+            foreach(var user in users.Take(5))
+            {
+                user.UserPayMethods =
+                    [new()
+                    {
+                        Platform = AppDictionary.TetherERC20,
+                        Data = "0x742d35cc6634c0532925a3b844bc454e4438f44e"
+                    }];
+            }
             var raffle = new Raffle()
             {
-                AmountOfWinners = 5,
+                AmountOfWinners = 7,
                 CreatorId = streamer.Id,
                 Description = "Какой-то розыгрыш",
                 EndTime = DateTime.UtcNow + TimeSpan.FromSeconds(30),
-                Participants = users,
+                Participants = users.ToList(),
             };
             await ctx.Raffles.AddAsync(raffle);
             await ctx.SaveChangesAsync();
@@ -264,6 +287,18 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             using var scope = app.Services.CreateScope();
             var userSrc = scope.ServiceProvider.GetRequiredService<IUserService>();
             var user = await userSrc.RegisterUser(new() { FirstName = "Peter", TgId = "567765" });
+            return app;
+        }
+        public static async Task<WebApplication> CreateTestYoutubeChannel(this WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var userSrc = scope.ServiceProvider.GetRequiredService<IUserService>();
+            var user = await userSrc.RegisterStreamer(new() 
+            { 
+                FirstName = "Equaer?", 
+                TgId = "99999" ,
+                Name = "Equaerdist??"
+            });
             return app;
         }
     }

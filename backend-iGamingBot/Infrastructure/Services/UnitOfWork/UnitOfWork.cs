@@ -17,6 +17,11 @@ namespace backend_iGamingBot.Infrastructure.Services
             return transaction.GetDbTransaction();
         }
 
+        public void ClearCache()
+        {
+            _ctx.ChangeTracker.Clear();
+        }
+
         public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             await _ctx.SaveChangesAsync(cancellationToken);

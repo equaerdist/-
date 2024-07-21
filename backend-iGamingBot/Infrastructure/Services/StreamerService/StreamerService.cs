@@ -14,6 +14,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly IRaffleRepository _raffleSrc;
         private readonly TelegramPostCreator _postsCreator;
+        private readonly IYoutube _ytSrv;
 
         public StreamerService(IUnitOfWork uof, 
             IUserRepository userSrc, 
@@ -21,7 +22,8 @@ namespace backend_iGamingBot.Infrastructure.Services
             IUserService userSrv,
             IMapper mapper,
             IRaffleRepository raffleSrc,
-            TelegramPostCreator postsCreator) 
+            TelegramPostCreator postsCreator,
+            IYoutube ytSrv) 
         {
             _uof = uof;
             _userSrc = userSrc;
@@ -30,6 +32,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             _mapper = mapper;
             _raffleSrc = raffleSrc;
             _postsCreator = postsCreator;
+            _ytSrv = ytSrv;
         }
         private bool ValidateNewRaffle(CreateRaffleRequest request)
         {
@@ -150,7 +153,9 @@ namespace backend_iGamingBot.Infrastructure.Services
             foreach(var resolvedSocial in AppDictionary.ResolvedSocialNames)
             {
                 isResolved = resolvedSocial.name == request.Name
-                    && Regex.IsMatch(request.Link, resolvedSocial.pattern);
+                    && Regex.IsMatch(request.Link, resolvedSocial.pattern, RegexOptions.IgnoreCase);
+                if (isResolved)
+                    break;
             }
             if (!isResolved)
                 throw new AppException(AppDictionary.NotResolvedSocial);
@@ -159,6 +164,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                 streamer.Socials.Remove(streamer.Socials.First(c => c.Name == request.Name));
             var socialToAdd = _mapper.Map<Social>(request);
             socialToAdd.Parameter = new();
+            if (request.Name == AppDictionary.Youtube)
+                socialToAdd.Parameter.Identifier = await _ytSrv.GetUserIdentifierByLinkAsync(request.Link);
             streamer.Socials.Add(socialToAdd);
            await _uof.SaveChangesAsync();
         }
