@@ -14,6 +14,7 @@ namespace backend_iGamingBot.Infrastructure.Configs
         public DbSet<DefaultUser> AllUsers { get; set; } = null!;
         public DbSet<Subscriber> Subscribers { get; set; } = null!;
         public DbSet<WinnerNote> WinnerNotes { get; set; } = null!;
+        public DbSet<ParticipantNote> Participants { get; set; } = null!;
         public AppCtx(DbContextOptions<AppCtx> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

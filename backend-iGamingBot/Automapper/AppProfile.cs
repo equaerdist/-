@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using backend_iGamingBot.Dto;
+using backend_iGamingBot.Infrastructure;
 using backend_iGamingBot.Infrastructure.Services;
+using backend_iGamingBot.Models;
 
 namespace backend_iGamingBot.Automapper
 {
@@ -28,13 +30,6 @@ namespace backend_iGamingBot.Automapper
                 .ForMember(x => x.TgId, cfg => cfg.Ignore())
                 .ForMember(x => x.FirstName, cfg => cfg.Ignore())
                 .ForMember(x => x.LastName, cfg => cfg.Ignore());
-            //CreateMap<DefaultUser, SubscriberStat>()
-            //    .ForMember(x => x.SpottedInAbusing,  cfg => 
-            //        cfg.MapFrom(SubscriberStatResolver.CountAbuseParticipantStat))
-            //    .ForMember(x => x.Participated, cfg => 
-            //        cfg.MapFrom(SubscriberStatResolver.CountParticipants))
-            //    .ForMember(x => x.Won, cfg => 
-            //        cfg.MapFrom(SubscriberStatResolver.CountWons));
             CreateMap<Subscriber, GetSubscriberProfile>()
                 .ForMember(x => x.Id, cfg => cfg.MapFrom(y => y.UserId))
                 .ForMember(x => x.TgId, cfg => cfg.MapFrom(y => y.User!.TgId))
@@ -44,6 +39,12 @@ namespace backend_iGamingBot.Automapper
                 .ForMember(x => x.LastName, cfg => cfg.MapFrom(y => y.User!.LastName))
                 .ForMember(x => x.SubscriberStat, cfg => 
                     cfg.MapFrom(SubscriberStatResolver.DefineSubStats));
+            CreateMap<ParticipantNote, GetSubParticipant>()
+                .ForMember(x => x.Id, cfg => cfg.MapFrom(y => y.Raffle!.Id))
+                .ForMember(x => x.EndTime, cfg => cfg.MapFrom(y => y.Raffle!.EndTime))
+                .ForMember(x => x.Status, cfg => cfg.MapFrom(y => y.HaveAbused ? AppDictionary.Abused
+                    : y.Raffle!.Winners.Select(u => u.TgId).Contains(y.Participant!.TgId) 
+                    ?  AppDictionary.Winner : AppDictionary.Participant ));
         }
     }
 }

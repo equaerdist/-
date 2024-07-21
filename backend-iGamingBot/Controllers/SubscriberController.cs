@@ -1,7 +1,6 @@
 ﻿using backend_iGamingBot.Dto;
 using backend_iGamingBot.Infrastructure;
 using backend_iGamingBot.Infrastructure.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend_iGamingBot.Controllers
@@ -39,6 +38,13 @@ namespace backend_iGamingBot.Controllers
         {
             await _subSrv.EditNoteAboutSub(req, SourceId);
             return Ok();
+        }
+        [HttpGet("{id}/participants")]
+        public async Task<IActionResult> GetParticipants([FromRoute] string id,
+            [FromQuery] string streamerId, [FromQuery] int page, [FromQuery] int pageSize)
+        {
+            var result = await _subSrc.GetSubParticipants(id, streamerId, page, pageSize);
+            return Ok(result);
         }
     }
 }

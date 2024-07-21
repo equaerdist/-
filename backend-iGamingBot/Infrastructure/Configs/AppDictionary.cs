@@ -75,5 +75,8 @@ namespace backend_iGamingBot.Infrastructure
         public static string? PstrxNotCorrectAddress => $"Некорректный адрес для {Piastrix}";
 
         public static string? InvalidEmail => "Неверный email формат";
+        public static string Abused => "Abused";
+        public static string Winner => "Winner";
+        public static string Participant => "Participant";
     }
 }

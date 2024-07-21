@@ -33,7 +33,8 @@ namespace backend_iGamingBot.Infrastructure.Services
             return result;
         }
 
-        public async Task<long[]> GetBatchOfStreamerSubscribersAsync(string streamerTgId, int batchSize, int num)
+        public async Task<long[]> GetBatchOfStreamerSubscribersAsync(string streamerTgId, 
+            int batchSize, int num)
         {
             using var ctx = await _factory.CreateDbContextAsync();
             var batch = await ctx.Streamers

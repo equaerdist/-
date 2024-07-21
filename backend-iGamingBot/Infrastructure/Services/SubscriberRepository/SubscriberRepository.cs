@@ -19,6 +19,22 @@ namespace backend_iGamingBot.Infrastructure.Services
             _mapper = mapper;
             _ctx = ctx;
         }
+
+        public async Task<GetSubParticipant[]> GetSubParticipants(string id, string streamerId, 
+            int page, int pageSize)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            var result = await ctx.Participants
+                .Where(s => s.Participant!.TgId == id
+                    && s.Raffle!.Creator!.TgId == streamerId && s.Raffle.WinnersDefined)
+                .OrderByDescending(s => s.Raffle!.EndTime)
+                .Skip((page -1) * pageSize)
+                .Take(pageSize)
+                .ProjectTo<GetSubParticipant>(_mapper.ConfigurationProvider)
+                .ToArrayAsync();
+            return result;
+        }
+
         public async Task<GetSubscriberProfile> GetSubProfileByTgId(string id, string streamerId)
         {
             using var ctx = await _factory.CreateDbContextAsync();
