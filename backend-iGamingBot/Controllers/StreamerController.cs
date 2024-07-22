@@ -113,7 +113,7 @@ namespace backend_iGamingBot.Controllers
             return Ok();
         }
         [Authorize]
-        [HttpGet("{id}/report")]
+        [HttpPost("{id}/report")]
         public async Task<IActionResult> GetStreamerReport([FromRoute] string id)
         {
             await _streamerSrv.CreateRequestForSubscribersReport(id, SourceId);

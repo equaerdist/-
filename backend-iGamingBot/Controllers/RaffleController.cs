@@ -48,7 +48,7 @@ namespace backend_iGamingBot.Controllers
             return Ok();
         }
         [Authorize]
-        [HttpGet("{id:long}/report")]
+        [HttpPost("{id:long}/report")]
         public async Task<IActionResult> GetRaffleReport([FromRoute] long id)
         {
             await _streamerSrv.CreateRequestForRaffleReport(id, SourceId);
