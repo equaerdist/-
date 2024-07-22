@@ -67,7 +67,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         public void AddPostToLine((CreatePostRequest body, string streamerId, long[] viewers) req)
         {
-            activeRequests.Append(req);
+            activeRequests.Enqueue(req);
         }
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         => Task.Run(async () =>
@@ -90,6 +90,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                     {
                         foreach (var subscriber in request.viewers)
                         {
+                            await Task.Delay(AppConfig.DELAY_PER_REQUEST);
                             try
                             {
                                 await SendFileAsync(subscriber, request.body.Media, request.body.Message);
@@ -101,7 +102,6 @@ namespace backend_iGamingBot.Infrastructure.Services
                                     $"{ex.Message}");
                                 continue;
                             }
-                            await Task.Delay(AppConfig.DELAY_PER_REQUEST);
                         }
                     }
                 }

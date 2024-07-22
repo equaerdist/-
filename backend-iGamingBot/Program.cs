@@ -2,6 +2,7 @@ using backend_iGamingBot.Infrastructure;
 using backend_iGamingBot.Infrastructure.Extensions;
 using backend_iGamingBot.Infrastructure.Services;
 using Npgsql;
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddInftrastructureServices(cfg);
 builder.Services.AddAppServices(cfg);
 var app = builder.Build();
 NpgsqlConnection.GlobalTypeMapper.EnableDynamicJson();
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 if (app.Environment.IsDevelopment())
 {
