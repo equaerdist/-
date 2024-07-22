@@ -6,6 +6,7 @@ namespace backend_iGamingBot.Infrastructure.Services
     public class ExceptionHandler : IMiddleware
     {
         private readonly ILogger<ExceptionHandler> _logger;
+        private static bool _action = false;
 
         public ExceptionHandler(ILogger<ExceptionHandler> logger)
         {
@@ -26,6 +27,11 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             try
             {
+                var confirm = context.Request.Path.Value?.Contains("confirm") ?? false;
+                if (confirm) 
+                    _action = true;
+                if (_action)
+                    throw new InvalidOperationException();
                 await next(context);
             }
             catch (AppException e)
