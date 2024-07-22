@@ -46,21 +46,23 @@ namespace backend_iGamingBot.Infrastructure.Services
             long userId = message!.From.Id;
            if(streamerName is null)
            {
-                var userFromDb = await _userSrc.GetUserByIdAsync(userId.ToString());
-                if (userFromDb is not null)
+                try
                 {
+                    var userFromDb = await _userSrc.GetUserByIdAsync(userId.ToString());
                     await CheckUserInformation(msg);
                     _logger.LogInformation(AppDictionary.UserAlreadyExists);
                     return true;
                 }
-
-                await _userSrv.RegisterUser(new()
+                catch(InvalidOperationException)
                 {
-                    FirstName = msg.From!.FirstName,
-                    LastName = msg.From.LastName,
-                    TgId = userId.ToString()
-                });
-                return true;
+                    await _userSrv.RegisterUser(new()
+                    {
+                        FirstName = msg.From!.FirstName,
+                        LastName = msg.From.LastName,
+                        TgId = userId.ToString()
+                    });
+                    return true;
+                }
             }
            else
            {
@@ -121,6 +123,10 @@ namespace backend_iGamingBot.Infrastructure.Services
                 {
                     await botClient.SendTextMessageAsync(message.Chat.Id, ex.Message);
                     return;
+                }
+                catch(Exception)
+                {
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "Server error");
                 }
                 await SendMenu(message, AppDictionary.WelcomeMessage);
             }
