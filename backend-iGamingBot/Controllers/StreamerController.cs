@@ -112,6 +112,13 @@ namespace backend_iGamingBot.Controllers
             await _streamerSrv.AddStreamerSocial(req, id, SourceId);
             return Ok();
         }
+        [Authorize]
+        [HttpGet("{id}/report")]
+        public async Task<IActionResult> GetStreamerReport([FromRoute] string id)
+        {
+            await _streamerSrv.CreateRequestForSubscribersReport(id, SourceId);
+            return Ok();
+        }
 
     }
 }

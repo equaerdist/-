@@ -14,5 +14,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task DoParticipantInRaffleAsync(long raffleId, string userId);
         public Task AddStreamerSocial(GetSocialDto request, string streamerId, string sourceId);
         public Task AddStreamerAdmin(string streamerId, string userId, string sourceId);
+        public Task CreateRequestForRaffleReport(long id, string sourceId);
+        public Task CreateRequestForSubscribersReport(string streamerId, string sourceId);
     }
 }

@@ -47,5 +47,12 @@ namespace backend_iGamingBot.Controllers
             await _raffleSrv.GenerateWinnersForRaffle(id, req.ExceptRepeats, SourceId, req.AmountOfWinners);
             return Ok();
         }
+        [Authorize]
+        [HttpGet("{id:long}/report")]
+        public async Task<IActionResult> GetRaffleReport([FromRoute] long id)
+        {
+            await _streamerSrv.CreateRequestForRaffleReport(id, SourceId);
+            return Ok();
+        }
     }
 }

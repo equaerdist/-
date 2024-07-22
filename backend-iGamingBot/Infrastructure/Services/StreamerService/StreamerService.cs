@@ -15,6 +15,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly IRaffleRepository _raffleSrc;
         private readonly TelegramPostCreator _postsCreator;
         private readonly IYoutube _ytSrv;
+        private readonly IExcelReporter _xlRep;
 
         public StreamerService(IUnitOfWork uof, 
             IUserRepository userSrc, 
@@ -23,7 +24,8 @@ namespace backend_iGamingBot.Infrastructure.Services
             IMapper mapper,
             IRaffleRepository raffleSrc,
             TelegramPostCreator postsCreator,
-            IYoutube ytSrv) 
+            IYoutube ytSrv,
+            IExcelReporter xlRep) 
         {
             _uof = uof;
             _userSrc = userSrc;
@@ -33,6 +35,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             _raffleSrc = raffleSrc;
             _postsCreator = postsCreator;
             _ytSrv = ytSrv;
+            _xlRep = xlRep;
         }
         private bool ValidateNewRaffle(CreateRaffleRequest request)
         {
@@ -178,6 +181,46 @@ namespace backend_iGamingBot.Infrastructure.Services
             var newAdmin = await _userSrc.GetUserByIdAsync(userId);
             newAdmin.Negotiable.Add(streamer);
             await _uof.SaveChangesAsync();
+        }
+
+        public async Task CreateRequestForRaffleReport(long id, string sourceId)
+        {
+            var raffle = await _raffleSrc.GetTrackingRaffleByIdAsync(id);
+            if (await _streamerSrc.GetAccessLevel(raffle.Creator!.TgId, sourceId) == Access.None)
+                throw new AppException(AppDictionary.Denied);
+            var raffleWinners = await _raffleSrc.GetRaffleWinnersForReport(id);
+            var file = await _xlRep.GenerateExcel(raffleWinners.ToList());
+            var postReq = new CreatePostRequest()
+            {
+                Message = $"Статистика по розыгрышу {id}",
+                Media = file
+            };
+            _postsCreator.AddPostToLine((postReq, raffle.Creator.TgId, [long.Parse(sourceId)]));
+        }
+
+        public async Task CreateRequestForSubscribersReport(string streamerId, string sourceId)
+        {
+            if(await _streamerSrc.GetAccessLevel(streamerId, sourceId) == Access.None)
+                throw new AppException(AppDictionary.Denied);
+            var pageNum = 1;
+            var allUsers = new List<GetSubscriberDto>();
+            while(true)
+            {
+                var page = await _streamerSrc.GetSubscribersAsync(pageNum, 
+                    AppConfig.USER_BATCH_SIZE, 
+                    streamerId);
+                allUsers.AddRange(page);
+                pageNum++;
+                if (page.Length < AppConfig.USER_BATCH_SIZE)
+                    break;
+            }
+            var fileReport = await _xlRep.GenerateExcel(allUsers);
+            var postReq = new CreatePostRequest()
+            {
+                Message = $"Статистика по подписчикам для {streamerId}",
+                Media = fileReport
+            };
+            _postsCreator.AddPostToLine((postReq, streamerId, [long.Parse(sourceId)]));
         }
     }
 }

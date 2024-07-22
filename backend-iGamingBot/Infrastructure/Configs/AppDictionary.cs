@@ -17,7 +17,7 @@ namespace backend_iGamingBot.Infrastructure
             ("Telegram", @"(http(s)?:\/\/)?(www\.)?t\.me\/[a-zA-Z0-9_]+")
         ];
 
-        public static string Denied => "Авторищация не пройдена";
+        public static string Denied => "Нет прав на выполнение операции";
         public static string UserNotExists => "Такого пользователя не существует";
         public static string TetherTRC20 => "Tether TRC20";
         public static string TetherERC20 => "Tether ERC20";

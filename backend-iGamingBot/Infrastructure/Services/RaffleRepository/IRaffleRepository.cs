@@ -18,5 +18,6 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task<WinnerNote[]> GetRaffleWinnerNotes(long raffleId, long[] userIds);
         public Task AddWinnerNote(WinnerNote winnerNote);
         public Task<long[]> GetRafflesAlreadyEnded();
+        public Task<GetReportRaffleWinner[]> GetRaffleWinnersForReport(long id);
     }
 }

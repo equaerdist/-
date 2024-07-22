@@ -40,6 +40,7 @@ namespace backend_iGamingBot.Infrastructure
             services.AddScoped<ISubscriberRepository, SubscriberRepository>();
             services.AddScoped<ISubscriberService, SubscriberService>();
             services.AddScoped<IAuth, Auth>();
+            services.AddScoped<IExcelReporter, ExcelReporter>();
             services.AddSingleton<IHostedService, TelegramPostCreator>(
                        serviceProvider => serviceProvider.GetRequiredService<TelegramPostCreator>());
             services.AddHostedService<RafflesEnder>();

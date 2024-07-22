@@ -17,7 +17,10 @@ namespace backend_iGamingBot.Automapper
                 .ForMember(x => x.Id, cfg => cfg.MapFrom(y => y.UserId))
                 .ForMember(x => x.FirstName, cfg => cfg.MapFrom(y => y.User!.FirstName))
                 .ForMember(x => x.LastName, cfg => cfg.MapFrom(y => y.User!.LastName))
-                .ForMember(x => x.TgId, cfg => cfg.MapFrom(y => y.User!.TgId));
+                .ForMember(x => x.TgId, cfg => cfg.MapFrom(y => y.User!.TgId))
+                .IncludeAllDerived();
+            CreateMap<Subscriber, GetReportRaffleWinner>()
+                .ForMember(x => x.IsWon, cfg => cfg.MapFrom(y => y.)
             CreateMap<DefaultUser, GetAdminDto>();
             CreateMap<CreateRaffleRequest, Raffle>();
             CreateMap<Social, GetSocialDto>();
@@ -44,7 +47,12 @@ namespace backend_iGamingBot.Automapper
                 .ForMember(x => x.EndTime, cfg => cfg.MapFrom(y => y.Raffle!.EndTime))
                 .ForMember(x => x.Status, cfg => cfg.MapFrom(y => y.HaveAbused ? AppDictionary.Abused
                     : y.Raffle!.Winners.Select(u => u.TgId).Contains(y.Participant!.TgId) 
-                    ?  AppDictionary.Winner : AppDictionary.Participant ));
+                    ?  AppDictionary.Winner : AppDictionary.Participant ))
+                .IncludeAllDerived();
+            CreateMap<ParticipantNote, GetReportRaffleWinner>()
+                .ForMember(x => x.Email, cfg => cfg.MapFrom(y => y.Participant!.Email))
+                .ForMember(x => x.FirstName, cfg => cfg.MapFrom(y => y.Participant!.FirstName))
+                .ForMember(x => x.TgId, cfg => cfg.MapFrom(y => y.Participant!.TgId));
         }
     }
 }
