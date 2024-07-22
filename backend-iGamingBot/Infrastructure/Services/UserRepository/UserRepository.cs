@@ -61,5 +61,10 @@ namespace backend_iGamingBot.Infrastructure.Services
                 .FirstAsync();
             return result;
         }
+
+        public async Task RemoveUserAsync(string tgId)
+        {
+            await _ctx.AllUsers.Where(u => u.TgId == tgId).ExecuteDeleteAsync();
+        }
     }
 }

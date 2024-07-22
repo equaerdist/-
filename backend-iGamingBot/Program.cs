@@ -32,7 +32,7 @@ app.UseMiddleware<ExceptionHandler>();
 app.UseCors(opt => opt
     .AllowAnyHeader()
     .AllowAnyMethod()
-    .WithOrigins("http://localhost:5173")
+    .WithOrigins(AppConfig.Frontend)
     .AllowCredentials());
 app.UseAuthentication();
 app.UseAuthorization();

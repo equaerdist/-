@@ -54,7 +54,8 @@ namespace backend_iGamingBot.Infrastructure.Services
             when (e.InnerException?.InnerException is SqlException sqlEx &&
              (sqlEx.Number == 2601 || sqlEx.Number == 2627))
             {
-                throw new AppException(AppDictionary.UserAlreadyExists);
+                await _userSrc.RemoveUserAsync(req.TgId);
+                await _uof.SaveChangesAsync();
             }
             return streamer;
         }

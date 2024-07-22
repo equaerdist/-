@@ -94,7 +94,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         private string GetTwitchLinkPlayer(string channel)
         {
-            return $"https://player.twitch.tv/?channel={channel}&parent=example.com";
+            return $"https://player.twitch.tv/?channel={channel}&parent=${AppConfig.Frontend}";
         }
         public async Task<UsersOnlineCheckResponse> CheckUsersInOnline(List<Streamer> streamerBatch)
         {
