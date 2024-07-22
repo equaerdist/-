@@ -108,6 +108,8 @@
 
                 try
                 {
+                    if (streamersBatch.SelectMany(s => s.Socials).Count() < maxTwitchChannelsCount)
+                        break;
                     logger.LogDebug($"Начинаю отправку батчей для твитча на проверку броадкаста...");
                     var result = await twitch.CheckUsersInOnline(streamersBatch);
                     foreach (var fulledStreamer in fulled)
@@ -159,8 +161,7 @@
 
                         }
                     }
-                    if (streamersBatch.SelectMany(s => s.Socials).Count() < maxTwitchChannelsCount)
-                        break;
+                  
                     await Task.Delay((int)CheckingDelayForTwitch.TotalSeconds * 1000);
                 }
                 catch (Exception ex)
