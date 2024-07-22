@@ -26,6 +26,7 @@ namespace backend_iGamingBot.Controllers
                 Expires = DateTime.UtcNow + _cfg.Expires,
                 HttpOnly = false,
                 SameSite = SameSiteMode.None,
+                Secure = true
             });
             return Ok();
         }
