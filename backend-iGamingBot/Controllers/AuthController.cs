@@ -24,7 +24,8 @@ namespace backend_iGamingBot.Controllers
             Response.Cookies.Append("auth", token, new()
             {
                 Expires = DateTime.UtcNow + _cfg.Expires,
-                HttpOnly = false
+                HttpOnly = false,
+                SameSite = SameSiteMode.Strict
             });
             return Ok();
         }
