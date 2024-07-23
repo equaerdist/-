@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Text;
 using SHA3.Net;
+using backend_iGamingBot.Migrations;
 
 namespace backend_iGamingBot.Infrastructure.Services
 {
@@ -14,14 +15,16 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly IUserRepository _userSrc;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _uof;
+        private readonly IStreamerRepository _streamerSrc;
         private static readonly Regex EmailRegex = new(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
 
         public UserService(IUserRepository userSrc, 
-            IUnitOfWork uof, IMapper mapper)
+            IUnitOfWork uof, IMapper mapper, IStreamerRepository streamerSrc)
         {
             _userSrc = userSrc;
             _mapper = mapper;
             _uof = uof;
+            _streamerSrc = streamerSrc;
         }
         private bool CheckWhenUserHaveEmail(DefaultUser user)
         {
@@ -54,8 +57,17 @@ namespace backend_iGamingBot.Infrastructure.Services
             when (e.InnerException?.InnerException is SqlException sqlEx &&
              (sqlEx.Number == 2601 || sqlEx.Number == 2627))
             {
-                await _userSrc.RemoveUserAsync(req.TgId);
-                await _uof.SaveChangesAsync();
+                try
+                {
+                    var streamerFromDb = await _streamerSrc.GetStreamerByName(req.Name);
+                    throw new AppException(AppDictionary.StreamerAlreadyExists);
+                }
+                catch (InvalidOperationException)
+                {
+                    await _userSrc.RemoveUserAsync(req.TgId);
+                    await _uof.SaveChangesAsync();
+                }
+
             }
             return streamer;
         }

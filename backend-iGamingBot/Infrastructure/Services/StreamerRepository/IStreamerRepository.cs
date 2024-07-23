@@ -16,5 +16,6 @@ namespace backend_iGamingBot.Infrastructure.Services
             int batchSize, int num);
         public Task<GetSocialDto[]> GetStreamerSocials(string streamerId);
         public Task<Access> GetAccessLevel(string targetId, string sourceId);
+        public Task<Streamer> GetStreamerByName(string name);
     }
 }

@@ -160,5 +160,15 @@ namespace backend_iGamingBot.Infrastructure.Services
                 return Access.Admin;
             return Access.None;
         }
+
+        public async Task<Streamer> GetStreamerByName(string name)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            var streamer = await ctx.Streamers
+                .AsNoTracking()
+                .Where(s => s.Name == name)
+                .FirstAsync();
+            return streamer;
+        }
     }
 }

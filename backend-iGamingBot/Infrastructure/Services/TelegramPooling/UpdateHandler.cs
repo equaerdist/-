@@ -124,9 +124,9 @@ namespace backend_iGamingBot.Infrastructure.Services
                     await botClient.SendTextMessageAsync(message.Chat.Id, ex.Message);
                     return;
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
-                    await botClient.SendTextMessageAsync(message.Chat.Id, "Server error");
+                    await botClient.SendTextMessageAsync(message.Chat.Id, ex.Message);
                 }
                 await SendMenu(message, AppDictionary.WelcomeMessage);
             }

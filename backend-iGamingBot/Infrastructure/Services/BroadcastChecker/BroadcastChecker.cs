@@ -54,7 +54,8 @@
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError($"Вознилка шоибка при проверке стриминга ютуб для {streamer.Name}\n" +
+                        logger.LogError($"Вознилка шоибка при проверке стриминга ютуб для " +
+                            $"{streamer.Name}\n" +
                             $"Channel [{social.Name}]\n" +
                             $"{ex.Message}");
                     }
@@ -166,8 +167,11 @@
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError($"Возникла ошибка при проверке броадкаста для батча твитча {cursor}\n" +
-                        $"{ex.Message}");
+                    logger.LogError($"Возникла ошибка при проверке броадкаста " +
+                        $"для батча твитча {cursor}\n" +
+                        $"{ex.Message}\n" +
+                        $"{ex.GetType().ToString()}");
+                    break;
                 }
             }
         }
