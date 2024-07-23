@@ -139,6 +139,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 {
                     postFile = new PostCreatorFile() { Stream = new(), Name = request.Media.FileName };
                     await request.Media.CopyToAsync(postFile.Stream);
+                    postFile.Stream.Seek(0, SeekOrigin.Begin);
                 }
                 var postReq = new TelegramPostRequest()
                 { 
