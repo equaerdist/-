@@ -165,7 +165,6 @@ namespace backend_iGamingBot.Infrastructure.Services
                 var response = await _client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 var htmlContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine(htmlContent);
                 var ytPlayerInitalData = GetPlayerInitialData(htmlContent);
                 if (ytPlayerInitalData is null)
                 {
