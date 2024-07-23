@@ -88,24 +88,23 @@ namespace backend_iGamingBot.Infrastructure.Services
                     if (!activeRequests.TryDequeue(out var request))
                         continue;
                     
-                    while (true)
+                    
+                    foreach (var subscriber in request.viewers)
                     {
-                        foreach (var subscriber in request.viewers)
+                        await Task.Delay(AppConfig.DELAY_PER_REQUEST);
+                        try
                         {
-                            await Task.Delay(AppConfig.DELAY_PER_REQUEST);
-                            try
-                            {
-                                await SendFileAsync(subscriber, request.body.Media, request.body.Message);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError($"Произошла ошибка при отправке поста " +
-                                    $"подписчику {subscriber} для стримера {request.streamerId}\n" +
-                                    $"{ex.Message}");
-                                continue;
-                            }
+                            await SendFileAsync(subscriber, request.body.Media, request.body.Message);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"Произошла ошибка при отправке поста " +
+                                $"подписчику {subscriber} для стримера {request.streamerId}\n" +
+                                $"{ex.Message}");
+                            continue;
                         }
                     }
+                    
                 }
                 catch (Exception ex)
                 {

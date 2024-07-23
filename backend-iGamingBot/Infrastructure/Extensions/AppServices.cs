@@ -19,9 +19,9 @@ namespace backend_iGamingBot.Infrastructure
                    return new TelegramBotClient(options, httpClient);
                });
 
-            services.AddScoped<UpdateHandler>();
-            services.AddScoped<ReceiverService>();
-            services.AddHostedService<PollingService>();
+            //services.AddScoped<UpdateHandler>();
+            //services.AddScoped<ReceiverService>();
+            //services.AddHostedService<PollingService>();
             #endregion
             services.AddSingleton<ITwitchAPI, TwitchAPI>(opt => new());
             services.AddScoped<IYoutube, Youtube>();
