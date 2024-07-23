@@ -301,5 +301,23 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             });
             return app;
         }
+        public static async Task<WebApplication> StreamersTest(this WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var userSrc = scope.ServiceProvider.GetRequiredService<IUserService>();
+            var user = await userSrc.RegisterStreamer(new()
+            {
+                FirstName = "Equaersd",
+                TgId = "999991",
+                Name = "Equaerdist??f"
+            });
+            var userTwo = await userSrc.RegisterStreamer(new()
+            {
+                FirstName = "Equaerdfds",
+                TgId = "999991",
+                Name = "Equaerdist??s"
+            });
+            return app;
+        }
     }
 }

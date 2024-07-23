@@ -17,6 +17,8 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly IUnitOfWork _uof;
         private readonly IStreamerRepository _streamerSrc;
         private static readonly Regex EmailRegex = new(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
+        private static readonly string _tgKeyConstraint = "IX_AllUsers_TgId";
+        private static readonly string _streamerNameConstraint = "IX_AllUsers_Name";
 
         public UserService(IUserRepository userSrc, 
             IUnitOfWork uof, IMapper mapper, IStreamerRepository streamerSrc)
@@ -54,20 +56,17 @@ namespace backend_iGamingBot.Infrastructure.Services
                 await _uof.SaveChangesAsync();
             }
             catch (DbUpdateException e)
-            when (e.InnerException?.InnerException is SqlException sqlEx &&
-             (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+            when(e.InnerException != null)
             {
-                try
-                {
-                    var streamerFromDb = await _streamerSrc.GetStreamerByName(req.Name);
-                    throw new AppException(AppDictionary.StreamerAlreadyExists);
-                }
-                catch (InvalidOperationException)
-                {
-                    await _userSrc.RemoveUserAsync(req.TgId);
-                    await _uof.SaveChangesAsync();
-                }
-
+                    if (e.InnerException.Message.Contains(_tgKeyConstraint))
+                    {
+                        await _userSrc.RemoveUserAsync(req.TgId);
+                        await _uof.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        throw new AppException(AppDictionary.StreamerAlreadyExists);
+                    }
             }
             return streamer;
         }
