@@ -164,6 +164,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 var response = await _client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 var htmlContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(htmlContent);
                 if (_htmlContents.Count > 5)
                     _htmlContents = _htmlContents.Take(5).ToList();
                 _htmlContents.Add(htmlContent);
