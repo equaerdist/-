@@ -67,11 +67,12 @@ namespace backend_iGamingBot.Infrastructure.Services
                 var response = await _client.GetAsync(link);
                 response.EnsureSuccessStatusCode();
                 var htmlContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(htmlContent);
                 var ytInitialInfo = GetYtInitialData(htmlContent);
                 if (ytInitialInfo is null)
                 {
                     _logger.LogError($"Не удалось обнаружить externalId для канала {link}");
-                    throw new ApplicationException(AppDictionary.YoutubeIdentifierNotFound);
+                    throw new AppException(AppDictionary.YoutubeIdentifierNotFound);
                 }
                 var externalId = GetPropertyValue("externalId", ytInitialInfo);
                 if (externalId is null)
