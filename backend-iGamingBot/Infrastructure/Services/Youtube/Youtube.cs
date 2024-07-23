@@ -59,15 +59,30 @@ namespace backend_iGamingBot.Infrastructure.Services
 
             return url;
         }
-        private bool CheckAboutAgreement(string html)
+        private async Task CheckAboutAgreement()
         {
-            var parser = new HtmlParser();
-            var doc = parser.ParseDocument(html);
-            var aggrementButton = doc.QuerySelector("button[aria-label='Zaakceptuj wszystko']") as IHtmlButtonElement;
-            if (aggrementButton == null)
-                return false;
-            aggrementButton.DoClick();
-            return true;
+            var values = new Dictionary<string, string>
+        {
+            { "gl", "PL" },
+            { "m", "1" },
+            { "app", "0" },
+            { "pc", "yt" },
+            { "continue", "https://m.youtube.com/@LofiGirl?cbrd=1" },
+            { "x", "6" },
+            { "bl", "boq_identityfrontenduiserver_20240716.08_p1" },
+            { "hl", "pl" },
+            { "src", "1" },
+            { "cm", "2" },
+            { "set_ytc", "true" },
+            { "set_apyt", "true" },
+            { "set_eom", "false" }
+        };
+
+            var content = new FormUrlEncodedContent(values);
+
+            var response = await _client.PostAsync("https://consent.youtube.com/save", content);
+
+            var responseString = await response.Content.ReadAsStringAsync();
         }
         public async Task<string> GetUserIdentifierByLinkAsync(string link)
         {
@@ -84,8 +99,9 @@ namespace backend_iGamingBot.Infrastructure.Services
                 if (ytInitialInfo is null)
                 {
                     _logger.LogError($"Не удалось обнаружить externalId для канала {link}");
-                    if(!CheckAboutAgreement(htmlContent) || tries > 1)
+                    if(tries > 1)
                         throw new AppException(AppDictionary.YoutubeIdentifierNotFound);
+                    await CheckAboutAgreement();
                     tries++;
                     goto Start;
                 }
