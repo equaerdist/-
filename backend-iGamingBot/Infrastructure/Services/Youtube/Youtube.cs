@@ -59,11 +59,23 @@ namespace backend_iGamingBot.Infrastructure.Services
 
             return url;
         }
+        private bool CheckAboutAgreement(string html)
+        {
+            var parser = new HtmlParser();
+            var doc = parser.ParseDocument(html);
+            var aggrementButton = doc.QuerySelector("button[aria-label='Zaakceptuj wszystko']") as IHtmlButtonElement;
+            if (aggrementButton == null)
+                return false;
+            aggrementButton.DoClick();
+            return true;
+        }
         public async Task<string> GetUserIdentifierByLinkAsync(string link)
         {
             link = EnsureUrlHasProtocol(link);
             try
             {
+                int tries = 0;
+                Start:
                 _logger.LogDebug($"$Начинаю парсинг externalId для {link}");
                 var response = await _client.GetAsync(link);
                 response.EnsureSuccessStatusCode();
@@ -72,7 +84,10 @@ namespace backend_iGamingBot.Infrastructure.Services
                 if (ytInitialInfo is null)
                 {
                     _logger.LogError($"Не удалось обнаружить externalId для канала {link}");
-                    throw new AppException(AppDictionary.YoutubeIdentifierNotFound);
+                    if(!CheckAboutAgreement(htmlContent) || tries > 1)
+                        throw new AppException(AppDictionary.YoutubeIdentifierNotFound);
+                    tries++;
+                    goto Start;
                 }
                 var externalId = GetPropertyValue("externalId", ytInitialInfo);
                 if (externalId is null)
