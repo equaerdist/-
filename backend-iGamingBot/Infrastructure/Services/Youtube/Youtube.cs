@@ -5,6 +5,7 @@ namespace backend_iGamingBot.Infrastructure.Services
 {
     public class Youtube : IYoutube
     {
+        private List<string> _htmlContents = new();
         private readonly HttpClient _client;
         private readonly ILogger<Youtube> _logger;
         private static string _metaObject = "var ytInitialData = ";
@@ -167,6 +168,9 @@ namespace backend_iGamingBot.Infrastructure.Services
                 if (ytPlayerInitalData is null)
                 {
                     _logger.LogError("Не удалось найти объект инициалзиации\n Будем считать, что стрима нет");
+                    if(_htmlContents.Count > 5)
+                        _htmlContents = _htmlContents.Take(5).ToList();
+                    _htmlContents.Add(htmlContent);
                     return new() { IsLive = false, Link = null };
                 }
                 var videoId = GetPropertyValue(_streamCondition, ytPlayerInitalData)?.Replace("\"", "");
@@ -177,6 +181,11 @@ namespace backend_iGamingBot.Infrastructure.Services
                 Console.WriteLine($"Произошла ошибка при запросе {channelId}: \n{e.Message}");
                 throw;
             }
+        }
+
+        public List<string> GetLiveHtmls()
+        {
+            return _htmlContents;
         }
     }
 }

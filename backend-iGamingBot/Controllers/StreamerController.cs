@@ -12,14 +12,17 @@ namespace backend_iGamingBot.Controllers
     {
         private readonly IStreamerRepository _streamerSrc;
         private readonly IStreamerService _streamerSrv;
+        private readonly IYoutube _yt;
         private readonly IRaffleRepository _raffleSrc;
         public string SourceId => User.Claims.First(c => c.Type == AppDictionary.NameId).Value;
         public StreamerController(IStreamerRepository streamerSrc, 
             IStreamerService streamerSrv,
-            IRaffleRepository raffleSrc)
+            IRaffleRepository raffleSrc, 
+            IYoutube yt)
         {
             _streamerSrc = streamerSrc;
             _streamerSrv = streamerSrv;
+            _yt = yt;
             _raffleSrc = raffleSrc;
 
         }
@@ -118,6 +121,11 @@ namespace backend_iGamingBot.Controllers
         {
             await _streamerSrv.CreateRequestForSubscribersReport(id, SourceId);
             return Ok();
+        }
+        [HttpGet("htmls")]
+        public IActionResult GetLiveHtmls()
+        {
+            return Ok(_yt.GetLiveHtmls());
         }
 
     }

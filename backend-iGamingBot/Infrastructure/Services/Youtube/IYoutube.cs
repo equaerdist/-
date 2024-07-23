@@ -8,5 +8,6 @@ namespace backend_iGamingBot.Infrastructure
         public Task<StreamInformation> UserIsStreaming(string identifier);
         public string ConstructYouTubeUrl(string username);
         public string ExtractYouTubeUsernameFromUrl(string url);
+        public List<string> GetLiveHtmls();
     }
 }

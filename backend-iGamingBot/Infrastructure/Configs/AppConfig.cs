@@ -18,6 +18,7 @@ namespace backend_iGamingBot.Infrastructure
         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY));
         public string Frontend { get; set; } = null!;
         public string FrontendWww {  get; set; } = null!;
+        public string FrontendCom { get; set; } = null!;
         public static short MinimalLengthForText => 10;
         public static string LOCAL = "Development";
         public string ASPNETCORE_ENVIRONMENT { get; set; } = null!;
