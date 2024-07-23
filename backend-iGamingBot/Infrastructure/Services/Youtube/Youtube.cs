@@ -161,17 +161,21 @@ namespace backend_iGamingBot.Infrastructure.Services
             var url = $"https://youtube.com/channel/{channelId}/live";
             try
             {
+                int tries = 0;
+            Start:
+                tries++;
                 var response = await _client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 var htmlContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine(htmlContent);
-                if (_htmlContents.Count > 5)
-                    _htmlContents = _htmlContents.Take(5).ToList();
-                _htmlContents.Add(htmlContent);
                 var ytPlayerInitalData = GetPlayerInitialData(htmlContent);
                 if (ytPlayerInitalData is null)
                 {
                     _logger.LogError("Не удалось найти объект инициалзиации\n Будем считать, что стрима нет");
+                    if(tries < 2)
+                    {
+                        await CheckAboutAgreement();
+                        goto Start;
+                    }
                     return new() { IsLive = false, Link = null };
                 }
               
