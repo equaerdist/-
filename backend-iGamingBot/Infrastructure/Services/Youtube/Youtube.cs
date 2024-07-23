@@ -164,15 +164,16 @@ namespace backend_iGamingBot.Infrastructure.Services
                 var response = await _client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 var htmlContent = await response.Content.ReadAsStringAsync();
+                if (_htmlContents.Count > 5)
+                    _htmlContents = _htmlContents.Take(5).ToList();
+                _htmlContents.Add(htmlContent);
                 var ytPlayerInitalData = GetPlayerInitialData(htmlContent);
                 if (ytPlayerInitalData is null)
                 {
                     _logger.LogError("Не удалось найти объект инициалзиации\n Будем считать, что стрима нет");
                     return new() { IsLive = false, Link = null };
                 }
-                if (_htmlContents.Count > 5)
-                    _htmlContents = _htmlContents.Take(5).ToList();
-                _htmlContents.Add(htmlContent);
+              
                 var videoId = GetPropertyValue(_streamCondition, ytPlayerInitalData)?.Replace("\"", "");
                 return new() { IsLive = videoId != null, Link = $"https://www.youtube.com/watch?v={videoId}" };
             }
