@@ -19,39 +19,41 @@ namespace backend_iGamingBot.Infrastructure.Services
             {
                 var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-                using var stream = file.OpenReadStream();
-
-                switch (extension)
+                using (var stream = file.OpenReadStream())
                 {
-                    case ".jpg":
-                    case ".jpeg":
-                    case ".png":
-                    case ".gif":
-                        await _botClient.SendPhotoAsync(
-                            chatId: chatId,
-                            photo: InputFile.FromStream(stream),
-                            caption: caption,
-                            parseMode: ParseMode.Markdown
-                        );
-                        break;
 
-                    case ".mp4":
-                        await _botClient.SendVideoAsync(
-                            chatId: chatId,
-                            video: InputFile.FromStream(stream),
-                            caption: caption,
-                            parseMode: ParseMode.Markdown
-                        );
-                        break;
+                    switch (extension)
+                    {
+                        case ".jpg":
+                        case ".jpeg":
+                        case ".png":
+                        case ".gif":
+                            await _botClient.SendPhotoAsync(
+                                chatId: chatId,
+                                photo: InputFile.FromStream(stream),
+                                caption: caption,
+                                parseMode: ParseMode.Markdown
+                            );
+                            break;
 
-                    default:
-                        await _botClient.SendDocumentAsync(
-                            chatId: chatId,
-                            document: InputFile.FromStream(stream),
-                            caption: caption,
-                            parseMode: ParseMode.Markdown
-                        );
-                        break;
+                        case ".mp4":
+                            await _botClient.SendVideoAsync(
+                                chatId: chatId,
+                                video: InputFile.FromStream(stream),
+                                caption: caption,
+                                parseMode: ParseMode.Markdown
+                            );
+                            break;
+
+                        default:
+                            await _botClient.SendDocumentAsync(
+                                chatId: chatId,
+                                document: InputFile.FromStream(stream),
+                                caption: caption,
+                                parseMode: ParseMode.Markdown
+                            );
+                            break;
+                    }
                 }
             }
             else
