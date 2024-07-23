@@ -109,7 +109,7 @@
 
                 try
                 {
-                    if (streamersBatch.SelectMany(s => s.Socials).Count() < maxTwitchChannelsCount)
+                   if (streamersBatch.SelectMany(s => s.Socials).Count() == 0)
                         break;
                     logger.LogDebug($"Начинаю отправку батчей для твитча на проверку броадкаста...");
                     var result = await twitch.CheckUsersInOnline(streamersBatch);
@@ -161,6 +161,7 @@
                             await unitOfWork.SaveChangesAsync();
 
                         }
+
                     }
                   
                     await Task.Delay((int)CheckingDelayForTwitch.TotalSeconds * 1000);
@@ -173,6 +174,8 @@
                         $"{ex.GetType().ToString()}");
                     break;
                 }
+                if (streamersBatch.SelectMany(s => s.Socials).Count() < maxTwitchChannelsCount)
+                    break;
             }
         }
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -191,6 +194,7 @@
                 while (true)
                 {
                     var batch = await streamersSrc.GetStreamerBatchAsync(page, pageSize);
+                    logger.LogDebug($"Проверка на броадкаст - батч [{page}]");
                     if (batch.Length != 0)
                     {
                         var streamersWithYoutube = batch.GetStreamersWithSocial(AppDictionary.Youtube);
@@ -204,10 +208,11 @@
                     if (batch.Length < pageSize)
                     {
                         unitOfWork.ClearCache();
+                        page = 1;
                         break;
                     }
                 }
-                page = 1;
+             
                 await Task.Delay((int)CheckingDelay.TotalSeconds * 1000);
             }
         });
