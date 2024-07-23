@@ -1,4 +1,6 @@
-﻿namespace backend_iGamingBot.Dto
+﻿using backend_iGamingBot.Infrastructure.Services;
+
+namespace backend_iGamingBot.Dto
 {
     public class CreatePostRequest
     {

@@ -6,7 +6,7 @@ namespace backend_iGamingBot.Infrastructure.Services
 {
     public class ExcelReporter : IExcelReporter
     {
-        public async Task<IFormFile> GenerateExcel<T>(List<T> data, CancellationToken t = default)
+        public async Task<PostCreatorFile> GenerateExcel<T>(List<T> data, CancellationToken t = default)
         {
             return await Task.Run(() =>
             {
@@ -34,17 +34,12 @@ namespace backend_iGamingBot.Infrastructure.Services
                     }
 
 
-                    using (var stream = new MemoryStream())
-                    {
-                        package.SaveAs(stream);
-                        stream.Position = 0;
+                    var stream = new MemoryStream();
+                    
+                    package.SaveAs(stream);
+                    stream.Position = 0;
 
-                        return new FormFile(stream, 0, stream.Length, null, "GeneratedExcel.xlsx")
-                        {
-                            Headers = new HeaderDictionary(),
-                            ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                        };
-                    }
+                    return new PostCreatorFile() { Stream = stream, Name = "GeneratedExcel.xlsx" };
                 }
             }, t);
            

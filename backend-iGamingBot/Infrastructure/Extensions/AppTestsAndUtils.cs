@@ -1,5 +1,7 @@
-﻿using backend_iGamingBot.Infrastructure.Configs;
+﻿using backend_iGamingBot.Dto;
+using backend_iGamingBot.Infrastructure.Configs;
 using backend_iGamingBot.Infrastructure.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend_iGamingBot.Infrastructure.Extensions
@@ -317,6 +319,25 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                 TgId = "999991",
                 Name = "Equaerdist??s"
             });
+            return app;
+        }
+        public static async Task<WebApplication> PostTestWithFile(this WebApplication app)
+        {
+            long subscriber = 1341625052;
+            long streamer = 1341625052;
+            using var scope = app.Services.CreateScope();
+            var excel = scope.ServiceProvider.GetRequiredService<IExcelReporter>();
+            User[] users = [new User() { FirstName = "dfddd" }];
+            var report = await excel.GenerateExcel(users.ToList());
+            var tgPublisher = scope.ServiceProvider.GetRequiredService<TelegramPostCreator>();
+            var post = new TelegramPostRequest() 
+            { 
+                Media = report, 
+                Message = "Тетсовое сообщение ведь да",
+                StreamerId = streamer.ToString(),
+                Viewers = [subscriber]
+            };
+            tgPublisher.AddPostToLine(post);
             return app;
         }
     }

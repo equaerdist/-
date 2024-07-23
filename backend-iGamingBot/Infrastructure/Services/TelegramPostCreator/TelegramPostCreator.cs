@@ -10,18 +10,18 @@ namespace backend_iGamingBot.Infrastructure.Services
     {
         private ITelegramBotClient _botClient = null!;
         private ILogger<TelegramPostCreator> _logger = null!;
-        private AppConfig _cfg;
+        private AppConfig _cfg = null!;
         private readonly IServiceProvider _services;
 
-        public async Task SendFileAsync(long chatId, IFormFile? file, string? caption = null)
+        public async Task SendFileAsync(long chatId, PostCreatorFile? file, string? caption = null)
         {
             if (file != null)
             {
-                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-
-                using (var stream = file.OpenReadStream())
+                var extension = Path.GetExtension(file.Name).ToLowerInvariant();
+                var stream = file.Stream;
+                var fileName = file.Name;
+                using (file.Stream)
                 {
-
                     switch (extension)
                     {
                         case ".jpg":
@@ -30,7 +30,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                         case ".gif":
                             await _botClient.SendPhotoAsync(
                                 chatId: chatId,
-                                photo: InputFile.FromStream(stream),
+                                photo: InputFile.FromStream(stream, fileName),
                                 caption: caption,
                                 parseMode: ParseMode.Markdown
                             );
@@ -39,7 +39,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                         case ".mp4":
                             await _botClient.SendVideoAsync(
                                 chatId: chatId,
-                                video: InputFile.FromStream(stream),
+                                video: InputFile.FromStream(stream, fileName),
                                 caption: caption,
                                 parseMode: ParseMode.Markdown
                             );
@@ -48,7 +48,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                         default:
                             await _botClient.SendDocumentAsync(
                                 chatId: chatId,
-                                document: InputFile.FromStream(stream),
+                                document: InputFile.FromStream(stream, fileName),
                                 caption: caption,
                                 parseMode: ParseMode.Markdown
                             );
@@ -62,13 +62,13 @@ namespace backend_iGamingBot.Infrastructure.Services
                     await _botClient.SendTextMessageAsync(chatId:chatId, text: caption);
             }
         }
-        private static ConcurrentQueue<(CreatePostRequest body, string streamerId, long[] viewers)> activeRequests =
+        private static ConcurrentQueue<TelegramPostRequest> activeRequests =
             new ();
         public TelegramPostCreator(IServiceProvider services) 
         {
             _services = services;
         }
-        public void AddPostToLine((CreatePostRequest body, string streamerId, long[] viewers) req)
+        public void AddPostToLine(TelegramPostRequest req)
         {
             activeRequests.Enqueue(req);
         }
@@ -91,17 +91,17 @@ namespace backend_iGamingBot.Infrastructure.Services
                         continue;
                     
                     
-                    foreach (var subscriber in request.viewers)
+                    foreach (var subscriber in request.Viewers)
                     {
                         await Task.Delay(AppConfig.DELAY_PER_REQUEST);
                         try
                         {
-                            await SendFileAsync(subscriber, request.body.Media, request.body.Message);
+                            await SendFileAsync(subscriber, request.Media, request.Message);
                         }
                         catch (Exception ex)
                         {
                             _logger.LogError($"Произошла ошибка при отправке поста " +
-                                $"подписчику {subscriber} для стримера {request.streamerId}\n" +
+                                $"подписчику {subscriber} для стримера {request.StreamerId}\n" +
                                 $"{ex.Message}");
                             continue;
                         }

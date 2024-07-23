@@ -35,13 +35,16 @@ namespace backend_iGamingBot.Infrastructure.Services
             if (await _streamerSrc.GetAccessLevel(req.StreamerId, sourceId) != Access.Full)
                 throw new AppException(AppDictionary.NotHaveAccess);
             var streamer = await _streamerSrc.GetStreamerByTgIdAsync(req.StreamerId, req.Id);
-            var message = new CreatePostRequest() 
+            var message = new TelegramPostRequest() 
             { 
                 Message = $"Вам пришло сообщение от стримера {streamer.Name}\n" +
-                $"{req.Message}" 
+                $"{req.Message}" ,
+                Media = null,
+                Viewers = [long.Parse(req.Id)],
+                StreamerId = req.StreamerId
             };
-            Validators.ValidatePostRequest(message);
-            _postCreator.AddPostToLine((message, req.StreamerId, [long.Parse(req.Id)]));
+            Validators.ValidatePostRequest(new() { Message = req.Message });
+            _postCreator.AddPostToLine(message);
         }
     }
 }

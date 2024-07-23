@@ -67,11 +67,13 @@ namespace backend_iGamingBot.Infrastructure.Services
                 {
                     var batch = await _streamerSrc.GetBatchOfStreamerSubscribersAsync(tgId, 
                         AppConfig.USER_BATCH_SIZE, batchNum);
-                    var post = new CreatePostRequest() 
+                    var post = new TelegramPostRequest() 
                     { 
-                        Message = $"У стримера {streamer.Name} начался розыгрыш!" 
+                        Message = $"У стримера {streamer.Name} начался розыгрыш!",
+                        StreamerId = tgId,
+                        Viewers = batch,
                     };
-                    _postsCreator.AddPostToLine((post, tgId, batch));
+                    _postsCreator.AddPostToLine(post);
                     if (batch.Length < AppConfig.USER_BATCH_SIZE)
                         break;
                 }
@@ -132,7 +134,21 @@ namespace backend_iGamingBot.Infrastructure.Services
             {
                 var batch = await _streamerSrc.GetBatchOfStreamerSubscribersAsync(tgId, AppConfig.USER_BATCH_SIZE, batchNum);
                 batchNum++;
-                _postsCreator.AddPostToLine((request, tgId, batch));
+                PostCreatorFile? postFile = null;
+                if(request.Media != null)
+                {
+                    postFile = new PostCreatorFile() { Stream = new(), Name = request.Media.FileName };
+                    await request.Media.CopyToAsync(postFile.Stream);
+                }
+                var postReq = new TelegramPostRequest()
+                { 
+                    Viewers = batch,
+                    Media = postFile,
+                    StreamerId = tgId,
+                    Message = request.Message,
+                };
+
+                _postsCreator.AddPostToLine(postReq);
                 if (batch.Length < AppConfig.USER_BATCH_SIZE)
                     break;
             }
@@ -190,12 +206,14 @@ namespace backend_iGamingBot.Infrastructure.Services
                 throw new AppException(AppDictionary.Denied);
             var raffleWinners = await _raffleSrc.GetRaffleWinnersForReport(id);
             var file = await _xlRep.GenerateExcel(raffleWinners.ToList());
-            var postReq = new CreatePostRequest()
+            var postReq = new TelegramPostRequest()
             {
                 Message = $"Статистика по розыгрышу {id}",
-                Media = file
+                Media = file,
+                StreamerId = raffle.Creator!.TgId,
+                Viewers = [long.Parse(sourceId)]
             };
-            _postsCreator.AddPostToLine((postReq, raffle.Creator.TgId, [long.Parse(sourceId)]));
+            _postsCreator.AddPostToLine(postReq);
         }
 
         public async Task CreateRequestForSubscribersReport(string streamerId, string sourceId)
@@ -215,12 +233,15 @@ namespace backend_iGamingBot.Infrastructure.Services
                     break;
             }
             var fileReport = await _xlRep.GenerateExcel(allUsers);
-            var postReq = new CreatePostRequest()
-            {
+            var postReq = new TelegramPostRequest()
+            { 
+                StreamerId = streamerId,
+                Viewers = [long.Parse(sourceId)],
                 Message = $"Статистика по подписчикам для {streamerId}",
                 Media = fileReport
             };
-            _postsCreator.AddPostToLine((postReq, streamerId, [long.Parse(sourceId)]));
+
+            _postsCreator.AddPostToLine(postReq);
         }
     }
 }

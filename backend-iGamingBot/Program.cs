@@ -30,6 +30,7 @@ if (app.Environment.IsDevelopment())
 //await app.CreateTestUser();
 //await app.CreateTestYoutubeChannel();
 //await app.StreamersTest();
+//await app.PostTestWithFile();
 await app.CheckMigrationsAsync();
 app.UseMiddleware<ExceptionHandler>();
 app.UseCors(opt => opt
