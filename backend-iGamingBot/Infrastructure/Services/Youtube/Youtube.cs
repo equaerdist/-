@@ -1,4 +1,5 @@
-﻿using AngleSharp.Html.Parser;
+﻿using AngleSharp.Html.Dom;
+using AngleSharp.Html.Parser;
 
 namespace backend_iGamingBot.Infrastructure.Services
 {
@@ -67,7 +68,6 @@ namespace backend_iGamingBot.Infrastructure.Services
                 var response = await _client.GetAsync(link);
                 response.EnsureSuccessStatusCode();
                 var htmlContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine(htmlContent);
                 var ytInitialInfo = GetYtInitialData(htmlContent);
                 if (ytInitialInfo is null)
                 {
