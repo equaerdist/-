@@ -168,11 +168,11 @@ namespace backend_iGamingBot.Infrastructure.Services
                 if (ytPlayerInitalData is null)
                 {
                     _logger.LogError("Не удалось найти объект инициалзиации\n Будем считать, что стрима нет");
-                    if(_htmlContents.Count > 5)
-                        _htmlContents = _htmlContents.Take(5).ToList();
-                    _htmlContents.Add(htmlContent);
                     return new() { IsLive = false, Link = null };
                 }
+                if (_htmlContents.Count > 5)
+                    _htmlContents = _htmlContents.Take(5).ToList();
+                _htmlContents.Add(htmlContent);
                 var videoId = GetPropertyValue(_streamCondition, ytPlayerInitalData)?.Replace("\"", "");
                 return new() { IsLive = videoId != null, Link = $"https://www.youtube.com/watch?v={videoId}" };
             }
