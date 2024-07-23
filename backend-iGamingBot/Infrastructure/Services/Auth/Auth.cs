@@ -32,7 +32,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             var nameId = string.Empty;
             var name = string.Empty;
-            if (AppConfig.Environment != AppConfig.LOCAL)
+            if (_cfg.ASPNETCORE_ENVIRONMENT != AppConfig.LOCAL)
             {
                 var tgAuthDateObj = dto;
                 string data = CombineData(tgAuthDateObj);

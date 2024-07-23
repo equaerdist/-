@@ -93,7 +93,8 @@ namespace backend_iGamingBot.Infrastructure.Services
             {
             new []
             {
-                InlineKeyboardButton.WithWebApp(AppDictionary.OpenWebApp, new(){ Url = AppConfig.Frontend})
+                InlineKeyboardButton.WithWebApp(AppDictionary.OpenWebApp, 
+                new(){ Url = _cfg.Frontend})
             }
             });
 

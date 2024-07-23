@@ -10,6 +10,7 @@ namespace backend_iGamingBot.Infrastructure.Services
     {
         private ITelegramBotClient _botClient = null!;
         private ILogger<TelegramPostCreator> _logger = null!;
+        private AppConfig _cfg;
         private readonly IServiceProvider _services;
 
         public async Task SendFileAsync(long chatId, IFormFile? file, string? caption = null)
@@ -75,11 +76,12 @@ namespace backend_iGamingBot.Infrastructure.Services
             var scope = _services.CreateScope();
             _botClient =  scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
             _logger = scope.ServiceProvider.GetRequiredService<ILogger<TelegramPostCreator>>();
+            _cfg = scope.ServiceProvider.GetRequiredService<AppConfig>();
             while(true)
             {
                 try
                 {
-                    if (AppConfig.Environment == AppConfig.LOCAL)
+                    if (_cfg.ASPNETCORE_ENVIRONMENT == AppConfig.LOCAL)
                         continue;
                     if (activeRequests.Count == 0)
                         continue;

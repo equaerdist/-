@@ -34,7 +34,7 @@ app.UseMiddleware<ExceptionHandler>();
 app.UseCors(opt => opt
     .AllowAnyHeader()
     .AllowAnyMethod()
-    .WithOrigins(AppConfig.Frontend)
+    .WithOrigins(cfg.Frontend)
     .AllowCredentials());
 app.UseAuthentication();
 app.UseAuthorization();

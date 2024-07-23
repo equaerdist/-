@@ -9,7 +9,6 @@ namespace backend_iGamingBot.Infrastructure
         public string SqlKey { get; init; } = null!;
         public string TwitchClientId { get; init; } = null!;
         public string TwitchSecretToken { get; init; } = null!;
-        public string Host { get; init; } = null!;
         public string TgKey { get; set; } = null!;
         public static int DELAY_PER_REQUEST = 2000;
         public static short USER_BATCH_SIZE = 100;
@@ -17,10 +16,10 @@ namespace backend_iGamingBot.Infrastructure
         public TimeSpan Expires => TimeSpan.FromDays(1);
         public SymmetricSecurityKey SymmetricSecurityKey =>
         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY));
-        public static string Frontend => "https://localhost:5173";
-        public static string FrontendWww => "www.localhost.com";
+        public string Frontend { get; set; } = null!;
+        public string FrontendWww {  get; set; } = null!;
         public static short MinimalLengthForText => 10;
-        public static string LOCAL = "LOCAL";
-        public static string Environment => LOCAL;
+        public static string LOCAL = "Development";
+        public string ASPNETCORE_ENVIRONMENT { get; set; } = null!;
     }
 }
