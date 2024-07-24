@@ -145,7 +145,7 @@
                             finalSocials.AddRange(notOnline);
                             fulledStreamer.Socials.Clear();
                             await unitOfWork.SaveChangesAsync();
-                            fulledStreamer.Socials.AddRange(finalSocials);
+                            fulledStreamer.Socials.AddRange(finalSocials.DistinctBy(s => s.Link));
                             await unitOfWork.SaveChangesAsync();
                         }
                         else
@@ -158,7 +158,7 @@
                             twitchSocials.AddRange(notTwitch);
                             fulledStreamer.Socials.Clear();
                             await unitOfWork.SaveChangesAsync();
-                            fulledStreamer.Socials.AddRange(twitchSocials);
+                            fulledStreamer.Socials.AddRange(twitchSocials.DistinctBy(s => s.Link));
                             await unitOfWork.SaveChangesAsync();
 
                         }
