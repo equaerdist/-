@@ -9,6 +9,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly HttpClient _client;
         private readonly ILogger<Youtube> _logger;
         private static string _metaObject = "var ytInitialData = ";
+        private static int _counter = 0;
         private static string _playerMetaObject = "var ytInitialPlayerResponse = ";
         private static string _userAgent = "Mozilla/5.0 (Linux; Android 6.0; " +
             "Nexus 5 Build/MRA58N) " +
@@ -171,8 +172,12 @@ namespace backend_iGamingBot.Infrastructure.Services
                     _logger.LogError("Не удалось найти объект инициалзиации\n Будем считать, что стрима нет");
                     return new() { IsLive = false, Link = null };
                 }
-              
                 var videoId = GetPropertyValue(_streamCondition, ytPlayerInitalData)?.Replace("\"", "");
+                if (_counter == 0 && videoId == null)
+                {
+                    _counter++;
+                    Console.WriteLine(htmlContent);
+                }
                 _logger.LogDebug($"[{videoId}] - id найденного видео");
                 return new() { IsLive = videoId != null, Link = $"https://www.youtube.com/watch?v={videoId}" };
             }
