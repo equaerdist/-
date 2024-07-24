@@ -5,16 +5,19 @@ namespace backend_iGamingBot.Infrastructure.Services
     {
         private readonly IUnitOfWork _uof;
         private readonly IRaffleRepository _rafleSrc;
+        private readonly IUserRepository _userSrc;
         private readonly IStreamerRepository _streamerSrc;
         private readonly TelegramPostCreator _postCreator;
 
         public RaffleService(IRaffleRepository raffleSrc, 
             IUnitOfWork uof,
             IStreamerRepository streamerSrc,
-            TelegramPostCreator postCreator) 
+            TelegramPostCreator postCreator,
+            IUserRepository userSrc) 
         {
             _uof = uof;
             _rafleSrc = raffleSrc;
+            _userSrc = userSrc;
             _streamerSrc = streamerSrc;
             _postCreator = postCreator;
         }
@@ -82,11 +85,12 @@ namespace backend_iGamingBot.Infrastructure.Services
                     WinnerId = singleWinner
                 });
             }
+            var tgIds = await _userSrc.MapUserIdsToTgIds(winners.ToArray());
             var postReq = new TelegramPostRequest()
             {
                 Message = $"Вы выиграли в розыгрыше стримера {raffleTask.Result.Creator!.Name}",
                 StreamerId = raffleTask.Result.Creator.TgId,
-                Viewers = winners.ToArray()
+                Viewers = tgIds.Select(s => long.Parse(s.Item2)).ToArray(),
             };
             _postCreator.AddPostToLine(postReq);
             raffleTask.Result.WinnersDefined = true;

@@ -62,6 +62,16 @@ namespace backend_iGamingBot.Infrastructure.Services
             return result;
         }
 
+        public async Task<Tuple<long, string>[]> MapUserIdsToTgIds(long[] ids)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            var result = await ctx.AllUsers
+                .Where(s => ids.Contains(s.Id))
+                .Select(s => Tuple.Create(s.Id, s.TgId))
+                .ToArrayAsync();
+            return result;
+        }
+
         public async Task RemoveUserAsync(string tgId)
         {
             await _ctx.AllUsers.Where(u => u.TgId == tgId).ExecuteDeleteAsync();

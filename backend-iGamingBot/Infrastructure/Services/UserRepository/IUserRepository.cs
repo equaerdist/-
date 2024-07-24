@@ -10,6 +10,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task AddUserAsync(DefaultUser user);
         public Task<GetUserProfile> GetUserProfileByTgIdAsync(string tgId);
         public Task RemoveUserAsync(string tgId);
+        public Task<Tuple<long,string>[]> MapUserIdsToTgIds(long[] ids);
        
     }
 }
