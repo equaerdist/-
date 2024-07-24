@@ -34,7 +34,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         private bool CheckWhenUserHaveEmail(DefaultUser user)
         {
-            return user.Email != null;
+            return user.Email != null && user.Email != string.Empty;
         }
         
 
@@ -163,7 +163,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             var raffle = await _raffleSrc.GetRaffleByIdAsync(raffleId);
             var user = await _userSrc.GetUserByIdAsync(userId);
             var result = new List<string>();
-            foreach (var c in raffle.RaffleConditions)
+            foreach (var c in (List<string>)raffle.RaffleConditions)
             {
                 var validator = CheckWhenUserHaveEmail;
                 var resultCheck = validator(user);

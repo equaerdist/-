@@ -93,8 +93,8 @@ namespace backend_iGamingBot.Infrastructure.Services
             var pageResult = await _streamerSrc.GetRafflesAsync(page, pageSize, type, streamerId, userId);
             foreach (var result in pageResult)
             {
-                var resultConditions = new List<object>();
-                foreach(var c in result.RaffleConditions)
+                var resultConditions = new List<GetRaffleConditionDto>();
+                foreach(var c in (List<string>)result.RaffleConditions)
                 {
                     var condition = (string)c;
                     resultConditions.Add(new GetRaffleConditionDto()
@@ -105,6 +105,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                         IsDone = await _userSrv.SingleRaffleConditionIsDone(condition, userId)
                     });
                 }
+                result.RaffleConditions = resultConditions;
             }
             return pageResult;
         }

@@ -66,7 +66,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                 EndTime = r.EndTime,
                 Id = r.Id,
                 IsParticipant = r.Participants.Select(u => u.TgId).Contains(userId),
-                IsCreator = r.Creator!.TgId.Equals(userId)
+                IsCreator = r.Creator!.TgId.Equals(userId),
+                RaffleConditions = r.RaffleConditions
             }).ToArrayAsync();
         }
 
