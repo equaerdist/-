@@ -1,7 +1,9 @@
 ﻿using backend_iGamingBot.Infrastructure;
 using backend_iGamingBot.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace backend_iGamingBot.Controllers
 {
@@ -18,9 +20,11 @@ namespace backend_iGamingBot.Controllers
             _cfg = cfg;
         }
         [HttpPost]
-        public async Task<IActionResult> Enter([FromBody] TelegramAuthDateDto dto)
+        public async Task<IActionResult> Enter([FromBody] AuthRequest req)
         {
-            var token = await _auth.GetTokenAsync(dto);
+            var data = QueryHelpers.ParseQuery(req.Hash)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+            var token = await _auth.GetTokenAsync(data);
             Response.Cookies.Append("auth", token, new()
             {
                 Expires = DateTime.UtcNow + _cfg.Expires,

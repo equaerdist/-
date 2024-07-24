@@ -1,9 +1,11 @@
 ﻿using AngleSharp.Html.Parser;
 using AngleSharp.Io;
+using backend_iGamingBot.Controllers;
 using backend_iGamingBot.Dto;
 using backend_iGamingBot.Infrastructure.Configs;
 using backend_iGamingBot.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -237,12 +239,11 @@ namespace backend_iGamingBot.Infrastructure.Extensions
         public static async  Task<WebApplication> TestFunction(this WebApplication app)
         {
             using var scope = app.Services.CreateScope();
-            var userSrc = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-            var streamer = await userSrc.GetUserByIdAsync("272");
-            var user = await userSrc.GetUserByIdAsync("5");
-            var isStreamer = streamer is Streamer;
-            var isUser = user is User;
-            throw new InvalidCastException("Тестовая функция");
+            var auth = scope.ServiceProvider.GetRequiredService<IAuth>();
+            var data = QueryHelpers.ParseQuery("query_id=AAHckvdPAAAAANyS90-coqDJ&user=%7B%22id%22%3A1341625052%2C%22first_name%22%3A%22Read%22%2C%22last_name%22%3A%22Logs%22%2C%22username%22%3A%22qwertydefined%22%2C%22language_code%22%3A%22ru%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1721816969&hash=135a3dddef4820be1343854ab0e72188cd7c5cf19ed851ecd399093004f802e2")
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+            var token = await auth.GetTokenAsync(data);
+            return app;
         }
         public static async Task<WebApplication> CreateTestRaffleForUser(this WebApplication app)
         {

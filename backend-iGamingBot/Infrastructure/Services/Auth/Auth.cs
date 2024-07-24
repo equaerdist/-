@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -24,26 +25,35 @@ namespace backend_iGamingBot.Infrastructure.Services
                 return hmac.ComputeHash(data);
             }
         }
-        private static string CombineData(TelegramAuthDateDto data)
+        private static string CombineData(Dictionary<string, string> data)
         {
-            return $"auth_date={data.AuthDate}\nquery_id={data.QueryId}\nuser={data.User}";
+            return string.Join("\n", data.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key}={kv.Value}"));
         }
-        public async Task<string> GetTokenAsync(TelegramAuthDateDto dto)
+        private Dictionary<string, string> ParseQueryString(string queryString)
+        {
+            var parsedData = QueryHelpers.ParseQuery(queryString);
+            return parsedData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+        }
+        public async Task<string> GetTokenAsync(Dictionary<string, string> data)
         {
             var nameId = string.Empty;
             var name = string.Empty;
             if (_cfg.ASPNETCORE_ENVIRONMENT != AppConfig.LOCAL)
             {
-                var tgAuthDateObj = dto;
-                string data = CombineData(tgAuthDateObj);
+                string hash = data["hash"];
+                data.Remove("hash");
+                string dataString = CombineData(data);
                 byte[] secret_key = HMAC_SHA256(Encoding.UTF8.GetBytes(_cfg.TgKey), Encoding.UTF8.GetBytes("WebAppData"));
 
-                string calculatedHash = BitConverter.ToString(HMAC_SHA256(Encoding.UTF8.GetBytes(data), secret_key)).Replace("-", "");
-                bool isValid = calculatedHash.Equals(tgAuthDateObj.Hash, StringComparison.OrdinalIgnoreCase);
+                string calculatedHash = BitConverter.ToString(
+                    HMAC_SHA256(Encoding.UTF8.GetBytes(dataString), secret_key))
+                    .Replace("-", "");
+                bool isValid = calculatedHash.Equals(hash, StringComparison.OrdinalIgnoreCase);
                 if (!isValid)
                     throw new AppException(AppDictionary.Denied);
-                var tgUser = JsonSerializer.Deserialize<TgUser>(dto.User) ??
-                    throw new InvalidOperationException();
+
+                var tgUser = JsonSerializer.Deserialize<TgUser>(data["user"]) 
+                    ?? throw new InvalidDataException();
                 nameId = tgUser.Id.ToString();
                 name = tgUser.FirstName;
             }
