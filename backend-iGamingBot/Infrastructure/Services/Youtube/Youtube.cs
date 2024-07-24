@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
+using System.Text.RegularExpressions;
 
 namespace backend_iGamingBot.Infrastructure.Services
 {
@@ -9,7 +10,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly HttpClient _client;
         private readonly ILogger<Youtube> _logger;
         private static string _metaObject = "var ytInitialData = ";
-        private static int _counter = 0;
+        string pattern = @"""videoId"":""([^""]+)""";
         private static string _playerMetaObject = "var ytInitialPlayerResponse = ";
         private static string _userAgent = "Mozilla/5.0 (Linux; Android 6.0; " +
             "Nexus 5 Build/MRA58N) " +
@@ -173,10 +174,11 @@ namespace backend_iGamingBot.Infrastructure.Services
                     return new() { IsLive = false, Link = null };
                 }
                 var videoId = GetPropertyValue(_streamCondition, ytPlayerInitalData)?.Replace("\"", "");
-                if (_counter == 0 && videoId == null)
+                if(videoId is null)
                 {
-                    _counter++;
-                    Console.WriteLine(htmlContent);
+                    Match match = Regex.Match(htmlContent, pattern);
+                    if (match.Success)
+                       videoId =  match.Groups[1].Value;
                 }
                 _logger.LogDebug($"[{videoId}] - id найденного видео");
                 return new() { IsLive = videoId != null, Link = $"https://www.youtube.com/watch?v={videoId}" };
