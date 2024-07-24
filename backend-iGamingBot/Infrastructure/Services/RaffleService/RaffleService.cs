@@ -6,15 +6,17 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly IUnitOfWork _uof;
         private readonly IRaffleRepository _rafleSrc;
         private readonly IStreamerRepository _streamerSrc;
-
+        private readonly TelegramPostCreator _postCreator;
 
         public RaffleService(IRaffleRepository raffleSrc, 
             IUnitOfWork uof,
-            IStreamerRepository streamerSrc) 
+            IStreamerRepository streamerSrc,
+            TelegramPostCreator postCreator) 
         {
             _uof = uof;
             _rafleSrc = raffleSrc;
             _streamerSrc = streamerSrc;
+            _postCreator = postCreator;
         }
         public async Task GenerateWinnersForRaffle(long raffleId, bool exceptRepeat,
              string? sourceId = null,
@@ -80,6 +82,13 @@ namespace backend_iGamingBot.Infrastructure.Services
                     WinnerId = singleWinner
                 });
             }
+            var postReq = new TelegramPostRequest()
+            {
+                Message = $"Вы выиграли в розыгрыше стримера {raffleTask.Result.Creator!.Name}",
+                StreamerId = raffleTask.Result.Creator.TgId,
+                Viewers = winners.ToArray()
+            };
+            _postCreator.AddPostToLine(postReq);
             raffleTask.Result.WinnersDefined = true;
             await _uof.SaveChangesAsync();
         }

@@ -17,5 +17,6 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task<GetSocialDto[]> GetStreamerSocials(string streamerId);
         public Task<Access> GetAccessLevel(string targetId, string sourceId);
         public Task<Streamer> GetStreamerByName(string name);
+        public Task<string> GetStreamerNameByTgId(string tgId);
     }
 }

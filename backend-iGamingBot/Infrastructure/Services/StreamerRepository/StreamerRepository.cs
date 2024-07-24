@@ -170,5 +170,14 @@ namespace backend_iGamingBot.Infrastructure.Services
                 .FirstAsync();
             return streamer;
         }
+
+        public async Task<string> GetStreamerNameByTgId(string tgId)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            return await ctx.Streamers
+                .Where(s => s.TgId.Equals(tgId))
+                .Select(s => s.Name)
+                .FirstAsync();
+        }
     }
 }

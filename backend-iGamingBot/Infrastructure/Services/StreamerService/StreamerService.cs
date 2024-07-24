@@ -129,6 +129,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             if (await _streamerSrc.GetAccessLevel(tgId, sourceId) == Access.None)
                 throw new AppException(AppDictionary.Denied);
             Validators.ValidatePostRequest(request);
+            var streamerName = await _streamerSrc.GetStreamerNameByTgId(tgId);
             var batchNum = 1;
             while(true)
             {
@@ -146,7 +147,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                     Viewers = batch,
                     Media = postFile,
                     StreamerId = tgId,
-                    Message = request.Message,
+                    Message = $"ПОСТ ОТ СТРИМЕРА {streamerName}:\n{request.Message}",
                 };
 
                 _postsCreator.AddPostToLine(postReq);
@@ -209,7 +210,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             var file = await _xlRep.GenerateExcel(raffleWinners.ToList());
             var postReq = new TelegramPostRequest()
             {
-                Message = $"Статистика по розыгрышу {id}",
+                Message = $"Статистика по розыгрышу {id} от стримера {raffle.Creator!.Name}",
                 Media = file,
                 StreamerId = raffle.Creator!.TgId,
                 Viewers = [long.Parse(sourceId)]
@@ -233,12 +234,13 @@ namespace backend_iGamingBot.Infrastructure.Services
                 if (page.Length < AppConfig.USER_BATCH_SIZE)
                     break;
             }
+            var streamerName = await _streamerSrc.GetStreamerNameByTgId(streamerId);
             var fileReport = await _xlRep.GenerateExcel(allUsers);
             var postReq = new TelegramPostRequest()
             { 
                 StreamerId = streamerId,
                 Viewers = [long.Parse(sourceId)],
-                Message = $"Статистика по подписчикам для {streamerId}",
+                Message = $"Статистика по подписчикам для {streamerName}",
                 Media = fileReport
             };
 
