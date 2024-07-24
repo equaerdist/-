@@ -16,28 +16,27 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _uof;
         private readonly IStreamerRepository _streamerSrc;
+        private readonly IRaffleRepository _raffleSrc;
         private static readonly Regex EmailRegex = new(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
         private static readonly string _tgKeyConstraint = "IX_AllUsers_TgId";
         private static readonly string _streamerNameConstraint = "IX_AllUsers_Name";
 
         public UserService(IUserRepository userSrc, 
-            IUnitOfWork uof, IMapper mapper, IStreamerRepository streamerSrc)
+            IUnitOfWork uof, IMapper mapper, 
+            IStreamerRepository streamerSrc,
+            IRaffleRepository raffleSrc)
         {
             _userSrc = userSrc;
             _mapper = mapper;
             _uof = uof;
             _streamerSrc = streamerSrc;
+            _raffleSrc = raffleSrc;
         }
         private bool CheckWhenUserHaveEmail(DefaultUser user)
         {
             return user.Email != null;
         }
-        public async Task<bool> ConditionIsDone(string title, string userId)
-        {
-            var user = await _userSrc.GetUserByIdAsync(userId);
-            var validator = CheckWhenUserHaveEmail;
-            return validator(user);
-        }
+        
 
         public async Task<Streamer> RegisterStreamer(CreateStreamerRequest req)
         {
@@ -157,6 +156,28 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             if (!EmailRegex.IsMatch(email))
                 throw new AppException(AppDictionary.InvalidEmail);
+        }
+
+        public async Task<string[]> RaffleConditionIsDone(long raffleId, string userId)
+        {
+            var raffle = await _raffleSrc.GetRaffleByIdAsync(raffleId);
+            var user = await _userSrc.GetUserByIdAsync(userId);
+            var result = new List<string>();
+            foreach (var c in raffle.RaffleConditions)
+            {
+                var validator = CheckWhenUserHaveEmail;
+                var resultCheck = validator(user);
+                if (!resultCheck)
+                    result.Add($"Условие {c} не выполнено");
+            }
+            return result.ToArray();
+        }
+
+        public async Task<bool> SingleRaffleConditionIsDone(string description, string userId)
+        {
+            var user = await _userSrc.GetUserByIdAsync(userId);
+            var validator = CheckWhenUserHaveEmail;
+            return validator(user);
         }
     }
 }

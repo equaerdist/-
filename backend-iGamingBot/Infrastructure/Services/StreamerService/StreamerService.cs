@@ -102,7 +102,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                         Title = condition,
                         Description = AppDictionary.ResolvedConditions
                         .First(c => c.title.Equals(condition)).description,
-                        IsDone = await _userSrv.ConditionIsDone(condition, userId)
+                        IsDone = await _userSrv.SingleRaffleConditionIsDone(condition, userId)
                     });
                 }
             }
@@ -162,6 +162,9 @@ namespace backend_iGamingBot.Infrastructure.Services
             if (raffle.EndTime < DateTime.UtcNow)
                 throw new AppException(AppDictionary.RaffleTimeExceeded);
             var user = await _userSrc.GetUserByIdAsync(userId);
+            var checkResult = await _userSrv.RaffleConditionIsDone(raffleId, userId);
+            if(checkResult.Length != 0)
+                throw new AppException(string.Join("\n", checkResult));
             raffle.Participants.Add(user);
             await _uof.SaveChangesAsync();
         }
