@@ -52,6 +52,7 @@ namespace backend_iGamingBot.Infrastructure.Services.RaffleRepository
                 Description = r.Description,
                 EndTime = r.EndTime,
                 Id = r.Id,
+                RaffleConditions = r.RaffleConditions
             }).FirstAsync();
         }
 

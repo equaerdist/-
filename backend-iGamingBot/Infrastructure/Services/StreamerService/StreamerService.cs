@@ -134,7 +134,8 @@ namespace backend_iGamingBot.Infrastructure.Services
             var batchNum = 1;
             while(true)
             {
-                var batch = await _streamerSrc.GetBatchOfStreamerSubscribersAsync(tgId, AppConfig.USER_BATCH_SIZE, batchNum);
+                var batch = await _streamerSrc.GetBatchOfStreamerSubscribersAsync(tgId, 
+                    AppConfig.USER_BATCH_SIZE, batchNum);
                 batchNum++;
                 PostCreatorFile? postFile = null;
                 if(request.Media != null)
