@@ -173,6 +173,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 }
               
                 var videoId = GetPropertyValue(_streamCondition, ytPlayerInitalData)?.Replace("\"", "");
+                _logger.LogDebug($"[{videoId}] - id найденного видео");
                 return new() { IsLive = videoId != null, Link = $"https://www.youtube.com/watch?v={videoId}" };
             }
             catch (HttpRequestException e)

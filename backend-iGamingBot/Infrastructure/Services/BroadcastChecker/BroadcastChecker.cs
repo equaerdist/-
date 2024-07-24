@@ -111,7 +111,8 @@
                 {
                    if (streamersBatch.SelectMany(s => s.Socials).Count() == 0)
                         break;
-                    logger.LogDebug($"Начинаю отправку батчей для твитча на проверку броадкаста...");
+                    logger.LogDebug($"Начинаю отправку батчей для твитча на проверку " +
+                        $"броадкаста...");
                     var result = await twitch.CheckUsersInOnline(streamersBatch);
                     foreach (var fulledStreamer in fulled)
                     {
