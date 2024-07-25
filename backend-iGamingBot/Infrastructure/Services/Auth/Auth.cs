@@ -62,11 +62,15 @@ namespace backend_iGamingBot.Infrastructure.Services
                 nameId = "99999";
                 name = "Peter";
             }
+            var roleTask = _userSrc.DefineRoleByTgIdAsync(nameId);
+            var imageTask =  _userSrc.GetImageUrl(nameId);
+            await Task.WhenAll(roleTask, imageTask);
             var claims = new List<Claim>()
             {
                 new(type: AppDictionary.NameId, value: nameId),
                 new(type:AppDictionary.Name, value: name),
-                new(type:AppDictionary.Role, value: await _userSrc.DefineRoleByTgIdAsync(nameId))
+                new(type:AppDictionary.Role, value: roleTask.Result),
+                new(type:AppDictionary.Image, value: imageTask.Result)
             };
             var jwt = new JwtSecurityToken(
             claims: claims,

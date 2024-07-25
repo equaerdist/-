@@ -37,6 +37,14 @@ namespace backend_iGamingBot.Infrastructure.Services
             throw new AppException(AppDictionary.UserNotExists);
         }
 
+        public async Task<string> GetImageUrl(string tgId)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            return UserResolver.ExtractFilePath(await ctx.AllUsers.Where(s => s.TgId == tgId)
+                .Select(s => s.ImageUrl)
+                .FirstOrDefaultAsync()) ?? string.Empty;
+        }
+
         public async Task<DefaultUser> GetUserByIdAsync(string tgId)
         {
             return await _ctx.AllUsers.Where(s => s.TgId == tgId)
