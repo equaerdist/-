@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var cfg = builder.Configuration.Get<AppConfig>(o => o.BindNonPublicProperties = true) ??
     throw new InvalidProgramException();
+AppConfig.GlobalInstance = cfg;
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

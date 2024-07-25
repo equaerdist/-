@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel;
 using System.Text;
 
 namespace backend_iGamingBot.Infrastructure
@@ -20,7 +21,9 @@ namespace backend_iGamingBot.Infrastructure
         public string FrontendWww {  get; set; } = null!;
         public string FrontendCom { get; set; } = null!;
         public static short MinimalLengthForText => 10;
+        public string TgFilePath => "https://api.telegram.org/file/bot";
         public static string LOCAL = "Development";
         public string ASPNETCORE_ENVIRONMENT { get; set; } = null!;
+        public static AppConfig GlobalInstance { get; set; } = null!;
     }
 }

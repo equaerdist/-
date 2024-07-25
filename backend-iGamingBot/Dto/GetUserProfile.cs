@@ -7,6 +7,7 @@
         public string? Email { get; set; } = null!;
         public string FirstName { get; set; } = null!;
         public string? LastName { get; set; }
+        public string? ImageUrl { get; set; }
         public ICollection<GetUserPayMethod> UserPayMethods { get; set; } = null!;
     }
 }

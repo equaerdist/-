@@ -20,6 +20,7 @@ namespace backend_iGamingBot
         public string? Email { get; set; } = null!;
         public string FirstName { get; set; } = null!;
         public string? LastName { get; set; }
+        public string? ImageUrl { get; set; } = null!;
         public ICollection<Raffle> ParticipantRaffles { get; set; } = null!;
         public ICollection<ParticipantNote> ParticipantNotes { get; set; } = null!;
         public ICollection<Raffle> WinnerRaffles { get; set; } = null!;

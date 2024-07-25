@@ -46,6 +46,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 FirstName = req.FirstName,
                 LastName = req.LastName,
                 Name = req.Name,
+                ImageUrl = req.ImageUrl,
                 TgId = req.TgId,
                 UserPayMethods = AppDictionary.DefaultPayMethods,
             };
@@ -79,6 +80,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 LastName = req.LastName,
                 TgId = req.TgId,
                 UserPayMethods= AppDictionary.DefaultPayMethods,
+                ImageUrl = req.ImageUrl
             };
             await _userSrc.AddUserAsync(user);
             await _uof.SaveChangesAsync();
@@ -88,10 +90,11 @@ namespace backend_iGamingBot.Infrastructure.Services
         public async Task CheckUserInformation(CreateUserRequest req)
         {
             var user = await _userSrc.GetUserByIdAsync(req.TgId);
-            if (req.FirstName != user.FirstName || req.LastName != user.LastName)
+            if (req.FirstName != user.FirstName || req.LastName != user.LastName || req.ImageUrl != user.ImageUrl)
             {
                 user.FirstName = req.FirstName;
                 user.LastName = req.LastName;
+                user.ImageUrl = req.ImageUrl;
                 await _uof.SaveChangesAsync();
             }
         }

@@ -13,5 +13,6 @@
         public bool IsLive { get; set; }
         public bool IsSubscribed { get; set; }
         public List<Social> Socials { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

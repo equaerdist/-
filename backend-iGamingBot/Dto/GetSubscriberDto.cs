@@ -14,5 +14,7 @@ namespace backend_iGamingBot.Dto
         public string? LastName { get; set; }
         [ColumnLabel("Время когда подписался")]
         public DateTime SubscribeTime { get; set; }
+        [ColumnLabel("Фото профиля")]
+        public string? ImageUrl { get; set; }
     }
 }
