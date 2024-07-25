@@ -20,7 +20,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             string pattern = AppConfig.GlobalInstance.TgFilePath;
             int startIndex = url.IndexOf('/', pattern.Length + 1) + 1;
             string filePath = url.Substring(startIndex);
-            var api = $"{AppConfig.GlobalInstance.Frontend}/api/user/file/{filePath}";
+            var api = $"{AppConfig.GlobalInstance.Frontend}/api/{filePath}";
             return api;
         }
     }
