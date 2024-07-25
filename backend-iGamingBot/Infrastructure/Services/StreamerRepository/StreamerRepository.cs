@@ -94,6 +94,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                     TgId = t.TgId,
                     Name = t.Name,
                     Socials = t.Socials,
+                    ImageUrl = UserResolver.ExtractFilePath(t.ImageUrl),
                 })
                 .FirstAsync();
             streamer.IsLive = streamer.Socials.Any(s => s.Parameter.IsLive);
@@ -124,6 +125,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                     IsSubscribed = t.Subscribers.Select(t => t.TgId).Contains(userId),
                     TgId = t.TgId,
                     Name = t.Name,
+                    ImageUrl = UserResolver.ExtractFilePath(t.ImageUrl),
                     Socials = t.Socials,
                 })
                 .ToArrayAsync();
