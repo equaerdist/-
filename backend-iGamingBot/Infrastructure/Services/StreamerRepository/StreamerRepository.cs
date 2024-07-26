@@ -129,6 +129,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                     Socials = t.Socials,
                 })
                 .ToArrayAsync();
+            foreach (var streamer in streamersPage)
+                streamer.IsLive = streamer.Socials.Any(s => s.Parameter.IsLive);
             return streamersPage;
         }
 
