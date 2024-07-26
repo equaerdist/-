@@ -37,7 +37,7 @@ namespace backend_iGamingBot.Controllers
         [HttpPost("local-enter")]
         public async Task<IActionResult> Enter()
         {
-            var token = await _auth.GetTokenAsync(null);
+            var token = await _auth.GetTokenAsync(null!);
             Response.Cookies.Append("auth", token, new()
             {
                 Expires = DateTime.UtcNow + _cfg.Expires,

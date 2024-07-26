@@ -19,7 +19,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly IRaffleRepository _raffleSrc;
         private static readonly Regex EmailRegex = new(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
         private static readonly string _tgKeyConstraint = "IX_AllUsers_TgId";
-        private static readonly string _streamerNameConstraint = "IX_AllUsers_Name";
+        //private static readonly string _streamerNameConstraint = "IX_AllUsers_Name";
 
         public UserService(IUserRepository userSrc,
             IUnitOfWork uof, IMapper mapper,

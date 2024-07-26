@@ -31,7 +31,7 @@ namespace backend_iGamingBot.Controllers
             await _userSrv.UpdateUserData(dto, SourceId);
             return Ok();
         }
-        [HttpGet("search")]
+        [HttpPost("search")]
         public async Task<IActionResult> GetTgUsers([FromQuery]string query)
         {
             var users = await _userSrc.GetSomeTgUsersBySearch(query);

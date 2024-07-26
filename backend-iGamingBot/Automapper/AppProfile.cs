@@ -28,6 +28,9 @@ namespace backend_iGamingBot.Automapper
 
             CreateMap<CreateRaffleRequest, Raffle>();
 
+            CreateMap<DefaultUser, GetTgUser>()
+                .ForMember(x => x.ImageUrl, cfg => cfg.MapFrom(UserResolver.DefineImageUrl));
+
             CreateMap<Social, GetSocialDto>();
 
             CreateMap<GetSocialDto, Social>();

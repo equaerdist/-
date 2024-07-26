@@ -12,7 +12,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task RemoveUserAsync(string tgId);
         public Task<Tuple<long,string>[]> MapUserIdsToTgIds(long[] ids);
         public Task<string> GetImageUrl(string tgId);
-        public Task<GetTgUser[]> GetSomeTgUsersBySearch(string? search);
+        public Task<GetTgUser[]> GetSomeTgUsersBySearch(string search);
        
     }
 }
