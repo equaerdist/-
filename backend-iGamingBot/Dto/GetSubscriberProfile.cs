@@ -12,5 +12,6 @@
         public string? Note { get; set; }
         public ICollection<GetUserPayMethod> UserPayMethods { get; set; } = null!;
         public SubscriberStat SubscriberStat { get; set; } = null!;
+        public string? Username { get; set; } = null!;
     }
 }

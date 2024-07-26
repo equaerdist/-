@@ -18,6 +18,7 @@ namespace backend_iGamingBot.Automapper
                 .ForMember(x => x.Id, cfg => cfg.MapFrom(y => y.UserId))
                 .ForMember(x => x.FirstName, cfg => cfg.MapFrom(y => y.User!.FirstName))
                 .ForMember(x => x.LastName, cfg => cfg.MapFrom(y => y.User!.LastName))
+                .ForMember(x => x.Username, cfg => cfg.MapFrom(y => y.User!.Username))
                 .ForMember(x => x.TgId, cfg => cfg.MapFrom(y => y.User!.TgId))
                 .ForMember(x => x.ImageUrl, cfg => cfg.MapFrom(UserResolver.DefineSubscriberImageUrl))
                 .IncludeAllDerived();
@@ -52,6 +53,7 @@ namespace backend_iGamingBot.Automapper
                 .ForMember(x => x.Email, cfg => cfg.MapFrom(y => y.User!.Email))
                 .ForMember(x => x.UserPayMethods, cfg => cfg.MapFrom(y => y.User!.UserPayMethods))
                 .ForMember(x => x.LastName, cfg => cfg.MapFrom(y => y.User!.LastName))
+                .ForMember(x => x.Username, cfg => cfg.MapFrom( y => y.User!.Username))
                 .ForMember(x => x.SubscriberStat, cfg => 
                     cfg.MapFrom(SubscriberStatResolver.DefineSubStats))
                 .ForMember(x => x.ImageUrl, cfg => cfg.MapFrom(UserResolver.DefineSubscriberImageUrl));

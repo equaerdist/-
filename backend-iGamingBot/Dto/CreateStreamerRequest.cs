@@ -7,5 +7,6 @@
         public string FirstName { get; set; } = null!;
         public string? ImageUrl { get; set; }
         public string? LastName { get; set; }
+        public string? Username { get; set; }
     }
 }

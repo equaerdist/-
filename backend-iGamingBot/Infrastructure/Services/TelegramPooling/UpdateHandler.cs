@@ -60,7 +60,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                         FirstName = msg.From!.FirstName,
                         LastName = msg.From.LastName,
                         TgId = userId.ToString(),
-                        ImageUrl = await GetUserImageUrl(msg)
+                        ImageUrl = await GetUserImageUrl(msg),
+                        Username = msg.From.Username
                     });
                     return true;
                 }
@@ -73,7 +74,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                     LastName = msg.From.LastName,
                     TgId = userId.ToString(),
                     Name = streamerName,
-                    ImageUrl = await GetUserImageUrl(msg)
+                    ImageUrl = await GetUserImageUrl(msg),
+                    Username = msg.From.Username
                 });
                 return true;
            }
@@ -97,7 +99,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                 FirstName = msg.From!.FirstName, 
                 LastName = msg.From!.LastName,
                 TgId = msg.From.Id.ToString(),
-                ImageUrl = await GetUserImageUrl(msg)
+                ImageUrl = await GetUserImageUrl(msg),
+                Username = msg.From.Username
             });
         }
         private async Task SendMenu(Message msg, string text)

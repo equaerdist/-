@@ -21,8 +21,8 @@ namespace backend_iGamingBot.Infrastructure.Services
         private static readonly string _tgKeyConstraint = "IX_AllUsers_TgId";
         private static readonly string _streamerNameConstraint = "IX_AllUsers_Name";
 
-        public UserService(IUserRepository userSrc, 
-            IUnitOfWork uof, IMapper mapper, 
+        public UserService(IUserRepository userSrc,
+            IUnitOfWork uof, IMapper mapper,
             IStreamerRepository streamerSrc,
             IRaffleRepository raffleSrc)
         {
@@ -36,7 +36,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             return user.Email != null && user.Email != string.Empty;
         }
-        
+
 
         public async Task<Streamer> RegisterStreamer(CreateStreamerRequest req)
         {
@@ -56,17 +56,17 @@ namespace backend_iGamingBot.Infrastructure.Services
                 await _uof.SaveChangesAsync();
             }
             catch (DbUpdateException e)
-            when(e.InnerException != null)
+            when (e.InnerException != null)
             {
-                    if (e.InnerException.Message.Contains(_tgKeyConstraint))
-                    {
-                        await _userSrc.RemoveUserAsync(req.TgId);
-                        await _uof.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        throw new AppException(AppDictionary.StreamerAlreadyExists);
-                    }
+                if (e.InnerException.Message.Contains(_tgKeyConstraint))
+                {
+                    await _userSrc.RemoveUserAsync(req.TgId);
+                    await _uof.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new AppException(AppDictionary.StreamerAlreadyExists);
+                }
             }
             return streamer;
         }
@@ -79,7 +79,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 FirstName = req.FirstName,
                 LastName = req.LastName,
                 TgId = req.TgId,
-                UserPayMethods= AppDictionary.DefaultPayMethods,
+                UserPayMethods = AppDictionary.DefaultPayMethods,
                 ImageUrl = req.ImageUrl
             };
             await _userSrc.AddUserAsync(user);
@@ -90,10 +90,14 @@ namespace backend_iGamingBot.Infrastructure.Services
         public async Task CheckUserInformation(CreateUserRequest req)
         {
             var user = await _userSrc.GetUserByIdAsync(req.TgId);
-            if (req.FirstName != user.FirstName || req.LastName != user.LastName || req.ImageUrl != user.ImageUrl)
+            if (req.FirstName != user.FirstName
+                || req.LastName != user.LastName
+                || req.ImageUrl != user.ImageUrl
+                || req.Username != user.Username)
             {
                 user.FirstName = req.FirstName;
                 user.LastName = req.LastName;
+                user.Username = req.Username;
                 user.ImageUrl = req.ImageUrl;
                 await _uof.SaveChangesAsync();
             }

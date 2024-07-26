@@ -45,6 +45,20 @@ namespace backend_iGamingBot.Infrastructure.Services
                 .FirstOrDefaultAsync()) ?? string.Empty;
         }
 
+        public async Task<GetTgUser[]> GetSomeTgUsersBySearch(string search)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            var result = await ctx.AllUsers
+                .Where(s => s.FirstName.Contains(search)
+                || (s.LastName != null && s.LastName.Contains(search))
+                || (s.Username != null && s.Username.Contains(search))
+                )
+                .OrderBy(s => s.FirstName)
+                .Take(15).ProjectTo<GetTgUser>(_mapper.ConfigurationProvider)
+                .ToArrayAsync();
+            return result;
+        }
+
         public async Task<DefaultUser> GetUserByIdAsync(string tgId)
         {
             return await _ctx.AllUsers.Where(s => s.TgId == tgId)
