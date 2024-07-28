@@ -61,7 +61,9 @@ namespace backend_iGamingBot.Infrastructure.Services
 
         public async Task<DefaultUser> GetUserByIdAsync(string tgId)
         {
-            return await _ctx.AllUsers.Where(s => s.TgId == tgId)
+            return await _ctx.AllUsers
+                .Where(s => s.TgId == tgId)
+                .Include(s => s.Negotiable)
                 .Include(u => u.UserPayMethods)
                 .FirstAsync();
         }
