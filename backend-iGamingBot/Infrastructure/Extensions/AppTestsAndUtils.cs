@@ -311,18 +311,15 @@ namespace backend_iGamingBot.Infrastructure.Extensions
         {
             using var scope = app.Services.CreateScope();
             var userSrc = scope.ServiceProvider.GetRequiredService<IUserService>();
-            var user = await userSrc.RegisterStreamer(new()
+            for (int i = 0; i < 1000; i++)
             {
-                FirstName = "Equaersd",
-                TgId = "999991",
-                Name = "Equaerdist??f"
-            });
-            var userTwo = await userSrc.RegisterStreamer(new()
-            {
-                FirstName = "Equaerdfds",
-                TgId = "999991",
-                Name = "Equaerdist??s"
-            });
+                var userTwo = await userSrc.RegisterStreamer(new()
+                {
+                    FirstName = $"Equaerd43fds",
+                    TgId = $"99{i}9991",
+                    Name = $"{i}-Equaerdisfdt??s"
+                });
+            }
             return app;
         }
         public static async Task<WebApplication> PostTestWithFile(this WebApplication app)

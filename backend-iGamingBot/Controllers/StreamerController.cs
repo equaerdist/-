@@ -39,16 +39,18 @@ namespace backend_iGamingBot.Controllers
             var streamer = await _streamerSrc.GetStreamerByTgIdAsync(tgId, userId);
             return Ok(streamer);
         }
+        [Authorize]
         [HttpPut("{streamerId}/subscribers/{userId}")]
         public async Task<IActionResult> SubscribeToStreamer([FromRoute] string streamerId, [FromRoute] string userId)
         {
-            await _streamerSrv.SubscribeToStreamerAsync(streamerId, userId);
+            await _streamerSrv.SubscribeToStreamerAsync(streamerId, userId, SourceId);
             return Ok();
         }
+        [Authorize]
         [HttpDelete("{streamerId}/subscribers/{userId}")]
-        public async Task<IActionResult> UnsubscribeToStreamer([FromRoute] string streamerId, [FromRoute,] string userId)
+        public async Task<IActionResult> UnsubscribeToStreamer([FromRoute] string streamerId, [FromRoute] string userId)
         {
-            await _streamerSrv.UnscribeFromStreamerAsync(streamerId, userId);
+            await _streamerSrv.UnscribeFromStreamerAsync(streamerId, userId, SourceId);
             return Ok();
         }
         [HttpGet("{id}/raffles")]
@@ -58,7 +60,7 @@ namespace backend_iGamingBot.Controllers
             var result = await _streamerSrv.GetRafflesAsync(page, pageSize, type, id, userId);
             return Ok(result);
         }
-        [HttpPost]
+        [Authorize]
         [HttpPost("{id}/raffles")]
         public async Task<IActionResult> CreateRaffleAsync([FromBody]CreateRaffleRequest req, [FromRoute] string id)
         {
@@ -78,11 +80,18 @@ namespace backend_iGamingBot.Controllers
             var result = await _streamerSrc.GetAdminsAsync(id);
             return Ok(result);
         }
+        [Authorize]
         [HttpPost("{id}/admins/{adminId}")]
         public async  Task<IActionResult> AddStreamerAdmin([FromRoute]string id, 
             [FromRoute]string adminId)
         {
             await _streamerSrv.AddStreamerAdmin(id, adminId, SourceId);
+            return Ok();
+        }
+        [HttpDelete("{id}/admins/{adminId}")]
+        public async Task<IActionResult> DeleteStreamerAdmin([FromRoute]string id, [FromRoute] string adminId)
+        {
+            await _streamerSrv.RemoveStreamerAdmin(id, adminId, SourceId);
             return Ok();
         }
         [HttpGet("socials")]
@@ -127,6 +136,6 @@ namespace backend_iGamingBot.Controllers
         {
             return Ok(_yt.GetLiveHtmls());
         }
-
+        
     }
 }

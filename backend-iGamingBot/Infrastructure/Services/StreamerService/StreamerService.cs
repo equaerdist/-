@@ -110,8 +110,9 @@ namespace backend_iGamingBot.Infrastructure.Services
             return pageResult;
         }
 
-        public async Task SubscribeToStreamerAsync(string streamerId, string userId)
+        public async Task SubscribeToStreamerAsync(string streamerId, string userId, string sourceId)
         {
+            if (userId != sourceId) throw new AppException(AppDictionary.Denied);
             var streamerEntry = await _userSrc.GetUserByIdAsync(streamerId);
             var userEntry = await _userSrc.GetUserByIdAsync(userId);
             if (!(streamerEntry is Streamer streamer))
@@ -120,8 +121,9 @@ namespace backend_iGamingBot.Infrastructure.Services
             await _uof.SaveChangesAsync();
         }
 
-        public async Task UnscribeFromStreamerAsync(string streamerId, string userId)
+        public async Task UnscribeFromStreamerAsync(string streamerId, string userId, string sourceId)
         {
+            if (userId != sourceId) throw new AppException(AppDictionary.Denied);
             await _streamerSrc.RemoveSubscribeRelationAsync(streamerId, userId);
         }
        
@@ -250,6 +252,16 @@ namespace backend_iGamingBot.Infrastructure.Services
             };
 
             _postsCreator.AddPostToLine(postReq);
+        }
+
+        public async Task RemoveStreamerAdmin(string streamerId, string userId, string sourceId)
+        {
+            if (await _streamerSrc.GetAccessLevel(streamerId, sourceId) != Access.Full)
+                throw new AppException(AppDictionary.Denied);
+            var streamer = (await _userSrc.GetUserByIdAsync(streamerId) as Streamer)!;
+            var newAdmin = await _userSrc.GetUserByIdAsync(userId);
+            newAdmin.Negotiable.Remove(streamer);
+            await _uof.SaveChangesAsync();
         }
     }
 }
