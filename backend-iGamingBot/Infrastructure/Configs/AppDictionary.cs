@@ -82,5 +82,7 @@ namespace backend_iGamingBot.Infrastructure
         public static string? StreamerAlreadyExists => "Стример с таким именем уже существует";
 
         public static string Image => "Image";
+
+        public static string AlreadyParticipant => "Вы уже участвуете в розыгрыше";
     }
 }

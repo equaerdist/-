@@ -165,10 +165,14 @@ namespace backend_iGamingBot.Infrastructure.Services
             var raffle = await _raffleSrc.GetTrackingRaffleByIdAsync(raffleId);
             if (raffle.EndTime < DateTime.UtcNow)
                 throw new AppException(AppDictionary.RaffleTimeExceeded);
+            var alreadyParticipantTask = _raffleSrc.UserAlreadyParticipant(userId, raffleId);
             var user = await _userSrc.GetUserByIdAsync(userId);
             var checkResult = await _userSrv.RaffleConditionIsDone(raffleId, userId);
+            await alreadyParticipantTask;
             if(checkResult.Length != 0)
                 throw new AppException(string.Join("\n", checkResult));
+            if (alreadyParticipantTask.Result)
+                throw new AppException(AppDictionary.AlreadyParticipant);
             raffle.Participants.Add(user);
             await _uof.SaveChangesAsync();
         }

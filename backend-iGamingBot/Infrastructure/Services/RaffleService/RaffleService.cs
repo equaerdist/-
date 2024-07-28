@@ -63,7 +63,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                     }
                 }
                 winners.Add(winnerId);
-                if (winners.Count == aow || generatesTime > aow * 4)
+                if (winners.Count == aow || generatesTime > aow)
                     break;
             }
             if (!exceptRepeat && multipleWinners.Count != 0)
@@ -85,16 +85,19 @@ namespace backend_iGamingBot.Infrastructure.Services
                     WinnerId = singleWinner
                 });
             }
-            var tgIds = await _userSrc.MapUserIdsToTgIds(winners.ToArray());
-            var postReq = new TelegramPostRequest()
+            if (winners.Count > 0)
             {
-                Message = $"Вы выиграли в розыгрыше стримера {raffleTask.Result.Creator!.Name}",
-                StreamerId = raffleTask.Result.Creator.TgId,
-                Viewers = tgIds.Select(s => long.Parse(s.Item2)).ToArray(),
-            };
-            _postCreator.AddPostToLine(postReq);
-            raffleTask.Result.WinnersDefined = true;
-            await _uof.SaveChangesAsync();
+                var tgIds = await _userSrc.MapUserIdsToTgIds(winners.ToArray());
+                var postReq = new TelegramPostRequest()
+                {
+                    Message = $"Вы выиграли в розыгрыше стримера {raffleTask.Result.Creator!.Name}",
+                    StreamerId = raffleTask.Result.Creator.TgId,
+                    Viewers = tgIds.Select(s => long.Parse(s.Item2)).ToArray(),
+                };
+                _postCreator.AddPostToLine(postReq);
+                raffleTask.Result.WinnersDefined = true;
+                await _uof.SaveChangesAsync();
+            }
         }
     }
 }

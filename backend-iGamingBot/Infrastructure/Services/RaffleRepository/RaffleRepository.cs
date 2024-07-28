@@ -3,7 +3,6 @@ using AutoMapper.QueryableExtensions;
 using backend_iGamingBot.Dto;
 using backend_iGamingBot.Infrastructure.Configs;
 using backend_iGamingBot.Models;
-using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend_iGamingBot.Infrastructure.Services.RaffleRepository
@@ -147,6 +146,15 @@ namespace backend_iGamingBot.Infrastructure.Services.RaffleRepository
                 .ProjectTo<GetReportRaffleWinner>(_mapper.ConfigurationProvider)
                 .ToArrayAsync();
             return result;
+        }
+
+        public async Task<bool> UserAlreadyParticipant(string userId, long raffleId)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            return await ctx.Raffles
+                .Where(r => r.Id == raffleId)
+                .Where(r => r.Participants.Select(p => p.TgId).Contains(userId))
+                .AnyAsync();
         }
     }
 }
