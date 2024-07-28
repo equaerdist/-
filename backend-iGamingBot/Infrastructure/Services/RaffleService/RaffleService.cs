@@ -63,7 +63,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                     }
                 }
                 winners.Add(winnerId);
-                if (winners.Count == aow || generatesTime > aow)
+                if (winners.Count == aow || generatesTime == aow)
                     break;
             }
             if (!exceptRepeat && multipleWinners.Count != 0)
