@@ -12,11 +12,18 @@ namespace backend_iGamingBot.Infrastructure.Services
     {
         private readonly AppConfig _cfg;
         private readonly IUserRepository _userSrc;
+        private readonly ITelegramExtensions _tgExt;
+        private readonly IUserService _userSrv;
 
-        public Auth(AppConfig cfg, IUserRepository userSrc) 
+        public Auth(AppConfig cfg, 
+            IUserRepository userSrc,
+            IUserService userSrv,
+            ITelegramExtensions tgExt) 
         {
             _cfg = cfg;
             _userSrc = userSrc;
+            _tgExt = tgExt;
+            _userSrv = userSrv;
         }
         private static byte[] HMAC_SHA256(byte[] data, byte[] key)
         {
@@ -56,6 +63,14 @@ namespace backend_iGamingBot.Infrastructure.Services
                     ?? throw new InvalidDataException();
                 nameId = tgUser.Id.ToString();
                 name = tgUser.FirstName;
+                await _userSrv.CheckUserInformation(new()
+                {
+                    FirstName = tgUser.FirstName,
+                    LastName = tgUser.LastName,
+                    TgId = tgUser.Id.ToString(),
+                    ImageUrl = await _tgExt.GetUserImageUrl(tgUser.Id),
+                    Username = tgUser.Username
+                });
             }
             else
             {
@@ -65,6 +80,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             var roleTask = _userSrc.DefineRoleByTgIdAsync(nameId);
             var imageTask =  _userSrc.GetImageUrl(nameId);
             await Task.WhenAll(roleTask, imageTask);
+         
             var claims = new List<Claim>()
             {
                 new(type: AppDictionary.NameId, value: nameId),

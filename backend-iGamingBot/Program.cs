@@ -20,19 +20,20 @@ ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 if (app.Environment.IsDevelopment())
 {
+    //await app.TestOnYoutubeStreaming();
+    //await app.CreateFakeStreamersWithSubscribers();
+    //await app.CreateInfoForStreamersPage();
+    //await app.TestFunction();
+    //await app.CreateTestRaffleForUser();
+    //await app.CreateTestUser();
+    //await app.CreateTestYoutubeChannel();
+    //await app.StreamersTest();
+    //await app.PostTestWithFile();
+    //app.TestYtIdFinder();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-//await app.TestOnYoutubeStreaming();
-//await app.CreateFakeStreamersWithSubscribers();
-//await app.CreateInfoForStreamersPage();
-//await app.TestFunction();
-//await app.CreateTestRaffleForUser();
-//await app.CreateTestUser();
-//await app.CreateTestYoutubeChannel();
-//await app.StreamersTest();
-//await app.PostTestWithFile();
-//app.TestYtIdFinder();
+
 await app.CheckMigrationsAsync();
 app.UseMiddleware<ExceptionHandler>();
 app.UseCors(opt => opt

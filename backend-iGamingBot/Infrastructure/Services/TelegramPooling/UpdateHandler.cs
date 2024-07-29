@@ -12,20 +12,25 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly AppConfig _cfg;
         private readonly IUserService _userSrv;
         private readonly IUserRepository _userSrc;
+        private readonly ITelegramExtensions _tgExt;
 
         public UpdateHandler(ITelegramBotClient botClient,
             ILogger<UpdateHandler> logger,
            IUserRepository userSrc,
            IUserService userSrv,
-            AppConfig cfg)
+            AppConfig cfg,
+            ITelegramExtensions tgExt)
         {
             _botClient = botClient;
             _logger = logger;
             _cfg = cfg;
             _userSrv = userSrv;
             _userSrc = userSrc;
+            _tgExt = tgExt;
         }
-        public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+        public Task HandlePollingErrorAsync(ITelegramBotClient botClient, 
+            Exception exception, 
+            CancellationToken cancellationToken)
         {
             _logger.LogError($"Error in bot ocurred {exception.Message}");
             return Task.CompletedTask;
@@ -60,7 +65,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                         FirstName = msg.From!.FirstName,
                         LastName = msg.From.LastName,
                         TgId = userId.ToString(),
-                        ImageUrl = await GetUserImageUrl(msg),
+                        ImageUrl = await GetUserImageUrl(msg.From.Id),
                         Username = msg.From.Username
                     });
                     return true;
@@ -74,24 +79,13 @@ namespace backend_iGamingBot.Infrastructure.Services
                     LastName = msg.From.LastName,
                     TgId = userId.ToString(),
                     Name = streamerName,
-                    ImageUrl = await GetUserImageUrl(msg),
+                    ImageUrl = await GetUserImageUrl(msg.From.Id),
                     Username = msg.From.Username
                 });
                 return true;
            }
         }
-        private async Task<string?> GetUserImageUrl(Message msg)
-        {
-            var userPhotos = await _botClient.GetUserProfilePhotosAsync(msg.From!.Id, limit: 1);
-            var firstFileId = userPhotos.Photos.SelectMany(s => s).FirstOrDefault()?.FileId;
-            string? filePath = null;
-            if (firstFileId != null)
-            {
-                var file = await _botClient.GetFileAsync(firstFileId);
-                filePath = $"{_cfg.TgFilePath}{_cfg.TgKey}/{file.FilePath}";
-            }
-            return filePath;
-        }
+        private async Task<string?> GetUserImageUrl(long id) => await _tgExt.GetUserImageUrl(id);
         private async Task CheckUserInformation(Message msg)
         {
             await _userSrv.CheckUserInformation(new() 
@@ -99,7 +93,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 FirstName = msg.From!.FirstName, 
                 LastName = msg.From!.LastName,
                 TgId = msg.From.Id.ToString(),
-                ImageUrl = await GetUserImageUrl(msg),
+                ImageUrl = await GetUserImageUrl(msg.From.Id),
                 Username = msg.From.Username
             });
         }
