@@ -333,7 +333,8 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             var commandParams = request.Command.Split("_");
             var streamerName = commandParams[1];
-            var code = Guid.Parse(commandParams[2]);
+            var guid = commandParams[2].Split("&").First();
+            var code = Guid.Parse(guid);
             try
             {
                 using var transaction = _uof.BeginTransaction();
