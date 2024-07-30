@@ -356,6 +356,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                 Command = command,
             };
             await streamerSrv.HandleAdminInvite(req);
+            await streamerSrv.HandleAdminInvite(req);
             return app;
         }
         public static async Task<WebApplication> TestStreamerInvites(this WebApplication app)
