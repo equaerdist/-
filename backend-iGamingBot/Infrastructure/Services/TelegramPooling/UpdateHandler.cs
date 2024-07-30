@@ -5,6 +5,7 @@ using Telegram.Bot.Types;
 using System.Collections.Concurrent;
 using backend_iGamingBot.Dto;
 using TwitchLib.Api.Helix;
+using System.Text.RegularExpressions;
 
 
 namespace backend_iGamingBot.Infrastructure.Services
@@ -138,6 +139,11 @@ namespace backend_iGamingBot.Infrastructure.Services
             return _adminDialogs.Keys.Contains(msg.From!.Id) 
                 || (msg.Text != null && msg.Text.StartsWith("/add_admin"));
         }
+        static bool IsValidStreamerName(string name)
+        {
+            string pattern = @"^[a-zA-Z0-9\s]+$";
+            return Regex.IsMatch(name, pattern);
+        }
         private async Task HandleAdminDialog(Message msg)
         {
             using var scope = _services.CreateScope();
@@ -161,6 +167,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                 var streamerName = msg.Text;
                 if (string.IsNullOrEmpty(streamerName))
                     throw new AppException(AppDictionary.BadNameRequest);
+                if (!IsValidStreamerName(streamerName))
+                    throw new AppException(AppDictionary.BadStreamerName);
                 var inviteCode = await _streamerSrv.CreateStreamerInvite(streamerName);
                 await _botClient.SendTextMessageAsync(
                   chatId: chatId,

@@ -91,5 +91,7 @@ namespace backend_iGamingBot.Infrastructure
         public static string AdminInvite => "admininvite";
 
         public static string AdminApplied => "Админские привилегии применены.";
+
+        public static string? BadStreamerName => "Имя стримера может содержать пробел, буквы и цифры";
     }
 }

@@ -305,7 +305,10 @@ namespace backend_iGamingBot.Infrastructure.Services
                         throw new AppException(AppDictionary.StreamerAlreadyExists);
                     }
                 }
-                return $"{name}-{invite.Code}";
+                var formattedName = name;
+                if (name.Contains(" "))
+                    formattedName = name.Replace(" ", "_");
+                return $"{formattedName}-{invite.Code}";
             }
         }
 
