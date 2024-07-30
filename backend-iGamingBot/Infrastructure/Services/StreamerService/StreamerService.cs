@@ -338,15 +338,14 @@ namespace backend_iGamingBot.Infrastructure.Services
             try
             {
                 using var transaction = _uof.BeginTransaction();
-                var streamerTask =  _streamerSrc.GetStreamerByName(streamerName);
-                var inviteTask =  _streamerSrc.GetAdminInvite(streamerName, code);
-                await Task.WhenAll(streamerTask, inviteTask);
-                await AddStreamerAdmin(streamerTask.Result.TgId, request.UserId, streamerTask.Result.TgId);
-                _streamerSrc.RemoveAdminInvite(inviteTask.Result);
+                var streamer =  await _streamerSrc.GetStreamerByName(streamerName);
+                var invite =  await _streamerSrc.GetAdminInvite(streamerName, code);
+                await AddStreamerAdmin(streamer.TgId, request.UserId, streamer.TgId);
+                _streamerSrc.RemoveAdminInvite(invite);
                 await _uof.SaveChangesAsync();
                 transaction.Commit();
             }
-            catch(AggregateException) 
+            catch(InvalidOperationException) 
             {
                 throw new AppException(AppDictionary.Denied);
             }
