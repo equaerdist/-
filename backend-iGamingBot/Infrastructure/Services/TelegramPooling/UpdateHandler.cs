@@ -13,28 +13,24 @@ namespace backend_iGamingBot.Infrastructure.Services
     {
         private ITelegramBotClient _botClient;
         private readonly ILogger<UpdateHandler> _logger;
-        private readonly IStreamerService _streamerSrv;
+        private readonly IServiceProvider _services;
         private readonly AppConfig _cfg;
-        private readonly IUserService _userSrv;
-        private readonly IUserRepository _userSrc;
+
         private readonly ITelegramExtensions _tgExt;
         private readonly static ConcurrentDictionary<long, AdminState> _adminDialogs = new();
         private readonly static long[] _admins = [891734544, 1666815053, 192267082, 1341625052];
 
         public UpdateHandler(ITelegramBotClient botClient,
             ILogger<UpdateHandler> logger,
-           IUserRepository userSrc,
-           IUserService userSrv,
+           IServiceProvider services,
             AppConfig cfg,
-            ITelegramExtensions tgExt,
-            IStreamerService streamerSrv)
+            ITelegramExtensions tgExt)
         {
             _botClient = botClient;
             _logger = logger;
-            _streamerSrv = streamerSrv;
+            _services = services;
             _cfg = cfg;
-            _userSrv = userSrv;
-            _userSrc = userSrc;
+           
             _tgExt = tgExt;
         }
         public Task HandlePollingErrorAsync(ITelegramBotClient botClient, 
@@ -44,13 +40,13 @@ namespace backend_iGamingBot.Infrastructure.Services
             _logger.LogError($"Error in bot ocurred {exception.Message}");
             return Task.CompletedTask;
         }
-        private async Task RegisterDefaultUser(Message msg)
+        private async Task RegisterDefaultUser(Message msg, IUserService _userSrv, IUserRepository _userSrc)
         {
             var userId = msg.From!.Id;
             try
             {
                 var userFromDb = await _userSrc.GetUserByIdAsync(userId.ToString());
-                await CheckUserInformation(msg);
+                await CheckUserInformation(msg, _userSrv);
                 _logger.LogInformation(AppDictionary.UserAlreadyExists);
             }
             catch (InvalidOperationException)
@@ -76,6 +72,9 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         private async Task<bool> CheckForExisting(Message msg, CancellationToken cancellationToken)
         {
+            using var scope = _services.CreateScope();
+            var _userSrv = scope.ServiceProvider.GetRequiredService<IUserService>();
+            var _userSrc = scope.ServiceProvider.GetRequiredService<IUserRepository>();
             var message = msg;
             string? streamerName = GetStartParam(message);
 
@@ -87,7 +86,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             long userId = message!.From.Id;
            if(streamerName is null)
            {
-                await RegisterDefaultUser(msg);
+                await RegisterDefaultUser(msg, _userSrv, _userSrc);
             }
            else
            {
@@ -104,7 +103,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             return true;
         }
         private async Task<string?> GetUserImageUrl(long id) => await _tgExt.GetUserImageUrl(id);
-        private async Task CheckUserInformation(Message msg)
+        private async Task CheckUserInformation(Message msg, IUserService _userSrv)
         {
             await _userSrv.CheckUserInformation(new() 
             { 
@@ -141,6 +140,8 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         private async Task HandleAdminDialog(Message msg)
         {
+            using var scope = _services.CreateScope();
+            var _streamerSrv = scope.ServiceProvider.GetRequiredService<IStreamerService>();
             var text = msg.Text;
             var chatId = msg.From!.Id;
             if (!string.IsNullOrEmpty(text) && text.StartsWith("/add_admin"))
@@ -174,9 +175,13 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         private async Task HandleAdminInviteDialog(Message msg)
         {
+            using var scope = _services.CreateScope();
+            var _streamerSrv = scope.ServiceProvider.GetRequiredService<IStreamerService>();
             var chatId = msg.From!.Id;
             var param = GetStartParam(msg);
-            await RegisterDefaultUser(msg);
+            var _userSrv = scope.ServiceProvider.GetRequiredService<IUserService>();
+            var _userSrc = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+            await RegisterDefaultUser(msg, _userSrv, _userSrc);
             var req = new AdminInviteRequest()
             { 
                 Command = param!, 

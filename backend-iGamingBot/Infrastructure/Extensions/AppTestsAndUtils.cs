@@ -367,7 +367,9 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             try
             {
                 var trueName = "recrent";
-                var code = await streamerSrv.CreateStreamerInvite(trueName);
+                var code = await streamerSrv.CreateStreamerInvite(trueName + "1");
+                var codeSecond = await streamerSrv.CreateStreamerInvite(trueName + "2");
+                var codeThird = await streamerSrv.CreateStreamerInvite(trueName + "3");
                 var streamer = new CreateStreamerRequest()
                 {
                     FirstName = "Jill",
@@ -384,32 +386,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
                 if (ex.Message.Equals(AppDictionary.UserAlreadyExists))
                     Console.WriteLine("GOOD");
             }
-            //try
-            //{
-            //    var trueName = "rextyq";
-            //    var code = await streamerSrv.CreateStreamerInvite(trueName);
-            //    var streamer = new CreateStreamerRequest()
-            //    {
-            //        FirstName = "Jill",
-            //        LastName = "Fox",
-            //        Name = code,
-            //        ImageUrl = null,
-            //        TgId = "131234",
-            //    };
-            //    var result = await userSrv.RegisterStreamer(streamer);
-            //    if (result.Name == trueName)
-            //        Console.WriteLine("GOOD");
-            //    else
-            //        throw new InvalidDataException();
-            //}
-            //catch 
-            //{
-            //    Console.WriteLine("POOR");
-            //}
-
-            var trueNameForRepeat = "bark";
-            var firstCode = await streamerSrv.CreateStreamerInvite(trueNameForRepeat);
-            var secondCode = await streamerSrv.CreateStreamerInvite(trueNameForRepeat);
+           
 
             return app;
         }
