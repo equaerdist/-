@@ -321,7 +321,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             };
             var link = $"https://t.me/share/url?url={_cfg.BotName}?" +
                 $"start={AppDictionary.AdminInvite}_{streamer.Name}_{adminInvite.Code}" +
-                $"&text=Вы стали админом стримера {streamer.Name}.\n{_cfg.AppName}";
+                $"&text=Вы стали админом стримера {streamer.Name}. \n{_cfg.AppName}";
             await _streamerSrc.CreateAdminInvite(adminInvite);
             var result = _mapper.Map<AdminInviteResponse>(adminInvite);
             result.Link = link;

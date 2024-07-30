@@ -168,8 +168,7 @@ namespace backend_iGamingBot.Infrastructure.Services
 
         public async Task<Streamer> GetStreamerByName(string name)
         {
-            using var ctx = await _factory.CreateDbContextAsync();
-            var streamer = await ctx.Streamers
+            var streamer = await _ctx.Streamers
                 .AsNoTracking()
                 .Where(s => s.Name == name)
                 .FirstAsync();

@@ -4,6 +4,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Collections.Concurrent;
 using backend_iGamingBot.Dto;
+using TwitchLib.Api.Helix;
 
 
 namespace backend_iGamingBot.Infrastructure.Services
@@ -173,6 +174,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         private async Task HandleAdminInviteDialog(Message msg)
         {
+            var chatId = msg.From!.Id;
             var param = GetStartParam(msg);
             await RegisterDefaultUser(msg);
             var req = new AdminInviteRequest()
@@ -181,6 +183,9 @@ namespace backend_iGamingBot.Infrastructure.Services
                 UserId = msg.From!.Id.ToString() 
             };
             await _streamerSrv.HandleAdminInvite(req);
+            await _botClient.SendTextMessageAsync(
+                 chatId: chatId,
+                 text: AppDictionary.AdminApplied);
         }
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
             CancellationToken cancellationToken)

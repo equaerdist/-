@@ -89,5 +89,7 @@ namespace backend_iGamingBot.Infrastructure
         public static string StreamerNameRequest => "Введите имя стримера";
         public static string BadNameRequest => "Имя не может быть пустым";
         public static string AdminInvite => "admininvite";
+
+        public static string AdminApplied => "Админские привилегии применены.";
     }
 }
