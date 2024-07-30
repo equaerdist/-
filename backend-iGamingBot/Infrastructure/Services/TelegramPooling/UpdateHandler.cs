@@ -234,7 +234,12 @@ namespace backend_iGamingBot.Infrastructure.Services
                 markup = GetCancelKeyboard();
             try 
             {
-                if(IsAdminDialog(message))
+                if (IsCancellationRequest(message))
+                {
+                    alreadyHandled = true;
+                    await HandleCancellationRequest(message);
+                }
+                if (IsAdminDialog(message))
                 {
                     alreadyHandled = true;
                     await HandleAdminDialog(message);
@@ -244,11 +249,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                     alreadyHandled = true;
                     await HandleAdminInviteDialog(message);
                 }
-                if (IsCancellationRequest(message))
-                {
-                    alreadyHandled = true;
-                    await HandleCancellationRequest(message);
-                }
+              
                 if (!alreadyHandled)
                 {
                     await CheckForExisting(message, cancellationToken);
