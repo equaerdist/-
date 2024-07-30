@@ -25,5 +25,6 @@ namespace backend_iGamingBot.Infrastructure
         public static string LOCAL = "Development";
         public string ASPNETCORE_ENVIRONMENT { get; set; } = null!;
         public static AppConfig GlobalInstance { get; set; } = null!;
+        public string BotName { get; set; } = null!;
     }
 }

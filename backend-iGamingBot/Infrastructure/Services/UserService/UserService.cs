@@ -40,12 +40,16 @@ namespace backend_iGamingBot.Infrastructure.Services
 
         public async Task<Streamer> RegisterStreamer(CreateStreamerRequest req)
         {
+         
+            var trueName = req.Name.Split("@").First();
+            if (!await _streamerSrc.StreamerInviteAlreadyExists(req.Name))
+                throw new AppException(AppDictionary.Denied);
             var streamer = new Streamer()
             {
                 Email = null,
                 FirstName = req.FirstName,
                 LastName = req.LastName,
-                Name = req.Name,
+                Name = trueName,
                 ImageUrl = req.ImageUrl,
                 TgId = req.TgId,
                 UserPayMethods = AppDictionary.DefaultPayMethods,

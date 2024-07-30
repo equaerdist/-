@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using backend_iGamingBot.Dto;
 using backend_iGamingBot.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
 namespace backend_iGamingBot.Infrastructure.Services
@@ -266,6 +267,34 @@ namespace backend_iGamingBot.Infrastructure.Services
             var newAdmin = await _userSrc.GetUserByIdAsync(userId);
             newAdmin.Negotiable.Remove(streamer);
             await _uof.SaveChangesAsync();
+        }
+
+        public async Task<string> CreateStreamerInvite(string name)
+        {
+            try
+            {
+                await _streamerSrc.GetStreamerByName(name);
+                throw new AppException(AppDictionary.UserAlreadyExists);
+            }
+            catch (InvalidOperationException)
+            {
+                StreamerInvite invite = new()
+                {
+                    Name = name,
+                    Code = Guid.NewGuid()
+                };
+                await _streamerSrc.CreateStreamerInvite(invite);
+                try
+                {
+                    await _uof.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    await _streamerSrc.RemoveStreamerInvite(name);
+                    await _uof.SaveChangesAsync();
+                }
+                return $"{name}@{invite.Code}";
+            }
         }
     }
 }

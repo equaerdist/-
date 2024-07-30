@@ -14,6 +14,7 @@ namespace backend_iGamingBot.Infrastructure.Configs
         public DbSet<DefaultUser> AllUsers { get; set; } = null!;
         public DbSet<Subscriber> Subscribers { get; set; } = null!;
         public DbSet<WinnerNote> WinnerNotes { get; set; } = null!;
+        public DbSet<StreamerInvite> Invites { get; set; } = null!;
         public DbSet<ParticipantNote> Participants { get; set; } = null!;
         public AppCtx(DbContextOptions<AppCtx> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -110,6 +111,9 @@ namespace backend_iGamingBot.Infrastructure.Configs
                 .WithOne(p => p.User);
             modelBuilder.Entity<UserPayMethod>()
                 .HasKey(m => new { m.UserId, m.Platform });
+            modelBuilder.Entity<StreamerInvite>()
+                .HasIndex(s => s.Name)
+                .IsUnique();
         }
     }
 }

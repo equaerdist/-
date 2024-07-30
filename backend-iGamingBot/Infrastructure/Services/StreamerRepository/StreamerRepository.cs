@@ -184,5 +184,20 @@ namespace backend_iGamingBot.Infrastructure.Services
                 .Select(s => s.Name)
                 .FirstAsync();
         }
+
+        public async Task CreateStreamerInvite(StreamerInvite invite) => await _ctx.Invites.AddAsync(invite);
+
+        public async Task<bool> StreamerInviteAlreadyExists(string inviteCode)
+        {
+            using var ctx = await _factory.CreateDbContextAsync();
+            return await ctx.Invites
+                .Where(s => s.Name + "@" + s.Code.ToString() == inviteCode)
+                .AnyAsync();
+        }
+
+        public async Task RemoveStreamerInvite(string name)
+        {
+            await _ctx.Invites.Where(s => s.Name.Equals(name)).ExecuteDeleteAsync();
+        }
     }
 }

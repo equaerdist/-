@@ -17,5 +17,6 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task CreateRequestForRaffleReport(long id, string sourceId);
         public Task CreateRequestForSubscribersReport(string streamerId, string sourceId);
         public Task RemoveStreamerAdmin(string streamerId, string userId, string sourceId);
+        public Task<string> CreateStreamerInvite(string name);
     }
 }

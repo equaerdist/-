@@ -18,5 +18,8 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task<Access> GetAccessLevel(string targetId, string sourceId);
         public Task<Streamer> GetStreamerByName(string name);
         public Task<string> GetStreamerNameByTgId(string tgId);
+        public Task CreateStreamerInvite(StreamerInvite invite);
+        public Task<bool> StreamerInviteAlreadyExists(string inviteCode);
+        public Task RemoveStreamerInvite(string name);
     }
 }
