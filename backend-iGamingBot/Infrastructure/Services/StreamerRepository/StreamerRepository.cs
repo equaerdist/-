@@ -191,7 +191,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             using var ctx = await _factory.CreateDbContextAsync();
             return await ctx.Invites
-                .Where(s => s.Name + "@" + s.Code.ToString() == inviteCode)
+                .Where(s => s.Name + "-" + s.Code.ToString() == inviteCode)
                 .AnyAsync();
         }
 

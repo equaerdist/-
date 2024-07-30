@@ -302,7 +302,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                         throw new AppException(AppDictionary.StreamerAlreadyExists);
                     }
                 }
-                return $"{name}@{invite.Code}";
+                return $"{name}-{invite.Code}";
             }
         }
     }
