@@ -366,10 +366,8 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             var userSrv = scope.ServiceProvider.GetRequiredService<IUserService>();
             try
             {
-                var trueName = "recrent";
-                var code = await streamerSrv.CreateStreamerInvite(trueName + "1");
-                var codeSecond = await streamerSrv.CreateStreamerInvite(trueName + "2");
-                var codeThird = await streamerSrv.CreateStreamerInvite(trueName + "3");
+                var trueName = "Peter len";
+                var code = await streamerSrv.CreateStreamerInvite(trueName);
                 var streamer = new CreateStreamerRequest()
                 {
                     FirstName = "Jill",

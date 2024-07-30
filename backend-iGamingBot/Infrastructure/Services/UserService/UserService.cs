@@ -43,7 +43,7 @@ namespace backend_iGamingBot.Infrastructure.Services
 
             var handledName = req.Name.Replace("_", " ");
             var trueName = handledName.Split("-").First();
-            if (!await _streamerSrc.StreamerInviteAlreadyExists(req.Name))
+            if (!await _streamerSrc.StreamerInviteAlreadyExists(handledName))
                 throw new AppException(AppDictionary.Denied);
             var streamer = new Streamer()
             {
