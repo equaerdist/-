@@ -135,7 +135,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         private static IReplyMarkup GetCancelKeyboard()
         {
-            return new InlineKeyboardMarkup(new[] { InlineKeyboardButton.WithCallbackData("Отмена") });
+            return new InlineKeyboardMarkup(new[] { InlineKeyboardButton.WithCallbackData("Отмена", "Отмена") });
         }
         private bool IsAdminDialog(Message msg)
         {
@@ -208,12 +208,18 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             return update.CallbackQuery?.Data == "Отмена";
         }
-        private async Task HandleCancellationRequest(Message msg)
+        private async Task HandleCancellationRequest(Update update)
         {
-            if(_adminDialogs.Keys.Contains(msg.From!.Id))
-                _adminDialogs.Remove(msg.From!.Id, out var state);
-            await _botClient.SendTextMessageAsync(msg.From.Id, 
-                AppDictionary.SeeYouSoon);
+            if(update.CallbackQuery is null || update.CallbackQuery.Message is null) { return; }
+            var callbackQuery = update.CallbackQuery;
+            var userId = update.CallbackQuery.Message.Chat.Id;
+            if(_adminDialogs.Keys.Contains(userId))
+                _adminDialogs.Remove(userId, out var state);
+            await _botClient.EditMessageReplyMarkupAsync(
+                   chatId: callbackQuery.Message.Chat.Id,
+                   messageId: callbackQuery.Message.MessageId,
+                   replyMarkup: null
+               );
         }
         private bool UserHaveNonEndedOperations(Message msg)
         {
@@ -237,7 +243,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 if (IsCancellationRequest(update))
                 {
                     alreadyHandled = true;
-                    await HandleCancellationRequest(message);
+                    await HandleCancellationRequest(update);
                 }
                 if (IsAdminDialog(message))
                 {
