@@ -4,7 +4,6 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Collections.Concurrent;
 using backend_iGamingBot.Dto;
-using TwitchLib.Api.Helix;
 using System.Text.RegularExpressions;
 
 
@@ -136,7 +135,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         }
         private static IReplyMarkup GetCancelKeyboard()
         {
-            return new ReplyKeyboardMarkup(new[]{new KeyboardButton("Отмена")}){ResizeKeyboard = true,OneTimeKeyboard = true};
+            return new InlineKeyboardMarkup(new[] { InlineKeyboardButton.WithCallbackData("Отмена") });
         }
         private bool IsAdminDialog(Message msg)
         {
@@ -205,15 +204,16 @@ namespace backend_iGamingBot.Infrastructure.Services
                  chatId: chatId,
                  text: AppDictionary.AdminApplied);
         }
-        private bool IsCancellationRequest(Message msg)
+        private bool IsCancellationRequest(Update update)
         {
-            return msg.Text == "Отмена";
+            return update.CallbackQuery?.Data == "Отмена";
         }
         private async Task HandleCancellationRequest(Message msg)
         {
             if(_adminDialogs.Keys.Contains(msg.From!.Id))
                 _adminDialogs.Remove(msg.From!.Id, out var state);
-            await _botClient.SendTextMessageAsync(msg.From.Id, AppDictionary.SeeYouSoon);
+            await _botClient.SendTextMessageAsync(msg.From.Id, 
+                AppDictionary.SeeYouSoon);
         }
         private bool UserHaveNonEndedOperations(Message msg)
         {
@@ -234,7 +234,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                 markup = GetCancelKeyboard();
             try 
             {
-                if (IsCancellationRequest(message))
+                if (IsCancellationRequest(update))
                 {
                     alreadyHandled = true;
                     await HandleCancellationRequest(message);
