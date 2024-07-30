@@ -72,6 +72,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                     throw new AppException(AppDictionary.StreamerAlreadyExists);
                 }
             }
+            await _streamerSrc.RemoveStreamerInvite(trueName);
             return streamer;
         }
 
