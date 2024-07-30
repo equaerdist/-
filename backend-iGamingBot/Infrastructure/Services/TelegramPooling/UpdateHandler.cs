@@ -134,6 +134,10 @@ namespace backend_iGamingBot.Infrastructure.Services
                 replyMarkup: inlineKeyboard
             );
         }
+        private static IReplyMarkup GetCancelKeyboard()
+        {
+            return new ReplyKeyboardMarkup(new[]{new KeyboardButton("Отмена")}){ResizeKeyboard = true,OneTimeKeyboard = true};
+        }
         private bool IsAdminDialog(Message msg)
         {
             return _adminDialogs.Keys.Contains(msg.From!.Id) 
@@ -157,7 +161,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                     result = AppDictionary.StreamerNameRequest;
                 await _botClient.SendTextMessageAsync(
                     chatId: chatId,
-                    text: result
+                    text: result,
+                    replyMarkup:GetCancelKeyboard()
                 );
                 if(_admins.Contains(chatId))
                     _adminDialogs[chatId] = new AdminState() { AdminStep = AdminStep.AwaitingName };
@@ -200,6 +205,20 @@ namespace backend_iGamingBot.Infrastructure.Services
                  chatId: chatId,
                  text: AppDictionary.AdminApplied);
         }
+        private bool IsCancellationRequest(Message msg)
+        {
+            return msg.Text == "Отмена";
+        }
+        private async Task HandleCancellationRequest(Message msg)
+        {
+            if(_adminDialogs.Keys.Contains(msg.From!.Id))
+                _adminDialogs.Remove(msg.From!.Id, out var state);
+            await _botClient.SendTextMessageAsync(msg.From.Id, AppDictionary.SeeYouSoon);
+        }
+        private bool UserHaveNonEndedOperations(Message msg)
+        {
+            return _adminDialogs.Keys.Contains(msg.From.Id);
+        }
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
             CancellationToken cancellationToken)
         {
@@ -210,6 +229,9 @@ namespace backend_iGamingBot.Infrastructure.Services
             {
                 await botClient.SendTextMessageAsync(message!.Chat.Id, AppDictionary.TelegramUserNotDefined);
             }
+            IReplyMarkup? markup = null;
+            if (UserHaveNonEndedOperations(message))
+                markup = GetCancelKeyboard();
             try 
             {
                 if(IsAdminDialog(message))
@@ -222,6 +244,11 @@ namespace backend_iGamingBot.Infrastructure.Services
                     alreadyHandled = true;
                     await HandleAdminInviteDialog(message);
                 }
+                if (IsCancellationRequest(message))
+                {
+                    alreadyHandled = true;
+                    await HandleCancellationRequest(message);
+                }
                 if (!alreadyHandled)
                 {
                     await CheckForExisting(message, cancellationToken);
@@ -230,12 +257,12 @@ namespace backend_iGamingBot.Infrastructure.Services
             }
             catch (AppException ex)
             {
-                await botClient.SendTextMessageAsync(message.Chat.Id, ex.Message);
+                await botClient.SendTextMessageAsync(message.Chat.Id, ex.Message, replyMarkup:markup);
                 return;
             }
             catch (Exception ex)
             {
-                await botClient.SendTextMessageAsync(message.Chat.Id, ex.Message);
+                await botClient.SendTextMessageAsync(message.Chat.Id, ex.Message, replyMarkup:markup);
             }
             
         }
