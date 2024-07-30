@@ -275,6 +275,7 @@ namespace backend_iGamingBot.Infrastructure.Services
 
         public async Task<string> CreateStreamerInvite(string name)
         {
+            using var transaction = _uof.BeginTransaction();
             try
             {
                 await _streamerSrc.GetStreamerByName(name);
@@ -305,6 +306,7 @@ namespace backend_iGamingBot.Infrastructure.Services
                         throw new AppException(AppDictionary.StreamerAlreadyExists);
                     }
                 }
+                transaction.Commit();
                 return $"{name}-{invite.Code}";
             }
         }
