@@ -341,6 +341,60 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             tgPublisher.AddPostToLine(post);
             return app;
         }
+        public static async Task<WebApplication> TestStreamerInvites(this WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var streamerSrv = scope.ServiceProvider.GetRequiredService<IStreamerService>();
+            var userSrv = scope.ServiceProvider.GetRequiredService<IUserService>();
+            try
+            {
+                var trueName = "recrent";
+                var code = await streamerSrv.CreateStreamerInvite(trueName);
+                var streamer = new CreateStreamerRequest()
+                {
+                    FirstName = "Jill",
+                    LastName = "Fox",
+                    Name = code,
+                    ImageUrl = null,
+                    TgId = "131234",
+                };
+                await userSrv.RegisterStreamer(streamer);
+                throw new InvalidDataException();
+            }
+            catch (AppException ex)
+            {
+                if (ex.Message.Equals(AppDictionary.UserAlreadyExists))
+                    Console.WriteLine("GOOD");
+            }
+            //try
+            //{
+            //    var trueName = "rextyq";
+            //    var code = await streamerSrv.CreateStreamerInvite(trueName);
+            //    var streamer = new CreateStreamerRequest()
+            //    {
+            //        FirstName = "Jill",
+            //        LastName = "Fox",
+            //        Name = code,
+            //        ImageUrl = null,
+            //        TgId = "131234",
+            //    };
+            //    var result = await userSrv.RegisterStreamer(streamer);
+            //    if (result.Name == trueName)
+            //        Console.WriteLine("GOOD");
+            //    else
+            //        throw new InvalidDataException();
+            //}
+            //catch 
+            //{
+            //    Console.WriteLine("POOR");
+            //}
+
+            var trueNameForRepeat = "bark";
+            var firstCode = await streamerSrv.CreateStreamerInvite(trueNameForRepeat);
+            var secondCode = await streamerSrv.CreateStreamerInvite(trueNameForRepeat);
+
+            return app;
+        }
         public static WebApplication TestYtIdFinder(this WebApplication app)
         {
             var GetScriptContentWith = (string html, string prop) =>

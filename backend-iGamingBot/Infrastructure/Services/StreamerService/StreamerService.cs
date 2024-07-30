@@ -17,6 +17,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         private readonly TelegramPostCreator _postsCreator;
         private readonly IYoutube _ytSrv;
         private readonly IExcelReporter _xlRep;
+        private static string _inviteNameConstraint = "IX_Invites_Name";
 
         public StreamerService(IUnitOfWork uof, 
             IUserRepository userSrc, 
@@ -288,10 +289,18 @@ namespace backend_iGamingBot.Infrastructure.Services
                 {
                     await _uof.SaveChangesAsync();
                 }
-                catch (DbUpdateException)
+                catch (DbUpdateException e)
+                when (e.InnerException != null)
                 {
-                    await _streamerSrc.RemoveStreamerInvite(name);
-                    await _uof.SaveChangesAsync();
+                    if (e.InnerException.Message.Contains(_inviteNameConstraint))
+                    {
+                        await _streamerSrc.RemoveStreamerInvite(name);
+                        await _uof.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        throw new AppException(AppDictionary.StreamerAlreadyExists);
+                    }
                 }
                 return $"{name}@{invite.Code}";
             }
