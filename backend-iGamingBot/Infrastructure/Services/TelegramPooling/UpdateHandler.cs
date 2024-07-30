@@ -225,9 +225,14 @@ namespace backend_iGamingBot.Infrastructure.Services
               text: AppDictionary.SeeYouSoon
           );
         }
-        private bool UserHaveNonEndedOperations(Message msg)
+        private bool IsOrdinaryMessage(Update update)
         {
-            return _adminDialogs.Keys.Contains(msg.From.Id);
+            var message = update.Message;
+            return !(message is null || message.From is null || message.From.IsBot);
+        }
+        private bool IsCallbackQuery(Update update)
+        {
+            return update.CallbackQuery != null && update.CallbackQuery.Data != null;
         }
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
             CancellationToken cancellationToken)
@@ -235,51 +240,42 @@ namespace backend_iGamingBot.Infrastructure.Services
             var message = update.Message;
             var alreadyHandled = false;
             string? text = message?.Text;
-            if (message is null || message.From is null || message.From.IsBot)
-            {
-                await botClient.SendTextMessageAsync(message!.Chat.Id, AppDictionary.TelegramUserNotDefined);
-            }
-            IReplyMarkup? markup = null;
-            if (UserHaveNonEndedOperations(message))
-                markup = GetCancelKeyboard();
+            var ordinaryMessage = IsOrdinaryMessage(update);
+            var callbackQuery = IsCallbackQuery(update);
             try 
             {
-                if (update.CallbackQuery?.Data != null)
-                {
-                    await _botClient.AnswerCallbackQueryAsync(
-                    callbackQueryId: update.CallbackQuery.Id,
-                    text: update.CallbackQuery?.Data);
-                }
-                if (IsCancellationRequest(update))
+                if (callbackQuery && IsCancellationRequest(update))
                 {
                     alreadyHandled = true;
                     await HandleCancellationRequest(update);
                 }
-                if (IsAdminDialog(message))
+                if (ordinaryMessage && IsAdminDialog(message!))
                 {
                     alreadyHandled = true;
-                    await HandleAdminDialog(message);
+                    await HandleAdminDialog(message!);
                 }
-                if (IsAdminInviteDialog(message))
+                if (ordinaryMessage && IsAdminInviteDialog(message!))
                 {
                     alreadyHandled = true;
-                    await HandleAdminInviteDialog(message);
+                    await HandleAdminInviteDialog(message!);
                 }
               
-                if (!alreadyHandled)
+                if (ordinaryMessage && !alreadyHandled)
                 {
-                    await CheckForExisting(message, cancellationToken);
-                    await SendMenu(message, AppDictionary.WelcomeMessage);
+                    await CheckForExisting(message!, cancellationToken);
+                    await SendMenu(message!, AppDictionary.WelcomeMessage);
                 }
             }
             catch (AppException ex)
             {
-                await botClient.SendTextMessageAsync(message.Chat.Id, ex.Message, replyMarkup:markup);
+                if(ordinaryMessage)
+                    await botClient.SendTextMessageAsync(message!.Chat.Id, ex.Message);
                 return;
             }
             catch (Exception ex)
             {
-                await botClient.SendTextMessageAsync(message.Chat.Id, ex.Message, replyMarkup:markup);
+                if(ordinaryMessage)
+                await botClient.SendTextMessageAsync(message!.Chat.Id, ex.Message);
             }
             
         }
