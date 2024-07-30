@@ -220,6 +220,10 @@ namespace backend_iGamingBot.Infrastructure.Services
                    messageId: callbackQuery.Message.MessageId,
                    replyMarkup: null
                );
+            await _botClient.AnswerCallbackQueryAsync(
+              callbackQueryId: callbackQuery.Id,
+              text: AppDictionary.SeeYouSoon
+          );
         }
         private bool UserHaveNonEndedOperations(Message msg)
         {
