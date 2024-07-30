@@ -9,6 +9,7 @@ namespace backend_iGamingBot.Infrastructure.Services
     public class StreamerService : IStreamerService
     {
         private readonly IUnitOfWork _uof;
+        private readonly AppConfig _cfg;
         private readonly IUserRepository _userSrc;
         private readonly IStreamerRepository _streamerSrc;
         private readonly IUserService _userSrv;
@@ -27,9 +28,11 @@ namespace backend_iGamingBot.Infrastructure.Services
             IRaffleRepository raffleSrc,
             TelegramPostCreator postsCreator,
             IYoutube ytSrv,
-            IExcelReporter xlRep) 
+            IExcelReporter xlRep,
+            AppConfig cfg) 
         {
             _uof = uof;
+            _cfg = cfg;
             _userSrc = userSrc;
             _streamerSrc = streamerSrc;
             _userSrv = userSrv;
@@ -303,6 +306,48 @@ namespace backend_iGamingBot.Infrastructure.Services
                     }
                 }
                 return $"{name}-{invite.Code}";
+            }
+        }
+
+        public async Task<AdminInviteResponse> CreateAdminInviteAsync(string tgId, string sourceId)
+        {
+            if (await _streamerSrc.GetAccessLevel(tgId, sourceId) != Access.Full)
+                throw new AppException(AppDictionary.Denied);
+            var streamer = await _streamerSrc.GetStreamerByTgIdAsync(tgId, tgId);
+            var adminInvite = new AdminInvite()
+            {
+                Code = Guid.NewGuid(),
+                Name = streamer.Name,
+            };
+            var link = $"https://t.me/share/url?url={_cfg.BotName}?" +
+                $"start={AppDictionary.AdminInvite}_{streamer.Name}_{adminInvite.Code}" +
+                $"&text=Вы стали админом стримера {streamer.Name}.\n{_cfg.AppName}";
+            await _streamerSrc.CreateAdminInvite(adminInvite);
+            var result = _mapper.Map<AdminInviteResponse>(adminInvite);
+            result.Link = link;
+            await _uof.SaveChangesAsync();
+            return result;
+        }
+
+        public async Task HandleAdminInvite(AdminInviteRequest request)
+        {
+            var commandParams = request.Command.Split("_");
+            var streamerName = commandParams[1];
+            var code = Guid.Parse(commandParams[2]);
+            try
+            {
+                using var transaction = _uof.BeginTransaction();
+                var streamerTask =  _streamerSrc.GetStreamerByName(streamerName);
+                var inviteTask =  _streamerSrc.GetAdminInvite(streamerName, code);
+                await Task.WhenAll(streamerTask, inviteTask);
+                await AddStreamerAdmin(streamerTask.Result.TgId, request.UserId, streamerTask.Result.TgId);
+                _streamerSrc.RemoveAdminInvite(inviteTask.Result);
+                await _uof.SaveChangesAsync();
+                transaction.Commit();
+            }
+            catch(AggregateException) 
+            {
+                throw new AppException(AppDictionary.Denied);
             }
         }
     }

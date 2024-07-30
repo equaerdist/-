@@ -21,5 +21,9 @@ namespace backend_iGamingBot.Infrastructure.Services
         public Task CreateStreamerInvite(StreamerInvite invite);
         public Task<bool> StreamerInviteAlreadyExists(string inviteCode);
         public Task RemoveStreamerInvite(string name);
+        public Task RemoveAdminInvite(string name, Guid code);
+        public Task CreateAdminInvite(AdminInvite adminInvite);
+        public Task<AdminInvite> GetAdminInvite(string name, Guid code);
+        public void RemoveAdminInvite(AdminInvite adminInvite);
     }
 }

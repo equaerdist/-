@@ -31,6 +31,7 @@ if (app.Environment.IsDevelopment())
     //await app.PostTestWithFile();
     //app.TestYtIdFinder();
     //await app.TestStreamerInvites();
+    await app.TestAdminInvites();
     app.UseSwagger();
     app.UseSwaggerUI();
 }

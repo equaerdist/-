@@ -73,6 +73,7 @@ namespace backend_iGamingBot.Automapper
                 .ForMember(x => x.Email, cfg => cfg.MapFrom(y => y.Participant!.Email))
                 .ForMember(x => x.FirstName, cfg => cfg.MapFrom(y => y.Participant!.FirstName))
                 .ForMember(x => x.TgId, cfg => cfg.MapFrom(y => y.Participant!.TgId));
+            CreateMap<AdminInvite, AdminInviteResponse>();
         }
     }
 }

@@ -341,6 +341,23 @@ namespace backend_iGamingBot.Infrastructure.Extensions
             tgPublisher.AddPostToLine(post);
             return app;
         }
+        public static async Task<WebApplication> TestAdminInvites(this WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var streamerSrv = scope.ServiceProvider.GetRequiredService<IStreamerService>();
+            var streamerId = "272";
+            var userId = "32";
+            var invite = await streamerSrv.CreateAdminInviteAsync(streamerId, streamerId);
+            var commandStart = invite.Link.IndexOf(AppDictionary.AdminInvite);
+            var command = invite.Link.Substring(commandStart);
+            var req = new AdminInviteRequest()
+            {
+                UserId = userId,
+                Command = command,
+            };
+            await streamerSrv.HandleAdminInvite(req);
+            return app;
+        }
         public static async Task<WebApplication> TestStreamerInvites(this WebApplication app)
         {
             using var scope = app.Services.CreateScope();
@@ -395,6 +412,7 @@ namespace backend_iGamingBot.Infrastructure.Extensions
 
             return app;
         }
+
         public static WebApplication TestYtIdFinder(this WebApplication app)
         {
             var GetScriptContentWith = (string html, string prop) =>

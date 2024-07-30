@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel;
 using System.Text;
+using static System.Net.WebRequestMethods;
 
 namespace backend_iGamingBot.Infrastructure
 {
@@ -26,5 +27,6 @@ namespace backend_iGamingBot.Infrastructure
         public string ASPNETCORE_ENVIRONMENT { get; set; } = null!;
         public static AppConfig GlobalInstance { get; set; } = null!;
         public string BotName { get; set; } = null!;
+        public string AppName { get; set; } = null!;
     }
 }

@@ -185,19 +185,38 @@ namespace backend_iGamingBot.Infrastructure.Services
                 .FirstAsync();
         }
 
-        public async Task CreateStreamerInvite(StreamerInvite invite) => await _ctx.Invites.AddAsync(invite);
+        public async Task CreateStreamerInvite(StreamerInvite invite) => await _ctx.StreamerInvites.AddAsync(invite);
 
         public async Task<bool> StreamerInviteAlreadyExists(string inviteCode)
         {
             using var ctx = await _factory.CreateDbContextAsync();
-            return await ctx.Invites
+            return await ctx.StreamerInvites
                 .Where(s => s.Name + "-" + s.Code.ToString() == inviteCode)
                 .AnyAsync();
         }
 
         public async Task RemoveStreamerInvite(string name)
         {
-            await _ctx.Invites.Where(s => s.Name.Equals(name)).ExecuteDeleteAsync();
+            await _ctx.StreamerInvites.Where(s => s.Name.Equals(name)).ExecuteDeleteAsync();
+        }
+
+        public async Task RemoveAdminInvite(string name, Guid code) => 
+            await _ctx.AdminInvites.Where(s => s.Name == name && s.Code == code)
+            .ExecuteDeleteAsync();
+
+        public async Task CreateAdminInvite(AdminInvite adminInvite) => 
+            await _ctx.AdminInvites.AddAsync(adminInvite);
+
+        public async Task<AdminInvite> GetAdminInvite(string name, Guid code)
+        {
+            return await _ctx.AdminInvites
+             .Where(s => s.Name == name && s.Code == code)
+             .FirstAsync();
+        }
+
+        public void RemoveAdminInvite(AdminInvite adminInvite)
+        {
+           _ctx.AdminInvites.Remove(adminInvite);
         }
     }
 }

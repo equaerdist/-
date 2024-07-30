@@ -88,6 +88,14 @@ namespace backend_iGamingBot.Controllers
             await _streamerSrv.AddStreamerAdmin(id, adminId, SourceId);
             return Ok();
         }
+        [Authorize]
+        [HttpPost("{id}/admins/tg")]
+        public async Task<IActionResult> CreateAdminInvite([FromRoute] string id)
+        {
+            var result = await _streamerSrv.CreateAdminInviteAsync(id, SourceId);
+            return Ok(result);
+        }
+        [Authorize]
         [HttpDelete("{id}/admins/{adminId}")]
         public async Task<IActionResult> DeleteStreamerAdmin([FromRoute]string id, [FromRoute] string adminId)
         {

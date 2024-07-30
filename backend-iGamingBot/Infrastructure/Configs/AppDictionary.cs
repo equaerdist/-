@@ -1,4 +1,6 @@
 ﻿
+using backend_iGamingBot.Models;
+
 namespace backend_iGamingBot.Infrastructure
 {
     public class AppDictionary
@@ -86,5 +88,6 @@ namespace backend_iGamingBot.Infrastructure
         public static string AlreadyParticipant => "Вы уже участвуете в розыгрыше";
         public static string StreamerNameRequest => "Введите имя стримера";
         public static string BadNameRequest => "Имя не может быть пустым";
+        public static string AdminInvite => "admininvite";
     }
 }

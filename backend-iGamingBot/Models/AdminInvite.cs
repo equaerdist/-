@@ -1,6 +1,7 @@
-﻿namespace backend_iGamingBot.Models
+﻿
+namespace backend_iGamingBot.Models
 {
-    public class StreamerInvite : IInvite
+    public class AdminInvite : IInvite
     {
         public long Id { get; set; }
         public string Name { get; set; } = null!;

@@ -3,7 +3,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Collections.Concurrent;
-using backend_iGamingBot.Models;
+using backend_iGamingBot.Dto;
 
 
 namespace backend_iGamingBot.Infrastructure.Services
@@ -43,13 +43,40 @@ namespace backend_iGamingBot.Infrastructure.Services
             _logger.LogError($"Error in bot ocurred {exception.Message}");
             return Task.CompletedTask;
         }
-        private async Task<bool> CheckForExisting(Message msg, CancellationToken cancellationToken)
+        private async Task RegisterDefaultUser(Message msg)
+        {
+            var userId = msg.From!.Id;
+            try
+            {
+                var userFromDb = await _userSrc.GetUserByIdAsync(userId.ToString());
+                await CheckUserInformation(msg);
+                _logger.LogInformation(AppDictionary.UserAlreadyExists);
+            }
+            catch (InvalidOperationException)
+            {
+                await _userSrv.RegisterUser(new()
+                {
+                    FirstName = msg.From!.FirstName,
+                    LastName = msg.From.LastName,
+                    TgId = userId.ToString(),
+                    ImageUrl = await GetUserImageUrl(msg.From.Id),
+                    Username = msg.From.Username
+                });
+            }
+        }
+        private static string? GetStartParam(Message msg)
         {
             var message = msg;
             string[] startParams = message.Text!.Split(' ');
-            string? streamerName = null;
+            string? param = null;
             if (startParams.Length > 1)
-                streamerName = startParams[1];
+                param = startParams[1];
+            return param;
+        }
+        private async Task<bool> CheckForExisting(Message msg, CancellationToken cancellationToken)
+        {
+            var message = msg;
+            string? streamerName = GetStartParam(message);
 
             if (message.From is null)
             {
@@ -59,25 +86,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             long userId = message!.From.Id;
            if(streamerName is null)
            {
-                try
-                {
-                    var userFromDb = await _userSrc.GetUserByIdAsync(userId.ToString());
-                    await CheckUserInformation(msg);
-                    _logger.LogInformation(AppDictionary.UserAlreadyExists);
-                    return true;
-                }
-                catch(InvalidOperationException)
-                {
-                    await _userSrv.RegisterUser(new()
-                    {
-                        FirstName = msg.From!.FirstName,
-                        LastName = msg.From.LastName,
-                        TgId = userId.ToString(),
-                        ImageUrl = await GetUserImageUrl(msg.From.Id),
-                        Username = msg.From.Username
-                    });
-                    return true;
-                }
+                await RegisterDefaultUser(msg);
             }
            else
            {
@@ -90,8 +99,8 @@ namespace backend_iGamingBot.Infrastructure.Services
                     ImageUrl = await GetUserImageUrl(msg.From.Id),
                     Username = msg.From.Username
                 });
-                return true;
            }
+            return true;
         }
         private async Task<string?> GetUserImageUrl(long id) => await _tgExt.GetUserImageUrl(id);
         private async Task CheckUserInformation(Message msg)
@@ -157,7 +166,22 @@ namespace backend_iGamingBot.Infrastructure.Services
                 _adminDialogs.Remove(chatId, out var state);
             }
         }
-
+        private bool IsAdminInviteDialog(Message msg)
+        {
+            var param = GetStartParam(msg);
+            return !string.IsNullOrEmpty(param) && param.Contains(AppDictionary.AdminInvite);
+        }
+        private async Task HandleAdminInviteDialog(Message msg)
+        {
+            var param = GetStartParam(msg);
+            await RegisterDefaultUser(msg);
+            var req = new AdminInviteRequest()
+            { 
+                Command = param!, 
+                UserId = msg.From!.Id.ToString() 
+            };
+            await _streamerSrv.HandleAdminInvite(req);
+        }
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
             CancellationToken cancellationToken)
         {
@@ -174,6 +198,11 @@ namespace backend_iGamingBot.Infrastructure.Services
                 {
                     alreadyHandled = true;
                     await HandleAdminDialog(message);
+                }
+                if (IsAdminInviteDialog(message))
+                {
+                    alreadyHandled = true;
+                    await HandleAdminInviteDialog(message);
                 }
                 if (!alreadyHandled)
                 {
