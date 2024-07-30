@@ -244,6 +244,12 @@ namespace backend_iGamingBot.Infrastructure.Services
                 markup = GetCancelKeyboard();
             try 
             {
+                if (update.CallbackQuery?.Data != null)
+                {
+                    await _botClient.AnswerCallbackQueryAsync(
+                    callbackQueryId: update.CallbackQuery.Id,
+                    text: update.CallbackQuery?.Data);
+                }
                 if (IsCancellationRequest(update))
                 {
                     alreadyHandled = true;
