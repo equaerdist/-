@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
+﻿using AngleSharp.Dom;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -45,6 +47,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         {
             var nameId = string.Empty;
             var name = string.Empty;
+            var image = string.Empty;
             if (_cfg.ASPNETCORE_ENVIRONMENT != AppConfig.LOCAL)
             {
                 string hash = data["hash"];
@@ -63,12 +66,15 @@ namespace backend_iGamingBot.Infrastructure.Services
                     ?? throw new InvalidDataException();
                 nameId = tgUser.Id.ToString();
                 name = tgUser.FirstName;
+
+                var currentImageTg = await _tgExt.GetUserImageUrl(tgUser.Id);
+                image = UserResolver.ExtractFilePath(currentImageTg);
                 await _userSrv.CheckUserInformation(new()
                 {
                     FirstName = tgUser.FirstName,
                     LastName = tgUser.LastName,
                     TgId = tgUser.Id.ToString(),
-                    ImageUrl = await _tgExt.GetUserImageUrl(tgUser.Id),
+                    ImageUrl = currentImageTg,
                     Username = tgUser.Username
                 });
             }
@@ -78,15 +84,14 @@ namespace backend_iGamingBot.Infrastructure.Services
                 name = "Peter";
             }
             var roleTask = _userSrc.DefineRoleByTgIdAsync(nameId);
-            var imageTask =  _userSrc.GetImageUrl(nameId);
-            await Task.WhenAll(roleTask, imageTask);
+            await Task.WhenAll(roleTask);
          
             var claims = new List<Claim>()
             {
                 new(type: AppDictionary.NameId, value: nameId),
                 new(type:AppDictionary.Name, value: name),
                 new(type:AppDictionary.Role, value: roleTask.Result),
-                new(type:AppDictionary.Image, value: imageTask.Result)
+                new(type:AppDictionary.Image, value: image ?? string.Empty)
             };
             var jwt = new JwtSecurityToken(
             claims: claims,
