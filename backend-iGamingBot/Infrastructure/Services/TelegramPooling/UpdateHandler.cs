@@ -140,7 +140,7 @@ namespace backend_iGamingBot.Infrastructure.Services
         private bool IsAdminDialog(Message msg)
         {
             return _adminDialogs.Keys.Contains(msg.From!.Id) 
-                || (msg.Text != null && msg.Text.StartsWith("/add_admin"));
+                || (msg.Text != null && msg.Text.StartsWith(AppDictionary.AddStreamerCommand));
         }
         static bool IsValidStreamerName(string name)
         {
@@ -153,7 +153,7 @@ namespace backend_iGamingBot.Infrastructure.Services
             var _streamerSrv = scope.ServiceProvider.GetRequiredService<IStreamerService>();
             var text = msg.Text;
             var chatId = msg.From!.Id;
-            if (!string.IsNullOrEmpty(text) && text.StartsWith("/add_admin"))
+            if (!string.IsNullOrEmpty(text) && text.StartsWith(AppDictionary.AddStreamerCommand))
             {
                 var result = AppDictionary.Denied;
                 if(_admins.Contains(chatId))

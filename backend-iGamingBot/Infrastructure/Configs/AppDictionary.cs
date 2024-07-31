@@ -95,5 +95,6 @@ namespace backend_iGamingBot.Infrastructure
         public static string? BadStreamerName => "Имя стримера может содержать пробел, буквы и цифры";
 
         public static string SeeYouSoon => "Заглядывайте еще";
+        public static string AddStreamerCommand => "/add_streamer";
     }
 }
