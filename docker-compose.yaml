@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  webapi:
+    build:
+      context: .
+    container_name: webapi_service
+    ports:
+      - "5239:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      SqlKey: Host=db;Port=5432;Database=gaming;Username=peterParker;Password=peterParkerSale;Include Error Detail=true
+      TwitchSecretToken: npfviwuo7nt75a7kpjrw5yvlbsmohz
+      TwitchClientId: 4n0mrh6r2jd8ep4w55vzvbqhvq1gtu
+      KEY: npfviwuo7nt75a7kpjrw5yvlbsmohznpfviwuo7nt75a7kpjrw5yvlbsmohznpfviwuo7nt75a7kpjrw5yvlbsmohz
+      TgKey: 7196393090:AAFb8JruhaQHPbnb3TLSOcDuDDpPwZ4zcnE
+      Frontend: https://bigstreamerbot.io
+      FrontendWww: bigstreamerbot.io
+      FrontendCom: www.bigstreamerbot.io
+    depends_on:
+      - db
+    networks:
+      - backend
+
+  db:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: peterParker
+      POSTGRES_PASSWORD: peterParkerSale
+      POSTGRES_DB: gaming
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+volumes:
+  db_data:
+
+networks:
+  backend:
